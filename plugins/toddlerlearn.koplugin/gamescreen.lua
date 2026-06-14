@@ -37,7 +37,7 @@ function GameScreen:init()
     -- Close on two-finger tap
     self.ges_events = {
         Close = {GestureRange:new{
-            ges = "two_finger_tap",
+            ges = "two_finger_hold",
             range = self.dimen
         }}
     }
