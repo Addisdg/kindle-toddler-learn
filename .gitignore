@@ -1,0 +1,19 @@
+# KOReader source clone — too large, not ours
+koreader/
+
+# Windows Zone.Identifier metadata files
+*:Zone.Identifier
+
+# KOReader settings sidecar files
+*.sdr/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Generated but reproducible — comment out if you want to track images
+# plugins/toddlerlearn.koplugin/assets/
+
+# OS
+.DS_Store
+Thumbs.db
