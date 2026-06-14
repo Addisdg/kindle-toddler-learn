@@ -42,6 +42,25 @@ function GameScreen:init()
         }}
     }
 
+    -- Consume all common KOReader navigation gestures so a toddler
+    -- can't swipe into menus or settings while the game is running.
+    local swipe_range = GestureRange:new{
+        ges = "swipe",
+        range = self.dimen
+    }
+    local hold_range = GestureRange:new{
+        ges = "hold",
+        range = self.dimen
+    }
+    local pan_range = GestureRange:new{
+        ges = "pan",
+        range = self.dimen
+    }
+
+    self.ges_events.SwipeNoop = {swipe_range}
+    self.ges_events.HoldNoop = {hold_range}
+    self.ges_events.PanNoop = {pan_range}
+
     math.randomseed(os.time())
     self.round_order = {}
     for i = 1, #Content do
@@ -206,15 +225,56 @@ end
 
 function GameScreen:onAnswer(is_correct)
     if is_correct then
-        self:loadRound()
+        self:showCorrectFeedback()
     else
-        UIManager:setDirty(self, "ui")
+        -- Wrong answer: subtle flash, stay on same round
+        UIManager:setDirty(self, "fast")
     end
     return true
 end
 
+function GameScreen:showCorrectFeedback()
+    -- In test environment dimen may not be set, skip UI and go straight to next round
+    if not self.dimen then
+        self:loadRound()
+        return
+    end
+
+    local feedback = FrameContainer:new{
+        width = self.dimen.w,
+        height = self.dimen.h,
+        bordersize = 0,
+        padding = 0,
+        background = Blitbuffer.COLOR_WHITE,
+        CenterContainer:new{
+            dimen = self.dimen,
+            TextWidget:new{
+                text = "✓",
+                face = Font:getFace("tfont", 160)
+            }
+        }
+    }
+
+    UIManager:show(feedback)
+    UIManager:setDirty(feedback, "full")
+
+    UIManager:scheduleIn(0.4, function()
+        UIManager:close(feedback)
+        self:loadRound()
+    end)
+end
+
 function GameScreen:onClose()
     UIManager:close(self)
+    return true
+end
+function GameScreen:onSwipeNoop()
+    return true
+end
+function GameScreen:onHoldNoop()
+    return true
+end
+function GameScreen:onPanNoop()
     return true
 end
 
