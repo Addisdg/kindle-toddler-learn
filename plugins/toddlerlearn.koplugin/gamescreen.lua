@@ -22,6 +22,8 @@ local PROMPT_HEIGHT = 150
 local TILE_GAP = 26
 local TILE_PADDING = 14
 local TILE_BORDER = 5
+local SELECTED_TILE_BORDER = 9
+local WRONG_FEEDBACK_SECONDS = 0.35
 
 --------------------------------------------------------------------------
 -- GameScreen
@@ -105,6 +107,20 @@ function GameScreen:getLayout(choice_count)
     }
 end
 
+function GameScreen:getTileStyle(layout, choice_index)
+    local is_selected = self.feedback and self.feedback.choice_index == choice_index
+    local tile_border = is_selected and SELECTED_TILE_BORDER or layout.tile_border
+    local tile_padding = is_selected
+        and math.max(4, layout.tile_padding - (SELECTED_TILE_BORDER - layout.tile_border))
+        or layout.tile_padding
+
+    return {
+        border = tile_border,
+        padding = tile_padding,
+        selected = is_selected or false,
+    }
+end
+
 function GameScreen:loadRound()
     self.round_pos = self.round_pos + 1
     if self.round_pos > #self.round_order then
@@ -112,7 +128,9 @@ function GameScreen:loadRound()
         self:shuffle(self.round_order)
     end
 
-    local round = Content[self.round_order[self.round_pos]]
+    self.current_round = Content[self.round_order[self.round_pos]]
+    self.feedback = nil
+    local round = self.current_round
     logger.warn("ToddlerLearn: loading round", round.prompt)
 
     -- Build choices list and shuffle
@@ -127,6 +145,17 @@ function GameScreen:loadRound()
         })
     end
     self:shuffle(choices)
+    self.current_choices = choices
+
+    self:renderRound()
+end
+
+function GameScreen:renderRound()
+    local round = self.current_round
+    local choices = self.current_choices
+    if not round or not choices then
+        return
+    end
 
     local layout = self:getLayout(#choices)
 
@@ -155,17 +184,18 @@ function GameScreen:loadRound()
     for i, choice in ipairs(choices) do
         local img_path = self.assets_dir .. choice.path
         logger.warn("ToddlerLearn: loading image", img_path)
+        local tile_style = self:getTileStyle(layout, i)
 
         local tile = FrameContainer:new{
             width = layout.tile_w,
             height = layout.tile_h,
-            bordersize = layout.tile_border,
-            padding = layout.tile_padding,
+            bordersize = tile_style.border,
+            padding = tile_style.padding,
             margin = 0,
             ImageWidget:new{
                 file = img_path,
-                width = layout.tile_w - (layout.tile_padding + layout.tile_border) * 2,
-                height = layout.tile_h - (layout.tile_padding + layout.tile_border) * 2,
+                width = layout.tile_w - (tile_style.padding + tile_style.border) * 2,
+                height = layout.tile_h - (tile_style.padding + tile_style.border) * 2,
                 scale_factor = 0
             }
         }
@@ -188,7 +218,7 @@ function GameScreen:loadRound()
         }
         tappable[1] = tile
         tappable.onTap = function()
-            self:onAnswer(is_correct)
+            self:onAnswer(is_correct, i)
             return true
         end
 
@@ -243,14 +273,35 @@ function GameScreen:loadRound()
     UIManager:setDirty(self, "full")
 end
 
-function GameScreen:onAnswer(is_correct)
+function GameScreen:onAnswer(is_correct, choice_index)
     if is_correct then
+        self.feedback = {
+            kind = "correct",
+            choice_index = choice_index
+        }
         self:showCorrectFeedback()
     else
-        -- Wrong answer: subtle flash, stay on same round
-        UIManager:setDirty(self, "fast")
+        self:showWrongFeedback(choice_index)
     end
     return true
+end
+
+function GameScreen:showWrongFeedback(choice_index)
+    if not self.dimen then
+        UIManager:setDirty(self, "fast")
+        return
+    end
+
+    self.feedback = {
+        kind = "wrong",
+        choice_index = choice_index
+    }
+    self:renderRound()
+
+    UIManager:scheduleIn(WRONG_FEEDBACK_SECONDS, function()
+        self.feedback = nil
+        self:renderRound()
+    end)
 end
 
 function GameScreen:showCorrectFeedback()

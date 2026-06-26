@@ -173,6 +173,23 @@ describe("ToddlerLearn", function()
             assert.are_equal(150, layout.prompt_h)
         end)
 
+        it("emphasizes the tapped tile during feedback", function()
+            local gs = setmetatable({
+                feedback = {
+                    kind = "wrong",
+                    choice_index = 2,
+                },
+            }, { __index = GameScreen })
+            local layout = GameScreen:getLayout(3)
+            local normal = gs:getTileStyle(layout, 1)
+            local selected = gs:getTileStyle(layout, 2)
+
+            assert.is_false(normal.selected)
+            assert.is_true(selected.selected)
+            assert.is_true(selected.border > normal.border)
+            assert.is_true(selected.padding < normal.padding)
+        end)
+
     end)
 
     describe("GameScreen round progression", function()
