@@ -411,6 +411,86 @@ function Content.getRounds(category)
     return category_data.rounds
 end
 
+function Content.pathExists(path)
+    local file = io.open(path, "rb")
+    if not file then
+        return false
+    end
+    file:close()
+    return true
+end
+
+function Content.validate(asset_dir)
+    local errors = {}
+    local mixed_path_categories = {
+        letter_words = true,
+    }
+
+    local function add_error(message)
+        table.insert(errors, message)
+    end
+
+    for _, category in ipairs(Content.category_order) do
+        local category_data = Content.categories[category]
+        if not category_data then
+            add_error("missing category: " .. category)
+        elseif not category_data.label or category_data.label == "" then
+            add_error("missing category label: " .. category)
+        elseif #category_data.rounds == 0 then
+            add_error("category has no rounds: " .. category)
+        else
+            for i, round in ipairs(category_data.rounds) do
+                local round_name = category .. " round " .. tostring(i)
+                if not round.prompt or round.prompt == "" then
+                    add_error(round_name .. " has no prompt")
+                elseif #round.prompt > 24 then
+                    add_error(round_name .. " prompt is too long: " .. round.prompt)
+                end
+
+                if not round.answer or not round.answer:match("%.png$") then
+                    add_error(round_name .. " answer is not a png")
+                elseif asset_dir and not Content.pathExists(asset_dir .. round.answer) then
+                    add_error(round_name .. " missing answer asset: " .. round.answer)
+                end
+
+                local seen = {
+                    [round.answer] = true,
+                }
+                if not round.distractors or #round.distractors < 2 then
+                    add_error(round_name .. " needs at least 2 distractors")
+                else
+                    for _, distractor in ipairs(round.distractors) do
+                        if seen[distractor] then
+                            add_error(round_name .. " has duplicate image: " .. distractor)
+                        end
+                        seen[distractor] = true
+
+                        if not distractor:match("%.png$") then
+                            add_error(round_name .. " distractor is not a png: " .. distractor)
+                        elseif asset_dir and not Content.pathExists(asset_dir .. distractor) then
+                            add_error(round_name .. " missing distractor asset: " .. distractor)
+                        end
+                    end
+                end
+
+                if not mixed_path_categories[category] then
+                    local expected_prefix = category .. "/"
+                    if round.answer and round.answer:sub(1, #expected_prefix) ~= expected_prefix then
+                        add_error(round_name .. " answer is outside category: " .. round.answer)
+                    end
+                    for _, distractor in ipairs(round.distractors or {}) do
+                        if distractor:sub(1, #expected_prefix) ~= expected_prefix then
+                            add_error(round_name .. " distractor is outside category: " .. distractor)
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    return #errors == 0, errors
+end
+
 for _, category in ipairs(Content.category_order) do
     for _, round in ipairs(Content.categories[category].rounds) do
         round.category = category

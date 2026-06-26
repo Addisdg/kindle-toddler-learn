@@ -86,6 +86,11 @@ describe("ToddlerLearn", function()
             assert.are_equal(#Content, #Content.getRounds("mixed"))
         end)
 
+        it("passes the content quality checklist", function()
+            local ok, errors = Content.validate("./plugins/toddlerlearn.koplugin/assets/")
+            assert.is_true(ok, table.concat(errors, "\n"))
+        end)
+
     end)
 
     describe("GameScreen.shuffle", function()
