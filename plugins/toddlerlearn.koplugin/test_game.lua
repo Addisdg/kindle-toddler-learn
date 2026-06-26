@@ -303,6 +303,42 @@ describe("ToddlerLearn", function()
             assert.are_equal("animals", gs.rounds[gs.round_order[1]].category)
         end)
 
+        it("builds fewer choices on easy difficulty", function()
+            local gs = setmetatable({
+                difficulty = "easy",
+                rounds = Content.getRounds("animals"),
+            }, { __index = GameScreen })
+
+            local choices = gs:buildChoices(gs.rounds[1])
+
+            assert.are_equal(2, #choices)
+        end)
+
+        it("builds the default three choices on normal difficulty", function()
+            local gs = setmetatable({
+                difficulty = "normal",
+                rounds = Content.getRounds("animals"),
+            }, { __index = GameScreen })
+
+            local choices = gs:buildChoices(gs.rounds[1])
+
+            assert.are_equal(3, #choices)
+        end)
+
+        it("derives a fourth same-category choice on hard difficulty", function()
+            local gs = setmetatable({
+                difficulty = "hard",
+                rounds = Content.getRounds("animals"),
+            }, { __index = GameScreen })
+
+            local choices = gs:buildChoices(gs.rounds[1])
+
+            assert.are_equal(4, #choices)
+            for _, choice in ipairs(choices) do
+                assert.is_true(choice.path:match("^animals/") ~= nil)
+            end
+        end)
+
     end)
 
 end)

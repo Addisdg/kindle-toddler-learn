@@ -32,6 +32,7 @@ local WRONG_FEEDBACK_SECONDS = 0.35
 local GameScreen = InputContainer:extend{
     assets_dir = nil,
     active_category = "mixed",
+    difficulty = "normal",
 }
 
 function GameScreen:init()
@@ -98,6 +99,60 @@ function GameScreen:setCategory(category)
     self:loadRound()
 end
 
+function GameScreen:setDifficulty(difficulty)
+    self.difficulty = difficulty or "normal"
+    self:loadRound()
+end
+
+function GameScreen:getChoiceLimit()
+    if self.difficulty == "easy" then
+        return 2
+    end
+    if self.difficulty == "hard" then
+        return 4
+    end
+    return 3
+end
+
+function GameScreen:buildChoices(round)
+    local choice_limit = self:getChoiceLimit()
+    local choices = {{
+        path = round.answer,
+        correct = true,
+    }}
+    local seen = {
+        [round.answer] = true,
+    }
+
+    for _, path in ipairs(round.distractors) do
+        if #choices >= choice_limit then
+            break
+        end
+        if not seen[path] then
+            table.insert(choices, {
+                path = path,
+                correct = false,
+            })
+            seen[path] = true
+        end
+    end
+
+    for _, candidate in ipairs(self.rounds or {}) do
+        if #choices >= choice_limit then
+            break
+        end
+        if candidate.category == round.category and not seen[candidate.answer] then
+            table.insert(choices, {
+                path = candidate.answer,
+                correct = false,
+            })
+            seen[candidate.answer] = true
+        end
+    end
+
+    return choices
+end
+
 function GameScreen:getLayout(choice_count)
     local sw = Screen:getWidth()
     local sh = Screen:getHeight()
@@ -145,17 +200,7 @@ function GameScreen:loadRound()
     local round = self.current_round
     logger.warn("ToddlerLearn: loading round", round.prompt)
 
-    -- Build choices list and shuffle
-    local choices = {{
-        path = round.answer,
-        correct = true
-    }}
-    for _, d in ipairs(round.distractors) do
-        table.insert(choices, {
-            path = d,
-            correct = false
-        })
-    end
+    local choices = self:buildChoices(round)
     self:shuffle(choices)
     self.current_choices = choices
 
