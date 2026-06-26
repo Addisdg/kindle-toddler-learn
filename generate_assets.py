@@ -8,9 +8,9 @@ All images are 400x400px, black on white, bold outlines — optimised for e-ink.
 from PIL import Image, ImageDraw, ImageFont
 import os, math
 
-OUT = os.path.expanduser(
-    "~/workspace/kindle-toddler-learn/plugins/toddlerlearn.koplugin/assets"
-)
+ROOT = os.path.expanduser("~/workspace/kindle-toddler-learn")
+OUT = os.path.join(ROOT, "plugins/toddlerlearn.koplugin/assets")
+SHEET_DIR = os.path.join(ROOT, "asset_sources/generated_sheets")
 SIZE = 400
 BG   = 255   # white
 FG   = 0     # black
@@ -24,6 +24,127 @@ def save(img, folder, name):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     img.save(path)
     print(f"  saved {folder}/{name}.png")
+
+def clean_stray_marks(img):
+    dark = img.point(lambda p: 0 if p < 180 else 255)
+    pixels = dark.load()
+    w, h = img.size
+    seen = set()
+    components = []
+
+    for y in range(h):
+        for x in range(w):
+            if pixels[x, y] != 0 or (x, y) in seen:
+                continue
+            queue = [(x, y)]
+            seen.add((x, y))
+            xs = []
+            ys = []
+            for cx, cy in queue:
+                xs.append(cx)
+                ys.append(cy)
+                for nx in (cx - 1, cx, cx + 1):
+                    for ny in (cy - 1, cy, cy + 1):
+                        if (
+                            0 <= nx < w and 0 <= ny < h
+                            and (nx, ny) not in seen
+                            and pixels[nx, ny] == 0
+                        ):
+                            seen.add((nx, ny))
+                            queue.append((nx, ny))
+            components.append({
+                "area": len(xs),
+                "bbox": (min(xs), min(ys), max(xs), max(ys)),
+            })
+
+    if not components:
+        return img
+
+    largest = max(components, key=lambda c: c["area"])
+    lx1, ly1, lx2, ly2 = largest["bbox"]
+    keep = Image.new("1", img.size, 0)
+    keep_pixels = keep.load()
+    src = img.load()
+    margin = 10
+
+    for component in components:
+        x1, y1, x2, y2 = component["bbox"]
+        cx = (x1 + x2) / 2
+        cy = (y1 + y2) / 2
+        near_main = (
+            lx1 - margin <= cx <= lx2 + margin
+            and ly1 - margin <= cy <= ly2 + margin
+        )
+        if component is largest or near_main:
+            for y in range(y1, y2 + 1):
+                for x in range(x1, x2 + 1):
+                    if src[x, y] < 245:
+                        keep_pixels[x, y] = 1
+
+    cleaned = Image.new("L", img.size, BG)
+    cleaned.paste(img, mask=keep)
+    return cleaned
+
+def save_from_sheet(sheet_name, folder, names):
+    """Crop AI-generated flashcard sheets into individual e-ink PNG assets."""
+    path = os.path.join(SHEET_DIR, f"{sheet_name}.png")
+    if not os.path.exists(path):
+        print(f"  skipped {sheet_name}.png; source sheet not found")
+        return
+
+    sheet = Image.open(path).convert("L")
+    dark = sheet.point(lambda p: 0 if p < 245 else 255)
+    pixels = dark.load()
+    columns = []
+    for x in range(dark.width):
+        has_dark = False
+        for y in range(dark.height):
+            if pixels[x, y] == 0:
+                has_dark = True
+                break
+        if has_dark:
+            columns.append(x)
+
+    runs = []
+    if columns:
+        start = prev = columns[0]
+        for x in columns[1:]:
+            if x - prev > 35:
+                runs.append((start, prev))
+                start = x
+            prev = x
+        runs.append((start, prev))
+
+    runs = [run for run in runs if run[1] - run[0] > 45]
+    if len(runs) != len(names):
+        cell_w = sheet.width / len(names)
+        runs = [
+            (int(round(i * cell_w)), int(round((i + 1) * cell_w)))
+            for i in range(len(names))
+        ]
+
+    for i, name in enumerate(names):
+        left = max(0, runs[i][0] - 16)
+        right = min(sheet.width, runs[i][1] + 16)
+        cell = sheet.crop((left, 0, right, sheet.height))
+
+        # Find dark artwork bounds and add generous white padding.
+        bbox = cell.point(lambda p: 0 if p < 245 else 255).getbbox()
+        if bbox is None:
+            continue
+        pad = 36
+        x1 = max(0, bbox[0] - pad)
+        y1 = max(0, bbox[1] - pad)
+        x2 = min(cell.width, bbox[2] + pad)
+        y2 = min(cell.height, bbox[3] + pad)
+        crop = cell.crop((x1, y1, x2, y2))
+
+        square_size = max(crop.width, crop.height)
+        square = Image.new("L", (square_size, square_size), BG)
+        square.paste(crop, ((square_size - crop.width) // 2, (square_size - crop.height) // 2))
+        final = square.resize((SIZE, SIZE), Image.Resampling.LANCZOS)
+        final = clean_stray_marks(final)
+        save(final, folder, name)
 
 # ── NUMBERS ────────────────────────────────────────────────────────────────
 
@@ -494,5 +615,14 @@ draw_face("happy", "smile")
 draw_face("sad", "sad")
 draw_face("sleepy", "sleepy")
 draw_face("surprised", "surprised")
+
+print("\nApplying high-quality generated flashcard sheets...")
+save_from_sheet("animals", "animals", ["cat", "dog", "cow", "fish", "bird"])
+save_from_sheet("fruit", "fruit", ["apple", "banana", "grapes", "strawberry", "orange"])
+save_from_sheet("shapes", "shapes", ["circle", "square", "triangle", "star", "heart"])
+save_from_sheet("vehicles", "vehicles", ["car", "bus", "train", "boat", "plane"])
+save_from_sheet("body", "body", ["hand", "foot", "eye", "ear", "nose"])
+save_from_sheet("household", "household", ["cup", "spoon", "bed", "chair", "ball"])
+save_from_sheet("emotions", "emotions", ["happy", "sad", "sleepy", "surprised"])
 
 print("\nDone! All assets generated.")
