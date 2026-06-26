@@ -162,6 +162,19 @@ describe("ToddlerLearn", function()
 
     end)
 
+    describe("GameScreen layout", function()
+
+        it("keeps three-choice tiles large enough for toddler taps", function()
+            local layout = GameScreen:getLayout(3)
+            assert.is_true(layout.tile_w >= 145,
+                "three-choice tile width should stay large in the stub screen")
+            assert.is_true(layout.tile_h >= 145,
+                "three-choice tile height should stay large in the stub screen")
+            assert.are_equal(150, layout.prompt_h)
+        end)
+
+    end)
+
     describe("GameScreen round progression", function()
 
         it("round_pos advances on correct answer", function()

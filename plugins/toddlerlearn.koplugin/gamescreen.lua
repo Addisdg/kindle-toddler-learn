@@ -17,6 +17,11 @@ local Content = require("content")
 local Blitbuffer = require("ffi/blitbuffer")
 
 local MARGIN = 15
+local EDGE_MARGIN = 36
+local PROMPT_HEIGHT = 150
+local TILE_GAP = 26
+local TILE_PADDING = 14
+local TILE_BORDER = 5
 
 --------------------------------------------------------------------------
 -- GameScreen
@@ -79,6 +84,27 @@ function GameScreen:shuffle(list)
     end
 end
 
+function GameScreen:getLayout(choice_count)
+    local sw = Screen:getWidth()
+    local sh = Screen:getHeight()
+    local usable_w = sw - EDGE_MARGIN * 2
+    local tile_w = math.floor((usable_w - (choice_count - 1) * TILE_GAP) / choice_count)
+    local max_tile_h = sh - PROMPT_HEIGHT - EDGE_MARGIN * 3
+    local tile_h = math.min(math.floor(tile_w * 1.12), max_tile_h)
+
+    return {
+        screen_w = sw,
+        screen_h = sh,
+        usable_w = usable_w,
+        prompt_h = PROMPT_HEIGHT,
+        tile_w = tile_w,
+        tile_h = tile_h,
+        tile_gap = TILE_GAP,
+        tile_padding = TILE_PADDING,
+        tile_border = TILE_BORDER,
+    }
+end
+
 function GameScreen:loadRound()
     self.round_pos = self.round_pos + 1
     if self.round_pos > #self.round_order then
@@ -102,62 +128,44 @@ function GameScreen:loadRound()
     end
     self:shuffle(choices)
 
-    local sw = Screen:getWidth()
-    local sh = Screen:getHeight()
+    local layout = self:getLayout(#choices)
 
     -- Prompt text
     local prompt_widget = FrameContainer:new{
         bordersize = 0,
-        padding = MARGIN,
+        padding = 0,
         CenterContainer:new{
             dimen = Geom:new{
-                w = sw - MARGIN * 2,
-                h = 100
+                w = layout.usable_w,
+                h = layout.prompt_h
             },
             TextWidget:new{
                 text = round.prompt,
-                face = Font:getFace("tfont", 52)
+                face = Font:getFace("tfont", 64)
             }
         }
     }
 
     -- Tiles
     local n = #choices
-    local tile_w = math.floor((sw - (n + 1) * MARGIN) / n)
-    local tile_h = math.floor(tile_w * 1.1)
-
     local tiles_group = HorizontalGroup:new{
         align = "center"
     }
-
-    -- leading margin
-    table.insert(tiles_group, FrameContainer:new{
-        bordersize = 0,
-        padding = 0,
-        dimen = Geom:new{
-            w = MARGIN,
-            h = tile_h
-        },
-        TextWidget:new{
-            text = "",
-            face = Font:getFace("cfont", 10)
-        }
-    })
 
     for i, choice in ipairs(choices) do
         local img_path = self.assets_dir .. choice.path
         logger.warn("ToddlerLearn: loading image", img_path)
 
         local tile = FrameContainer:new{
-            width = tile_w,
-            height = tile_h,
-            bordersize = 3,
-            padding = 8,
+            width = layout.tile_w,
+            height = layout.tile_h,
+            bordersize = layout.tile_border,
+            padding = layout.tile_padding,
             margin = 0,
             ImageWidget:new{
                 file = img_path,
-                width = tile_w - 22,
-                height = tile_h - 22,
+                width = layout.tile_w - (layout.tile_padding + layout.tile_border) * 2,
+                height = layout.tile_h - (layout.tile_padding + layout.tile_border) * 2,
                 scale_factor = 0
             }
         }
@@ -168,8 +176,8 @@ function GameScreen:loadRound()
             dimen = Geom:new{
                 x = 0,
                 y = 0,
-                w = tile_w,
-                h = tile_h
+                w = layout.tile_w,
+                h = layout.tile_h
             }
         }
         tappable.ges_events = {
@@ -191,8 +199,8 @@ function GameScreen:loadRound()
                 bordersize = 0,
                 padding = 0,
                 dimen = Geom:new{
-                    w = MARGIN,
-                    h = tile_h
+                    w = layout.tile_gap,
+                    h = layout.tile_h
                 },
                 TextWidget:new{
                     text = "",
@@ -206,6 +214,18 @@ function GameScreen:loadRound()
         dimen = self.dimen,
         VerticalGroup:new{
             align = "center",
+            FrameContainer:new{
+                bordersize = 0,
+                padding = 0,
+                dimen = Geom:new{
+                    w = layout.usable_w,
+                    h = EDGE_MARGIN
+                },
+                TextWidget:new{
+                    text = "",
+                    face = Font:getFace("cfont", 10)
+                }
+            },
             prompt_widget,
             tiles_group
         }
