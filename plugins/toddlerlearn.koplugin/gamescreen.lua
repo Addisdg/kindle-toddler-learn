@@ -24,6 +24,7 @@ local TILE_PADDING = 14
 local TILE_BORDER = 5
 local SELECTED_TILE_BORDER = 9
 local WRONG_FEEDBACK_SECONDS = 0.35
+local PARENT_ROW_HEIGHT = 120
 
 --------------------------------------------------------------------------
 -- GameScreen
@@ -33,6 +34,7 @@ local GameScreen = InputContainer:extend{
     assets_dir = nil,
     active_category = "mixed",
     difficulty = "normal",
+    parent_mode = false,
 }
 
 function GameScreen:init()
@@ -70,6 +72,13 @@ function GameScreen:init()
     self.ges_events.HoldNoop = {hold_range}
     self.ges_events.PanNoop = {pan_range}
 
+    if self.parent_mode then
+        self.selected_category = self.selected_category or self.active_category or "mixed"
+        self.selected_difficulty = self.selected_difficulty or self.difficulty or "normal"
+        self:renderParentMenu()
+        return
+    end
+
     math.randomseed(os.time())
     self:resetRoundOrder()
 
@@ -102,6 +111,149 @@ end
 function GameScreen:setDifficulty(difficulty)
     self.difficulty = difficulty or "normal"
     self:loadRound()
+end
+
+function GameScreen:getCategoryOptions()
+    local options = {"mixed"}
+    for _, category in ipairs(Content.category_order) do
+        table.insert(options, category)
+    end
+    return options
+end
+
+function GameScreen:getCategoryLabel(category)
+    if category == "mixed" then
+        return "Mixed Review"
+    end
+    return Content.categories[category] and Content.categories[category].label or category
+end
+
+function GameScreen:getDifficultyLabel(difficulty)
+    if difficulty == "easy" then
+        return "Easy: 2 choices"
+    end
+    if difficulty == "hard" then
+        return "Hard: 4 choices"
+    end
+    return "Normal: 3 choices"
+end
+
+function GameScreen:cycleCategory()
+    local options = self:getCategoryOptions()
+    local next_index = 1
+    for i, category in ipairs(options) do
+        if category == self.selected_category then
+            next_index = i + 1
+            break
+        end
+    end
+    if next_index > #options then
+        next_index = 1
+    end
+    self.selected_category = options[next_index]
+    return self.selected_category
+end
+
+function GameScreen:cycleDifficulty()
+    local next_by_difficulty = {
+        easy = "normal",
+        normal = "hard",
+        hard = "easy",
+    }
+    self.selected_difficulty = next_by_difficulty[self.selected_difficulty] or "normal"
+    return self.selected_difficulty
+end
+
+function GameScreen:renderParentButton(text, on_tap)
+    local button = InputContainer:new{
+        dimen = Geom:new{
+            x = 0,
+            y = 0,
+            w = self.dimen.w - EDGE_MARGIN * 2,
+            h = PARENT_ROW_HEIGHT,
+        }
+    }
+    button.ges_events = {
+        Tap = {GestureRange:new{
+            ges = "tap",
+            range = button.dimen,
+        }}
+    }
+    button[1] = FrameContainer:new{
+        width = self.dimen.w - EDGE_MARGIN * 2,
+        height = PARENT_ROW_HEIGHT,
+        bordersize = TILE_BORDER,
+        padding = 12,
+        CenterContainer:new{
+            dimen = Geom:new{
+                w = self.dimen.w - EDGE_MARGIN * 2 - 34,
+                h = PARENT_ROW_HEIGHT - 34,
+            },
+            TextWidget:new{
+                text = text,
+                face = Font:getFace("tfont", 36),
+            }
+        }
+    }
+    button.onTap = function()
+        on_tap()
+        return true
+    end
+    return button
+end
+
+function GameScreen:renderParentMenu()
+    local category_text = "Category: " .. self:getCategoryLabel(self.selected_category)
+    local difficulty_text = "Difficulty: " .. self:getDifficultyLabel(self.selected_difficulty)
+    local start_text = "Start"
+
+    local content = CenterContainer:new{
+        dimen = self.dimen,
+        VerticalGroup:new{
+            align = "center",
+            FrameContainer:new{
+                bordersize = 0,
+                padding = 0,
+                CenterContainer:new{
+                    dimen = Geom:new{
+                        w = self.dimen.w - EDGE_MARGIN * 2,
+                        h = 130,
+                    },
+                    TextWidget:new{
+                        text = "Parent Setup",
+                        face = Font:getFace("tfont", 52),
+                    }
+                }
+            },
+            self:renderParentButton(category_text, function()
+                self:cycleCategory()
+                self:renderParentMenu()
+            end),
+            self:renderParentButton(difficulty_text, function()
+                self:cycleDifficulty()
+                self:renderParentMenu()
+            end),
+            self:renderParentButton(start_text, function()
+                UIManager:close(self)
+                UIManager:show(GameScreen:new{
+                    assets_dir = self.assets_dir,
+                    active_category = self.selected_category,
+                    difficulty = self.selected_difficulty,
+                })
+            end),
+        }
+    }
+
+    self[1] = FrameContainer:new{
+        width = self.dimen.w,
+        height = self.dimen.h,
+        bordersize = 0,
+        padding = 0,
+        background = Blitbuffer.COLOR_WHITE,
+        content
+    }
+
+    UIManager:setDirty(self, "full")
 end
 
 function GameScreen:getChoiceLimit()

@@ -230,6 +230,38 @@ describe("ToddlerLearn", function()
 
     end)
 
+    describe("GameScreen parent setup", function()
+
+        it("cycles through mixed and content categories", function()
+            local gs = setmetatable({
+                selected_category = "mixed",
+            }, { __index = GameScreen })
+
+            local first = gs:cycleCategory()
+
+            assert.are_equal(Content.category_order[1], first)
+        end)
+
+        it("cycles difficulty from normal to hard to easy", function()
+            local gs = setmetatable({
+                selected_difficulty = "normal",
+            }, { __index = GameScreen })
+
+            assert.are_equal("hard", gs:cycleDifficulty())
+            assert.are_equal("easy", gs:cycleDifficulty())
+            assert.are_equal("normal", gs:cycleDifficulty())
+        end)
+
+        it("labels parent menu choices clearly", function()
+            local gs = setmetatable({}, { __index = GameScreen })
+
+            assert.are_equal("Mixed Review", gs:getCategoryLabel("mixed"))
+            assert.are_equal("Easy: 2 choices", gs:getDifficultyLabel("easy"))
+            assert.are_equal("Hard: 4 choices", gs:getDifficultyLabel("hard"))
+        end)
+
+    end)
+
     describe("GameScreen round progression", function()
 
         it("round_pos advances on correct answer", function()
