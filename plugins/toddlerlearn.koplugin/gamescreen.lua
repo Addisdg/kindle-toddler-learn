@@ -30,7 +30,8 @@ local WRONG_FEEDBACK_SECONDS = 0.35
 --------------------------------------------------------------------------
 
 local GameScreen = InputContainer:extend{
-    assets_dir = nil
+    assets_dir = nil,
+    active_category = "mixed",
 }
 
 function GameScreen:init()
@@ -69,12 +70,7 @@ function GameScreen:init()
     self.ges_events.PanNoop = {pan_range}
 
     math.randomseed(os.time())
-    self.round_order = {}
-    for i = 1, #Content do
-        table.insert(self.round_order, i)
-    end
-    self:shuffle(self.round_order)
-    self.round_pos = 0
+    self:resetRoundOrder()
 
     self:loadRound()
 end
@@ -84,6 +80,22 @@ function GameScreen:shuffle(list)
         local j = math.random(i)
         list[i], list[j] = list[j], list[i]
     end
+end
+
+function GameScreen:resetRoundOrder()
+    self.rounds = Content.getRounds(self.active_category)
+    self.round_order = {}
+    for i = 1, #self.rounds do
+        table.insert(self.round_order, i)
+    end
+    self:shuffle(self.round_order)
+    self.round_pos = 0
+end
+
+function GameScreen:setCategory(category)
+    self.active_category = category or "mixed"
+    self:resetRoundOrder()
+    self:loadRound()
 end
 
 function GameScreen:getLayout(choice_count)
@@ -128,7 +140,7 @@ function GameScreen:loadRound()
         self:shuffle(self.round_order)
     end
 
-    self.current_round = Content[self.round_order[self.round_pos]]
+    self.current_round = self.rounds[self.round_order[self.round_pos]]
     self.feedback = nil
     local round = self.current_round
     logger.warn("ToddlerLearn: loading round", round.prompt)

@@ -124,6 +124,28 @@ describe("ToddlerLearn", function()
             end
         end)
 
+        it("exposes named learning categories", function()
+            assert.is_table(Content.categories)
+            assert.is_table(Content.category_order)
+            assert.is_true(#Content.category_order >= 5)
+            for _, category in ipairs(Content.category_order) do
+                assert.is_table(Content.categories[category],
+                    "missing category " .. category)
+                assert.is_string(Content.categories[category].label)
+                assert.is_true(#Content.categories[category].rounds >= 1,
+                    "category has no rounds: " .. category)
+            end
+        end)
+
+        it("can return category-only round pools", function()
+            local animals = Content.getRounds("animals")
+            assert.is_true(#animals >= 1)
+            for _, round in ipairs(animals) do
+                assert.are_equal("animals", round.category)
+            end
+            assert.are_equal(#Content, #Content.getRounds("mixed"))
+        end)
+
     end)
 
     -- ----------------------------------------------------------------
@@ -253,6 +275,18 @@ describe("ToddlerLearn", function()
             gs:onAnswer(true)  -- round 2
             gs:onAnswer(true)  -- should wrap to round 1
             assert.are_equal(1, gs.round_pos)
+        end)
+
+        it("can build round order for a selected category", function()
+            local gs = setmetatable({
+                active_category = "animals",
+                shuffle = GameScreen.shuffle,
+            }, { __index = GameScreen })
+
+            gs:resetRoundOrder()
+
+            assert.are_equal(#Content.getRounds("animals"), #gs.round_order)
+            assert.are_equal("animals", gs.rounds[gs.round_order[1]].category)
         end)
 
     end)
