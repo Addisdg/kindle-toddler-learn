@@ -55,15 +55,17 @@ describe("ToddlerLearn", function()
                 colors = true,
                 numbers = true,
                 letters = true,
+                letter_words = true,
                 shapes = true,
                 vehicles = true,
                 body = true,
                 household = true,
                 emotions = true,
+                counting = true,
             }
             assert.is_table(Content.categories)
             assert.is_table(Content.category_order)
-            assert.is_true(#Content.category_order >= 10)
+            assert.is_true(#Content.category_order >= 12)
             for _, category in ipairs(Content.category_order) do
                 assert.is_true(expected_categories[category],
                     "unexpected or misspelled category " .. category)

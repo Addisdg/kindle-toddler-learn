@@ -6,11 +6,13 @@ Content.category_order = {
     "colors",
     "numbers",
     "letters",
+    "letter_words",
     "shapes",
     "vehicles",
     "body",
     "household",
     "emotions",
+    "counting",
 }
 
 Content.categories = {
@@ -189,6 +191,36 @@ Content.categories = {
             },
         },
     },
+    letter_words = {
+        label = "Letter Words",
+        rounds = {
+            {
+                prompt = "A Apple",
+                answer = "fruit/apple.png",
+                distractors = {"fruit/banana.png", "fruit/orange.png"},
+            },
+            {
+                prompt = "B Bird",
+                answer = "animals/bird.png",
+                distractors = {"animals/cat.png", "animals/dog.png"},
+            },
+            {
+                prompt = "C Cat",
+                answer = "animals/cat.png",
+                distractors = {"animals/cow.png", "animals/fish.png"},
+            },
+            {
+                prompt = "D Dog",
+                answer = "animals/dog.png",
+                distractors = {"animals/bird.png", "animals/cow.png"},
+            },
+            {
+                prompt = "F Fish",
+                answer = "animals/fish.png",
+                distractors = {"animals/cat.png", "animals/bird.png"},
+            },
+        },
+    },
     shapes = {
         label = "Shapes",
         rounds = {
@@ -331,6 +363,36 @@ Content.categories = {
                 prompt = "Surprised",
                 answer = "emotions/surprised.png",
                 distractors = {"emotions/sad.png", "emotions/sleepy.png"},
+            },
+        },
+    },
+    counting = {
+        label = "Counting",
+        rounds = {
+            {
+                prompt = "1 dot",
+                answer = "counting/1.png",
+                distractors = {"counting/2.png", "counting/3.png"},
+            },
+            {
+                prompt = "2 dots",
+                answer = "counting/2.png",
+                distractors = {"counting/1.png", "counting/4.png"},
+            },
+            {
+                prompt = "3 dots",
+                answer = "counting/3.png",
+                distractors = {"counting/2.png", "counting/5.png"},
+            },
+            {
+                prompt = "4 dots",
+                answer = "counting/4.png",
+                distractors = {"counting/3.png", "counting/5.png"},
+            },
+            {
+                prompt = "5 dots",
+                answer = "counting/5.png",
+                distractors = {"counting/4.png", "counting/1.png"},
             },
         },
     },

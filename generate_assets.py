@@ -43,6 +43,22 @@ def draw_number(n):
 for n in range(1, 6):
     draw_number(n)
 
+def draw_counting(n):
+    img, d = new_img()
+    positions = {
+        1: [(200, 200)],
+        2: [(145, 200), (255, 200)],
+        3: [(200, 125), (135, 255), (265, 255)],
+        4: [(135, 135), (265, 135), (135, 265), (265, 265)],
+        5: [(135, 135), (265, 135), (200, 200), (135, 265), (265, 265)],
+    }
+    for x, y in positions[n]:
+        d.ellipse([x-42, y-42, x+42, y+42], fill=FG)
+    save(img, "counting", str(n))
+
+for n in range(1, 6):
+    draw_counting(n)
+
 # ── LETTERS ────────────────────────────────────────────────────────────────
 
 def draw_letter(c):
