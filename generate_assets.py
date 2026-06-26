@@ -296,4 +296,187 @@ draw_color("green",  "dots")       # dots = medium = green
 draw_color("yellow", "checkers")   # checkers = light = yellow
 draw_color("white",  "empty")      # empty circle = white
 
+# ── SHAPES ────────────────────────────────────────────────────────────────
+
+def draw_shapes():
+    img, d = new_img()
+    d.ellipse([70,70,330,330], outline=FG, width=14)
+    save(img, "shapes", "circle")
+
+    img, d = new_img()
+    d.rectangle([80,80,320,320], outline=FG, width=14)
+    save(img, "shapes", "square")
+
+    img, d = new_img()
+    d.polygon([(200,55),(55,335),(345,335)], outline=FG, fill=BG)
+    d.line([(200,55),(55,335),(345,335),(200,55)], fill=FG, width=14)
+    save(img, "shapes", "triangle")
+
+    img, d = new_img()
+    points = []
+    for i in range(10):
+        r = 150 if i % 2 == 0 else 65
+        angle = math.radians(-90 + i * 36)
+        points.append((200 + int(math.cos(angle) * r), 200 + int(math.sin(angle) * r)))
+    d.polygon(points, outline=FG, fill=BG)
+    d.line(points + [points[0]], fill=FG, width=12)
+    save(img, "shapes", "star")
+
+    img, d = new_img()
+    d.ellipse([70,80,210,230], outline=FG, width=12)
+    d.ellipse([190,80,330,230], outline=FG, width=12)
+    d.polygon([(76,175),(324,175),(200,345)], outline=FG, fill=BG)
+    d.line([(76,175),(200,345),(324,175)], fill=FG, width=12)
+    save(img, "shapes", "heart")
+
+draw_shapes()
+
+# ── VEHICLES ──────────────────────────────────────────────────────────────
+
+def draw_vehicles():
+    img, d = new_img()
+    d.rounded_rectangle([65,165,335,280], radius=20, outline=FG, width=10)
+    d.polygon([(115,165),(155,105),(255,105),(295,165)], outline=FG, fill=BG)
+    d.line([(155,105),(255,105),(295,165),(115,165),(155,105)], fill=FG, width=10)
+    d.ellipse([100,255,155,310], outline=FG, width=10)
+    d.ellipse([245,255,300,310], outline=FG, width=10)
+    save(img, "vehicles", "car")
+
+    img, d = new_img()
+    d.rounded_rectangle([55,95,345,290], radius=18, outline=FG, width=10)
+    for x in [85,155,225]:
+        d.rectangle([x,125,x+55,180], outline=FG, width=7)
+    d.line([(80,215),(320,215)], fill=FG, width=8)
+    d.ellipse([95,270,145,320], outline=FG, width=9)
+    d.ellipse([255,270,305,320], outline=FG, width=9)
+    save(img, "vehicles", "bus")
+
+    img, d = new_img()
+    for x in [55,150,245]:
+        d.rounded_rectangle([x,145,x+95,265], radius=12, outline=FG, width=9)
+        d.rectangle([x+18,165,x+58,205], outline=FG, width=6)
+    d.line([(50,285),(350,285)], fill=FG, width=8)
+    for x in [85,180,275]:
+        d.ellipse([x,255,x+45,300], outline=FG, width=7)
+    save(img, "vehicles", "train")
+
+    img, d = new_img()
+    d.arc([55,125,345,355], start=0, end=180, fill=FG, width=12)
+    d.line([(65,240),(335,240)], fill=FG, width=12)
+    d.polygon([(120,235),(190,115),(260,235)], outline=FG, fill=BG)
+    d.line([(120,235),(190,115),(260,235)], fill=FG, width=10)
+    d.arc([95,260,305,345], start=0, end=180, fill=FG, width=7)
+    save(img, "vehicles", "boat")
+
+    img, d = new_img()
+    d.polygon([(45,210),(355,145),(355,205),(45,260)], outline=FG, fill=BG)
+    d.line([(45,210),(355,145),(355,205),(45,260),(45,210)], fill=FG, width=10)
+    d.polygon([(175,190),(230,70),(265,175)], outline=FG, fill=BG)
+    d.line([(175,190),(230,70),(265,175)], fill=FG, width=9)
+    d.polygon([(160,235),(235,325),(255,220)], outline=FG, fill=BG)
+    d.line([(160,235),(235,325),(255,220)], fill=FG, width=9)
+    save(img, "vehicles", "plane")
+
+draw_vehicles()
+
+# ── BODY ─────────────────────────────────────────────────────────────────
+
+def draw_body():
+    img, d = new_img()
+    d.line([(130,330),(130,170)], fill=FG, width=28)
+    for x, top in [(165,95),(200,80),(235,100),(270,135)]:
+        d.line([(x,250),(x,top)], fill=FG, width=24)
+    d.arc([100,210,300,365], start=190, end=15, fill=FG, width=24)
+    save(img, "body", "hand")
+
+    img, d = new_img()
+    d.ellipse([105,80,260,350], outline=FG, width=12)
+    d.ellipse([225,245,350,335], outline=FG, width=12)
+    for x in [245,275,305,335]:
+        d.ellipse([x,220,x+30,250], outline=FG, width=6)
+    save(img, "body", "foot")
+
+    img, d = new_img()
+    d.ellipse([60,130,340,270], outline=FG, width=12)
+    d.ellipse([145,95,255,305], outline=FG, width=10)
+    d.ellipse([175,160,225,210], fill=FG)
+    save(img, "body", "eye")
+
+    img, d = new_img()
+    d.arc([105,60,310,340], start=90, end=275, fill=FG, width=18)
+    d.arc([145,125,260,290], start=90, end=285, fill=FG, width=12)
+    d.arc([175,175,235,255], start=90, end=285, fill=FG, width=9)
+    save(img, "body", "ear")
+
+    img, d = new_img()
+    d.line([(205,80),(165,235)], fill=FG, width=16)
+    d.arc([130,200,250,310], start=340, end=175, fill=FG, width=14)
+    d.ellipse([135,260,175,300], outline=FG, width=8)
+    d.ellipse([205,260,245,300], outline=FG, width=8)
+    save(img, "body", "nose")
+
+draw_body()
+
+# ── HOUSEHOLD ────────────────────────────────────────────────────────────
+
+def draw_household():
+    img, d = new_img()
+    d.rounded_rectangle([110,90,265,320], radius=18, outline=FG, width=11)
+    d.arc([235,145,340,245], start=270, end=90, fill=FG, width=11)
+    d.line([(130,340),(245,340)], fill=FG, width=10)
+    save(img, "household", "cup")
+
+    img, d = new_img()
+    d.ellipse([140,45,260,165], outline=FG, width=10)
+    d.line([(200,165),(200,355)], fill=FG, width=18)
+    save(img, "household", "spoon")
+
+    img, d = new_img()
+    d.rectangle([65,180,340,285], outline=FG, width=11)
+    d.rectangle([65,125,145,180], outline=FG, width=11)
+    d.line([(80,285),(80,340)], fill=FG, width=11)
+    d.line([(320,285),(320,340)], fill=FG, width=11)
+    d.line([(60,165),(345,165)], fill=FG, width=11)
+    save(img, "household", "bed")
+
+    img, d = new_img()
+    d.rectangle([120,75,285,180], outline=FG, width=11)
+    d.rectangle([105,180,305,260], outline=FG, width=11)
+    d.line([(135,260),(100,345)], fill=FG, width=10)
+    d.line([(275,260),(310,345)], fill=FG, width=10)
+    save(img, "household", "chair")
+
+    img, d = new_img()
+    d.ellipse([70,70,330,330], outline=FG, width=12)
+    d.arc([95,95,305,305], start=25, end=155, fill=FG, width=8)
+    d.arc([95,95,305,305], start=205, end=335, fill=FG, width=8)
+    d.line([(200,70),(200,330)], fill=FG, width=7)
+    save(img, "household", "ball")
+
+draw_household()
+
+# ── EMOTIONS ─────────────────────────────────────────────────────────────
+
+def draw_face(name, mouth):
+    img, d = new_img()
+    d.ellipse([65,65,335,335], outline=FG, width=12)
+    d.ellipse([135,145,170,180], fill=FG)
+    d.ellipse([230,145,265,180], fill=FG)
+    if mouth == "smile":
+        d.arc([125,170,275,285], start=20, end=160, fill=FG, width=12)
+    elif mouth == "sad":
+        d.arc([125,235,275,340], start=200, end=340, fill=FG, width=12)
+    elif mouth == "sleepy":
+        d.line([(125,235),(275,235)], fill=FG, width=12)
+        d.line([(115,125),(180,140)], fill=FG, width=8)
+        d.line([(220,140),(285,125)], fill=FG, width=8)
+    elif mouth == "surprised":
+        d.ellipse([165,215,235,295], outline=FG, width=11)
+    save(img, "emotions", name)
+
+draw_face("happy", "smile")
+draw_face("sad", "sad")
+draw_face("sleepy", "sleepy")
+draw_face("surprised", "surprised")
+
 print("\nDone! All assets generated.")

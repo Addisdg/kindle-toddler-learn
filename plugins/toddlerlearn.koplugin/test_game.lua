@@ -125,10 +125,24 @@ describe("ToddlerLearn", function()
         end)
 
         it("exposes named learning categories", function()
+            local expected_categories = {
+                animals = true,
+                fruit = true,
+                colors = true,
+                numbers = true,
+                letters = true,
+                shapes = true,
+                vehicles = true,
+                body = true,
+                household = true,
+                emotions = true,
+            }
             assert.is_table(Content.categories)
             assert.is_table(Content.category_order)
-            assert.is_true(#Content.category_order >= 5)
+            assert.is_true(#Content.category_order >= 10)
             for _, category in ipairs(Content.category_order) do
+                assert.is_true(expected_categories[category],
+                    "unexpected or misspelled category " .. category)
                 assert.is_table(Content.categories[category],
                     "missing category " .. category)
                 assert.is_string(Content.categories[category].label)

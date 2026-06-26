@@ -6,6 +6,11 @@ Content.category_order = {
     "colors",
     "numbers",
     "letters",
+    "shapes",
+    "vehicles",
+    "body",
+    "household",
+    "emotions",
 }
 
 Content.categories = {
@@ -181,6 +186,151 @@ Content.categories = {
                 prompt = "J",
                 answer = "letters/j.png",
                 distractors = {"letters/i.png", "letters/k.png"},
+            },
+        },
+    },
+    shapes = {
+        label = "Shapes",
+        rounds = {
+            {
+                prompt = "Circle",
+                answer = "shapes/circle.png",
+                distractors = {"shapes/square.png", "shapes/triangle.png"},
+            },
+            {
+                prompt = "Square",
+                answer = "shapes/square.png",
+                distractors = {"shapes/circle.png", "shapes/star.png"},
+            },
+            {
+                prompt = "Triangle",
+                answer = "shapes/triangle.png",
+                distractors = {"shapes/heart.png", "shapes/square.png"},
+            },
+            {
+                prompt = "Star",
+                answer = "shapes/star.png",
+                distractors = {"shapes/circle.png", "shapes/heart.png"},
+            },
+            {
+                prompt = "Heart",
+                answer = "shapes/heart.png",
+                distractors = {"shapes/star.png", "shapes/triangle.png"},
+            },
+        },
+    },
+    vehicles = {
+        label = "Vehicles",
+        rounds = {
+            {
+                prompt = "Car",
+                answer = "vehicles/car.png",
+                distractors = {"vehicles/bus.png", "vehicles/train.png"},
+            },
+            {
+                prompt = "Bus",
+                answer = "vehicles/bus.png",
+                distractors = {"vehicles/car.png", "vehicles/boat.png"},
+            },
+            {
+                prompt = "Train",
+                answer = "vehicles/train.png",
+                distractors = {"vehicles/bus.png", "vehicles/plane.png"},
+            },
+            {
+                prompt = "Boat",
+                answer = "vehicles/boat.png",
+                distractors = {"vehicles/car.png", "vehicles/plane.png"},
+            },
+            {
+                prompt = "Plane",
+                answer = "vehicles/plane.png",
+                distractors = {"vehicles/train.png", "vehicles/boat.png"},
+            },
+        },
+    },
+    body = {
+        label = "Body",
+        rounds = {
+            {
+                prompt = "Hand",
+                answer = "body/hand.png",
+                distractors = {"body/foot.png", "body/ear.png"},
+            },
+            {
+                prompt = "Foot",
+                answer = "body/foot.png",
+                distractors = {"body/hand.png", "body/nose.png"},
+            },
+            {
+                prompt = "Eye",
+                answer = "body/eye.png",
+                distractors = {"body/ear.png", "body/nose.png"},
+            },
+            {
+                prompt = "Ear",
+                answer = "body/ear.png",
+                distractors = {"body/eye.png", "body/hand.png"},
+            },
+            {
+                prompt = "Nose",
+                answer = "body/nose.png",
+                distractors = {"body/foot.png", "body/eye.png"},
+            },
+        },
+    },
+    household = {
+        label = "Home",
+        rounds = {
+            {
+                prompt = "Cup",
+                answer = "household/cup.png",
+                distractors = {"household/spoon.png", "household/bed.png"},
+            },
+            {
+                prompt = "Spoon",
+                answer = "household/spoon.png",
+                distractors = {"household/cup.png", "household/ball.png"},
+            },
+            {
+                prompt = "Bed",
+                answer = "household/bed.png",
+                distractors = {"household/chair.png", "household/cup.png"},
+            },
+            {
+                prompt = "Chair",
+                answer = "household/chair.png",
+                distractors = {"household/bed.png", "household/ball.png"},
+            },
+            {
+                prompt = "Ball",
+                answer = "household/ball.png",
+                distractors = {"household/spoon.png", "household/chair.png"},
+            },
+        },
+    },
+    emotions = {
+        label = "Emotions",
+        rounds = {
+            {
+                prompt = "Happy",
+                answer = "emotions/happy.png",
+                distractors = {"emotions/sad.png", "emotions/sleepy.png"},
+            },
+            {
+                prompt = "Sad",
+                answer = "emotions/sad.png",
+                distractors = {"emotions/happy.png", "emotions/surprised.png"},
+            },
+            {
+                prompt = "Sleepy",
+                answer = "emotions/sleepy.png",
+                distractors = {"emotions/happy.png", "emotions/surprised.png"},
+            },
+            {
+                prompt = "Surprised",
+                answer = "emotions/surprised.png",
+                distractors = {"emotions/sad.png", "emotions/sleepy.png"},
             },
         },
     },
