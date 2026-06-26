@@ -56,9 +56,14 @@ Guidelines:
 - Pick distractors from the *same category* as the answer so the round
   is a meaningful choice (e.g. don't pair "Cat" with a number and a
   color — pair it with other animals). `letter_words` is the intentional
-  exception because it teaches letter-object association.
+  exception because it teaches letter-object association. `reading_words`
+  is also intentionally mixed because it teaches word recognition with
+  picture captions.
 - Keep `prompt` short. The validator currently rejects prompts longer than
   24 characters.
+- For reading practice rounds, set `show_labels = true` and provide a
+  `labels` table for the answer and every distractor. The game will render
+  those words under the picture tiles.
 
 ## Where to get images
 

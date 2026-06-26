@@ -22,6 +22,7 @@ local PROMPT_HEIGHT = 150
 local TILE_GAP = 26
 local TILE_PADDING = 14
 local TILE_BORDER = 5
+local TILE_LABEL_HEIGHT = 44
 local SELECTED_TILE_BORDER = 9
 local WRONG_FEEDBACK_SECONDS = 0.35
 local PARENT_ROW_HEIGHT = 120
@@ -268,11 +269,21 @@ function GameScreen:getChoiceLimit()
     return 3
 end
 
+function GameScreen:getChoiceLabel(round, path)
+    if round.labels and round.labels[path] then
+        return round.labels[path]
+    end
+
+    local name = path:match("([^/]+)%.png$")
+    return name or ""
+end
+
 function GameScreen:buildChoices(round)
     local choice_limit = self:getChoiceLimit()
     local choices = {{
         path = round.answer,
         correct = true,
+        label = self:getChoiceLabel(round, round.answer),
     }}
     local seen = {
         [round.answer] = true,
@@ -286,6 +297,7 @@ function GameScreen:buildChoices(round)
             table.insert(choices, {
                 path = path,
                 correct = false,
+                label = self:getChoiceLabel(round, path),
             })
             seen[path] = true
         end
@@ -299,6 +311,7 @@ function GameScreen:buildChoices(round)
             table.insert(choices, {
                 path = candidate.answer,
                 correct = false,
+                label = self:getChoiceLabel(candidate, candidate.answer),
             })
             seen[candidate.answer] = true
         end
@@ -396,6 +409,41 @@ function GameScreen:renderRound()
         local img_path = self.assets_dir .. choice.path
         logger.warn("ToddlerLearn: loading image", img_path)
         local tile_style = self:getTileStyle(layout, i)
+        local show_label = round.show_labels and choice.label and choice.label ~= ""
+        local image_height = layout.tile_h - (tile_style.padding + tile_style.border) * 2
+        if show_label then
+            image_height = math.max(80, image_height - TILE_LABEL_HEIGHT)
+        end
+
+        local tile_content
+        if show_label then
+            tile_content = VerticalGroup:new{
+                align = "center",
+                ImageWidget:new{
+                    file = img_path,
+                    width = layout.tile_w - (tile_style.padding + tile_style.border) * 2,
+                    height = image_height,
+                    scale_factor = 0
+                },
+                CenterContainer:new{
+                    dimen = Geom:new{
+                        w = layout.tile_w - (tile_style.padding + tile_style.border) * 2,
+                        h = TILE_LABEL_HEIGHT,
+                    },
+                    TextWidget:new{
+                        text = choice.label,
+                        face = Font:getFace("tfont", 30)
+                    }
+                }
+            }
+        else
+            tile_content = ImageWidget:new{
+                file = img_path,
+                width = layout.tile_w - (tile_style.padding + tile_style.border) * 2,
+                height = image_height,
+                scale_factor = 0
+            }
+        end
 
         local tile = FrameContainer:new{
             width = layout.tile_w,
@@ -403,12 +451,7 @@ function GameScreen:renderRound()
             bordersize = tile_style.border,
             padding = tile_style.padding,
             margin = 0,
-            ImageWidget:new{
-                file = img_path,
-                width = layout.tile_w - (tile_style.padding + tile_style.border) * 2,
-                height = layout.tile_h - (tile_style.padding + tile_style.border) * 2,
-                scale_factor = 0
-            }
+            tile_content
         }
 
         -- Wrap in InputContainer for tap detection

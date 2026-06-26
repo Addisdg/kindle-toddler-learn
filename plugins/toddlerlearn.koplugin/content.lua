@@ -7,6 +7,7 @@ Content.category_order = {
     "numbers",
     "letters",
     "letter_words",
+    "reading_words",
     "shapes",
     "vehicles",
     "body",
@@ -221,6 +222,143 @@ Content.categories = {
             },
         },
     },
+    reading_words = {
+        label = "Reading Words",
+        rounds = {
+            {
+                prompt = "Read: cat",
+                answer = "animals/cat.png",
+                distractors = {"animals/dog.png", "animals/cow.png"},
+                labels = {
+                    ["animals/cat.png"] = "cat",
+                    ["animals/dog.png"] = "dog",
+                    ["animals/cow.png"] = "cow",
+                },
+                show_labels = true,
+            },
+            {
+                prompt = "Read: dog",
+                answer = "animals/dog.png",
+                distractors = {"animals/cat.png", "animals/bird.png"},
+                labels = {
+                    ["animals/dog.png"] = "dog",
+                    ["animals/cat.png"] = "cat",
+                    ["animals/bird.png"] = "bird",
+                },
+                show_labels = true,
+            },
+            {
+                prompt = "Read: fish",
+                answer = "animals/fish.png",
+                distractors = {"animals/bird.png", "animals/cow.png"},
+                labels = {
+                    ["animals/fish.png"] = "fish",
+                    ["animals/bird.png"] = "bird",
+                    ["animals/cow.png"] = "cow",
+                },
+                show_labels = true,
+            },
+            {
+                prompt = "Read: apple",
+                answer = "fruit/apple.png",
+                distractors = {"fruit/banana.png", "fruit/orange.png"},
+                labels = {
+                    ["fruit/apple.png"] = "apple",
+                    ["fruit/banana.png"] = "banana",
+                    ["fruit/orange.png"] = "orange",
+                },
+                show_labels = true,
+            },
+            {
+                prompt = "Read: banana",
+                answer = "fruit/banana.png",
+                distractors = {"fruit/apple.png", "fruit/grapes.png"},
+                labels = {
+                    ["fruit/banana.png"] = "banana",
+                    ["fruit/apple.png"] = "apple",
+                    ["fruit/grapes.png"] = "grapes",
+                },
+                show_labels = true,
+            },
+            {
+                prompt = "Read: car",
+                answer = "vehicles/car.png",
+                distractors = {"vehicles/bus.png", "vehicles/train.png"},
+                labels = {
+                    ["vehicles/car.png"] = "car",
+                    ["vehicles/bus.png"] = "bus",
+                    ["vehicles/train.png"] = "train",
+                },
+                show_labels = true,
+            },
+            {
+                prompt = "Read: bus",
+                answer = "vehicles/bus.png",
+                distractors = {"vehicles/car.png", "vehicles/boat.png"},
+                labels = {
+                    ["vehicles/bus.png"] = "bus",
+                    ["vehicles/car.png"] = "car",
+                    ["vehicles/boat.png"] = "boat",
+                },
+                show_labels = true,
+            },
+            {
+                prompt = "Read: hand",
+                answer = "body/hand.png",
+                distractors = {"body/foot.png", "body/ear.png"},
+                labels = {
+                    ["body/hand.png"] = "hand",
+                    ["body/foot.png"] = "foot",
+                    ["body/ear.png"] = "ear",
+                },
+                show_labels = true,
+            },
+            {
+                prompt = "Read: eye",
+                answer = "body/eye.png",
+                distractors = {"body/ear.png", "body/nose.png"},
+                labels = {
+                    ["body/eye.png"] = "eye",
+                    ["body/ear.png"] = "ear",
+                    ["body/nose.png"] = "nose",
+                },
+                show_labels = true,
+            },
+            {
+                prompt = "Read: cup",
+                answer = "household/cup.png",
+                distractors = {"household/spoon.png", "household/bed.png"},
+                labels = {
+                    ["household/cup.png"] = "cup",
+                    ["household/spoon.png"] = "spoon",
+                    ["household/bed.png"] = "bed",
+                },
+                show_labels = true,
+            },
+            {
+                prompt = "Read: bed",
+                answer = "household/bed.png",
+                distractors = {"household/chair.png", "household/ball.png"},
+                labels = {
+                    ["household/bed.png"] = "bed",
+                    ["household/chair.png"] = "chair",
+                    ["household/ball.png"] = "ball",
+                },
+                show_labels = true,
+            },
+            {
+                prompt = "Read: happy",
+                answer = "emotions/happy.png",
+                distractors = {"emotions/sad.png", "emotions/sleepy.png"},
+                labels = {
+                    ["emotions/happy.png"] = "happy",
+                    ["emotions/sad.png"] = "sad",
+                    ["emotions/sleepy.png"] = "sleepy",
+                },
+                show_labels = true,
+            },
+        },
+    },
     shapes = {
         label = "Shapes",
         rounds = {
@@ -424,6 +562,7 @@ function Content.validate(asset_dir)
     local errors = {}
     local mixed_path_categories = {
         letter_words = true,
+        reading_words = true,
     }
 
     local function add_error(message)
@@ -481,6 +620,21 @@ function Content.validate(asset_dir)
                     for _, distractor in ipairs(round.distractors or {}) do
                         if distractor:sub(1, #expected_prefix) ~= expected_prefix then
                             add_error(round_name .. " distractor is outside category: " .. distractor)
+                        end
+                    end
+                end
+
+                if round.show_labels then
+                    if not round.labels then
+                        add_error(round_name .. " shows labels but has no labels table")
+                    else
+                        if round.answer and not round.labels[round.answer] then
+                            add_error(round_name .. " missing answer label")
+                        end
+                        for _, distractor in ipairs(round.distractors or {}) do
+                            if not round.labels[distractor] then
+                                add_error(round_name .. " missing distractor label: " .. distractor)
+                            end
                         end
                     end
                 end

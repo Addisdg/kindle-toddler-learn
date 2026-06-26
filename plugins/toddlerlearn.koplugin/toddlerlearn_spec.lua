@@ -56,6 +56,7 @@ describe("ToddlerLearn", function()
                 numbers = true,
                 letters = true,
                 letter_words = true,
+                reading_words = true,
                 shapes = true,
                 vehicles = true,
                 body = true,
@@ -65,7 +66,7 @@ describe("ToddlerLearn", function()
             }
             assert.is_table(Content.categories)
             assert.is_table(Content.category_order)
-            assert.is_true(#Content.category_order >= 12)
+            assert.is_true(#Content.category_order >= 13)
             for _, category in ipairs(Content.category_order) do
                 assert.is_true(expected_categories[category],
                     "unexpected or misspelled category " .. category)
@@ -84,6 +85,19 @@ describe("ToddlerLearn", function()
                 assert.are_equal("animals", round.category)
             end
             assert.are_equal(#Content, #Content.getRounds("mixed"))
+        end)
+
+        it("has reading rounds with visible word labels", function()
+            local rounds = Content.getRounds("reading_words")
+            assert.is_true(#rounds >= 10)
+            for _, round in ipairs(rounds) do
+                assert.is_true(round.show_labels)
+                assert.is_table(round.labels)
+                assert.is_string(round.labels[round.answer])
+                for _, distractor in ipairs(round.distractors) do
+                    assert.is_string(round.labels[distractor])
+                end
+            end
         end)
 
         it("passes the content quality checklist", function()
@@ -274,6 +288,19 @@ describe("ToddlerLearn", function()
             for _, choice in ipairs(choices) do
                 assert.is_true(choice.path:match("^animals/") ~= nil)
             end
+        end)
+
+        it("carries word labels into reading choices", function()
+            local gs = setmetatable({
+                difficulty = "normal",
+                rounds = Content.getRounds("reading_words"),
+            }, { __index = GameScreen })
+
+            local choices = gs:buildChoices(gs.rounds[1])
+
+            assert.are_equal("cat", choices[1].label)
+            assert.is_true(#choices[2].label > 0)
+            assert.is_true(#choices[3].label > 0)
         end)
 
         it("shows a reward every five correct answers", function()
