@@ -271,6 +271,17 @@ describe("ToddlerLearn", function()
             end
         end)
 
+        it("shows a reward every five correct answers", function()
+            local gs = setmetatable({}, { __index = GameScreen })
+
+            assert.is_false(gs:recordCorrectAnswer())
+            assert.is_false(gs:recordCorrectAnswer())
+            assert.is_false(gs:recordCorrectAnswer())
+            assert.is_false(gs:recordCorrectAnswer())
+            assert.is_true(gs:recordCorrectAnswer())
+            assert.are_equal(5, gs.correct_count)
+        end)
+
     end)
 
 end)

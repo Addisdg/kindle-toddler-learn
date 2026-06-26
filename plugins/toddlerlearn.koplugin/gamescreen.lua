@@ -25,6 +25,8 @@ local TILE_BORDER = 5
 local SELECTED_TILE_BORDER = 9
 local WRONG_FEEDBACK_SECONDS = 0.35
 local PARENT_ROW_HEIGHT = 120
+local REWARD_EVERY = 5
+local REWARD_SECONDS = 0.8
 
 --------------------------------------------------------------------------
 -- GameScreen
@@ -488,11 +490,20 @@ function GameScreen:onAnswer(is_correct, choice_index)
             kind = "correct",
             choice_index = choice_index
         }
-        self:showCorrectFeedback()
+        if self:recordCorrectAnswer() then
+            self:showRewardFeedback()
+        else
+            self:showCorrectFeedback()
+        end
     else
         self:showWrongFeedback(choice_index)
     end
     return true
+end
+
+function GameScreen:recordCorrectAnswer()
+    self.correct_count = (self.correct_count or 0) + 1
+    return self.correct_count % REWARD_EVERY == 0
 end
 
 function GameScreen:showWrongFeedback(choice_index)
@@ -540,6 +551,47 @@ function GameScreen:showCorrectFeedback()
 
     UIManager:scheduleIn(0.4, function()
         UIManager:close(feedback)
+        self:loadRound()
+    end)
+end
+
+function GameScreen:showRewardFeedback()
+    if not self.dimen then
+        self:loadRound()
+        return
+    end
+
+    local reward = FrameContainer:new{
+        width = self.dimen.w,
+        height = self.dimen.h,
+        bordersize = 0,
+        padding = 0,
+        background = Blitbuffer.COLOR_WHITE,
+        CenterContainer:new{
+            dimen = self.dimen,
+            VerticalGroup:new{
+                align = "center",
+                TextWidget:new{
+                    text = "Great!",
+                    face = Font:getFace("tfont", 86)
+                },
+                TextWidget:new{
+                    text = "* * * * *",
+                    face = Font:getFace("tfont", 64)
+                },
+                TextWidget:new{
+                    text = tostring(self.correct_count) .. " correct",
+                    face = Font:getFace("tfont", 42)
+                }
+            }
+        }
+    }
+
+    UIManager:show(reward)
+    UIManager:setDirty(reward, "full")
+
+    UIManager:scheduleIn(REWARD_SECONDS, function()
+        UIManager:close(reward)
         self:loadRound()
     end)
 end
