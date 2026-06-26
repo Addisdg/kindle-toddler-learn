@@ -4,6 +4,10 @@ A phased roadmap so this stays manageable as a side project. Each phase
 has a small, testable "done when" goal — don't move to the next phase
 until the current one runs cleanly in the emulator.
 
+Status note: the first on-device MVP is complete. The post-MVP upgrade
+work has added polished layout, categorized content, difficulty selection,
+parent setup, rewards, expanded generated assets, and content validation.
+
 ---
 
 ## Phase 0 — Environment setup
@@ -114,8 +118,9 @@ and they could play without getting lost in KOReader's UI.
 
 ## Backlog / ideas for later
 
-- Difficulty levels (more distractor tiles as the child improves)
+- Persistent parent preferences across app launches
+- A hidden in-game parent gesture that opens setup without returning to
+  KOReader's menu
 - Audio via a USB-attached speaker hack (probably not worth it on PW3)
-- A simple "parent mode" menu to pick which categories are active
 - Tracking simple stats (rounds completed) shown only in a debug menu
 - Letter-tracing mode using touch-path drawing instead of tap-to-select

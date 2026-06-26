@@ -10,9 +10,14 @@ plugin for a jailbroken Kindle Paperwhite (7th gen / PW3, firmware
 - A word, letter, number, or color name is shown at the top of the screen.
 - Several large images are shown below it.
 - The child taps the image that matches the prompt.
-- A correct tap loads the next round; an incorrect tap just waits for
-  another try (no harsh feedback).
-- Two-finger tap exits back to KOReader's file browser.
+- A correct tap shows calm feedback, advances the round, and every five
+  correct answers shows a simple reward screen.
+- An incorrect tap briefly emphasizes the selected tile and waits for
+  another try.
+- The normal menu entry starts mixed review immediately.
+- The parent setup menu lets an adult pick a category and difficulty before
+  starting.
+- Two-finger hold exits back to KOReader's file browser.
 
 Everything is local — no internet, no accounts, no ads, no sound (the
 7th-gen Paperwhite has no speaker anyway).
@@ -29,22 +34,28 @@ kindle-toddler-learn/
         ├── _meta.lua        <- plugin name/description (KOReader reads this)
         ├── main.lua         <- registers the plugin in KOReader's menu
         ├── gamescreen.lua    <- the actual game UI/logic
-        ├── content.lua       <- list of prompts + image paths
+        ├── content.lua       <- categorized prompts + validation helpers
         └── assets/           <- images, organized by category
             ├── animals/
             ├── fruit/
             ├── colors/
             ├── numbers/
-            └── letters/
+            ├── letters/
+            ├── shapes/
+            ├── vehicles/
+            ├── body/
+            ├── household/
+            ├── emotions/
+            └── counting/
 ```
 
 ## Status
 
-This is a **working scaffold**, not a tested, drop-in plugin. KOReader's
-internal widget APIs vary a bit between versions, so expect to spend your
-first session debugging against whatever error messages the emulator gives
-you — that's normal for KOReader plugin development and is covered in
-`PROJECT_PLAN.md` (Phase 1).
+The first on-device MVP is complete and the app has been expanded with
+category sessions, difficulty levels, generated e-ink assets, parent setup,
+reward milestones, and content validation tests. KOReader's internal widget
+APIs can still vary between versions, so run `./run-tests.sh` and do a quick
+device smoke test before handing a new build to a child.
 
 ## Development setup (on your computer)
 
@@ -96,6 +107,9 @@ Once it runs correctly in the emulator:
 - Full-screen refreshes ("flashes") clear ghosting but are slow and
   visually jarring for a toddler — use them sparingly (e.g. once per
   round, not per tap).
+- Keep images simple: thick black outlines, white background, large
+  silhouettes, and no tiny detail. The generator in `generate_assets.py`
+  follows this style.
 
 ## Safety / lock-down ideas (for later)
 
