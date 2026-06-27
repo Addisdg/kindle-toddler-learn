@@ -61,6 +61,7 @@ describe("ToddlerLearn", function()
                 fruit = true,
                 numbers = true,
                 quantities = true,
+                tenframes = true,
                 letters = true,
                 letter_pairs = true,
                 letter_words = true,
@@ -228,6 +229,15 @@ describe("ToddlerLearn", function()
             for number, round in ipairs(quantities) do
                 assert.are_equal(tostring(number), round.prompt)
                 assert.are_equal("counting/" .. tostring(number) .. ".png", round.answer)
+            end
+        end)
+
+        it("represents one through ten with fixed ten frames", function()
+            local rounds = Content.getRounds("tenframes")
+            assert.are_equal(10, #rounds)
+            for number, round in ipairs(rounds) do
+                assert.are_equal(tostring(number), round.prompt)
+                assert.are_equal("tenframes/" .. tostring(number) .. ".png", round.answer)
             end
         end)
 

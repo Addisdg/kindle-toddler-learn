@@ -31,6 +31,8 @@ plugin for a jailbroken Kindle Paperwhite (7th gen / PW3, firmware
   comprehension question.
 - Number recognition, counting, and numeral-to-quantity matching cover one
   through ten with high-contrast dot cards.
+- Ten-frame rounds arrange quantities in a consistent two-by-five grid to
+  build recognition without counting every dot.
 - Early Maths combines more/fewer, biggest/smallest, number order, missing
   numbers, visual addition and subtraction to five, shape properties, and
   simple repeating patterns.

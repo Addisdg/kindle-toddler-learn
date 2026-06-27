@@ -5,6 +5,7 @@ Content.category_order = {
     "fruit",
     "numbers",
     "quantities",
+    "tenframes",
     "letters",
     "letter_pairs",
     "letter_words",
@@ -120,6 +121,10 @@ Content.categories = {
     },
     quantities = {
         label = "Number Quantities",
+        rounds = {},
+    },
+    tenframes = {
+        label = "Ten Frames",
         rounds = {},
     },
     letters = {
@@ -712,6 +717,11 @@ local function addNumberRoundsToTen()
             prompt = tostring(number),
             answer = numberPath("counting", number),
             distractors = numberDistractors("counting", number),
+        })
+        table.insert(Content.categories.tenframes.rounds, {
+            prompt = tostring(number),
+            answer = numberPath("tenframes", number),
+            distractors = numberDistractors("tenframes", number),
         })
     end
 end

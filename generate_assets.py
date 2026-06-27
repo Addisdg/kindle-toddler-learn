@@ -190,6 +190,27 @@ def draw_counting(n):
 for n in range(1, 11):
     draw_counting(n)
 
+def draw_tenframe(n):
+    img, d = new_img()
+    left, top = 40, 100
+    cell_w, cell_h = 64, 100
+    for row in range(2):
+        for column in range(5):
+            x1 = left + column * cell_w
+            y1 = top + row * cell_h
+            x2 = x1 + cell_w
+            y2 = y1 + cell_h
+            d.rectangle([x1, y1, x2, y2], outline=FG, width=4)
+            index = row * 5 + column
+            if index < n:
+                cx = x1 + cell_w // 2
+                cy = y1 + cell_h // 2
+                d.ellipse([cx-24, cy-24, cx+24, cy+24], fill=FG)
+    save(img, "tenframes", str(n))
+
+for n in range(1, 11):
+    draw_tenframe(n)
+
 # ── LETTERS ────────────────────────────────────────────────────────────────
 
 def draw_letter(c):
