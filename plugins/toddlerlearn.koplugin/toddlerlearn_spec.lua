@@ -403,6 +403,35 @@ describe("ToddlerLearn", function()
             assert.are_equal("Hard: 4 choices", gs:getDifficultyLabel("hard"))
         end)
 
+        it("summarizes category mastery and practice needs", function()
+            local rounds = Content.getRounds("animals")
+            local gs = setmetatable({progress = {}}, {__index = GameScreen})
+            gs.progress[gs:getRoundKey(rounds[1])] = {correct = 3, wrong = 1}
+            gs.progress[gs:getRoundKey(rounds[2])] = {correct = 1, wrong = 3}
+
+            local summary = gs:getProgressSummary("animals")
+            assert.are_equal(4, summary.correct)
+            assert.are_equal(4, summary.wrong)
+            assert.are_equal(8, summary.attempts)
+            assert.are_equal(1, summary.mastered)
+            assert.are_equal(1, summary.needs_practice)
+            assert.are_equal(#rounds, summary.total)
+        end)
+
+        it("cycles dashboard categories and resets saved progress", function()
+            local saved
+            local gs = setmetatable({
+                selected_progress_category = Content.category_order[1],
+                progress = {sample = {correct = 2, wrong = 0}},
+                saveProgress = function(self) saved = self.progress end,
+            }, {__index = GameScreen})
+
+            assert.are_equal(Content.category_order[2], gs:cycleProgressCategory())
+            gs:resetProgress()
+            assert.are_equal(0, #saved)
+            assert.is_nil(next(gs.progress))
+        end)
+
     end)
 
     describe("GameScreen round logic", function()

@@ -128,5 +128,5 @@ and they could play without getting lost in KOReader's UI.
 - A hidden in-game parent gesture that opens setup without returning to
   KOReader's menu
 - Audio via a USB-attached speaker hack (probably not worth it on PW3)
-- Tracking simple stats (rounds completed) shown only in a debug menu
+- [x] Parent progress dashboard with category mastery and local-data reset
 - Letter-tracing mode using touch-path drawing instead of tap-to-select

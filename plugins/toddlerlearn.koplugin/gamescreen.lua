@@ -55,6 +55,7 @@ local GameScreen = InputContainer:extend{
     difficulty = "normal",
     session_length = 10,
     parent_mode = false,
+    progress_mode = false,
 }
 
 function GameScreen:init()
@@ -91,6 +92,14 @@ function GameScreen:init()
     self.ges_events.SwipeNoop = {swipe_range}
     self.ges_events.HoldNoop = {hold_range}
     self.ges_events.PanNoop = {pan_range}
+
+    if self.progress_mode then
+        self.progress = self.progress or self:loadProgress()
+        self.selected_progress_category = self.selected_progress_category
+            or Content.category_order[1]
+        self:renderProgressScreen()
+        return
+    end
 
     if self.parent_mode then
         self.selected_category = self.selected_category or self.active_category or "mixed"
@@ -284,6 +293,122 @@ function GameScreen:cycleSessionLength()
     }
     self.selected_session_length = next_length[self.selected_session_length] or 10
     return self.selected_session_length
+end
+
+function GameScreen:getProgressSummary(category)
+    local summary = {
+        correct = 0,
+        wrong = 0,
+        attempts = 0,
+        mastered = 0,
+        total = 0,
+        needs_practice = 0,
+    }
+    for _, round in ipairs(Content.getRounds(category)) do
+        summary.total = summary.total + 1
+        local result = (self.progress or {})[self:getRoundKey(round)]
+        if result then
+            summary.correct = summary.correct + (result.correct or 0)
+            summary.wrong = summary.wrong + (result.wrong or 0)
+            if (result.correct or 0) >= 2 and (result.correct or 0) > (result.wrong or 0) then
+                summary.mastered = summary.mastered + 1
+            end
+            if (result.wrong or 0) > (result.correct or 0) then
+                summary.needs_practice = summary.needs_practice + 1
+            end
+        end
+    end
+    summary.attempts = summary.correct + summary.wrong
+    return summary
+end
+
+function GameScreen:getOverallProgressSummary()
+    local summary = {correct = 0, wrong = 0, attempts = 0}
+    for _, result in pairs(self.progress or {}) do
+        summary.correct = summary.correct + (result.correct or 0)
+        summary.wrong = summary.wrong + (result.wrong or 0)
+    end
+    summary.attempts = summary.correct + summary.wrong
+    return summary
+end
+
+function GameScreen:cycleProgressCategory()
+    local next_index = 1
+    for i, category in ipairs(Content.category_order) do
+        if category == self.selected_progress_category then
+            next_index = i + 1
+            break
+        end
+    end
+    if next_index > #Content.category_order then
+        next_index = 1
+    end
+    self.selected_progress_category = Content.category_order[next_index]
+    self.reset_progress_armed = false
+    return self.selected_progress_category
+end
+
+function GameScreen:resetProgress()
+    self.progress = {}
+    self.reset_progress_armed = false
+    self:saveProgress()
+    if self.dimen then
+        self:renderProgressScreen()
+    end
+end
+
+function GameScreen:renderProgressScreen()
+    local category = self.selected_progress_category
+    local category_summary = self:getProgressSummary(category)
+    local overall = self:getOverallProgressSummary()
+    local accuracy = overall.attempts > 0
+        and math.floor((overall.correct / overall.attempts) * 100 + 0.5)
+        or 0
+    local reset_text = self.reset_progress_armed and "Tap again to reset" or "Reset Progress"
+    local summary_text = table.concat({
+        "Overall: " .. tostring(overall.correct) .. "/" .. tostring(overall.attempts)
+            .. " correct (" .. tostring(accuracy) .. "%)",
+        "Mastered: " .. tostring(category_summary.mastered) .. "/" .. tostring(category_summary.total),
+        "Needs practice: " .. tostring(category_summary.needs_practice),
+    }, "\n")
+    local content = CenterContainer:new{
+        dimen = self.dimen,
+        VerticalGroup:new{
+            align = "center",
+            CenterContainer:new{
+                dimen = Geom:new{w = self.dimen.w - EDGE_MARGIN * 2, h = 110},
+                TextWidget:new{text = "Learning Progress", face = Font:getFace("tfont", 48)},
+            },
+            CenterContainer:new{
+                dimen = Geom:new{w = self.dimen.w - EDGE_MARGIN * 2, h = 180},
+                TextWidget:new{text = summary_text, face = Font:getFace("tfont", 32)},
+            },
+            self:renderParentButton("Category: " .. self:getCategoryLabel(category), function()
+                self:cycleProgressCategory()
+                self:renderProgressScreen()
+            end),
+            self:renderParentButton(reset_text, function()
+                if self.reset_progress_armed then
+                    self:resetProgress()
+                else
+                    self.reset_progress_armed = true
+                    self:renderProgressScreen()
+                end
+            end),
+            self:renderParentButton("Close", function()
+                UIManager:close(self)
+            end),
+        }
+    }
+    self[1] = FrameContainer:new{
+        width = self.dimen.w,
+        height = self.dimen.h,
+        bordersize = 0,
+        padding = 0,
+        background = Blitbuffer.COLOR_WHITE,
+        content,
+    }
+    UIManager:setDirty(self, "full")
 end
 
 function GameScreen:renderParentButton(text, on_tap)
