@@ -400,7 +400,10 @@ function GameScreen:buildChoices(round)
         if #choices >= choice_limit then
             break
         end
-        if candidate.category == round.category and not seen[candidate.answer] then
+        if candidate.category == round.category
+            and candidate.answer
+            and not seen[candidate.answer]
+        then
             table.insert(choices, {
                 path = candidate.answer,
                 correct = false,

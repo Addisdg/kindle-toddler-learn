@@ -149,6 +149,7 @@ describe("ToddlerLearn", function()
                 household = true,
                 emotions = true,
                 counting = true,
+                early_math = true,
             }
             assert.is_table(Content.categories)
             assert.is_table(Content.category_order)
@@ -258,6 +259,32 @@ describe("ToddlerLearn", function()
             for number, round in ipairs(quantities) do
                 assert.are_equal(tostring(number), round.prompt)
                 assert.are_equal("counting/" .. tostring(number) .. ".png", round.answer)
+            end
+        end)
+
+        it("covers all foundational early maths skills", function()
+            local expected = {
+                compare = true,
+                size = true,
+                order = true,
+                missing = true,
+                arithmetic = true,
+                shape_pattern = true,
+            }
+            local seen = {}
+            local rounds = Content.getRounds("early_math")
+            assert.is_true(#rounds >= 24)
+            for _, round in ipairs(rounds) do
+                seen[round.math_skill] = true
+                if round.equation_result then
+                    assert.are_equal(
+                        "counting/" .. tostring(round.equation_result) .. ".png",
+                        round.answer
+                    )
+                end
+            end
+            for skill in pairs(expected) do
+                assert.is_true(seen[skill], "missing maths skill: " .. skill)
             end
         end)
 
@@ -558,6 +585,35 @@ describe("ToddlerLearn", function()
             assert.are_equal("a", choices[1].text)
             assert.is_true(choices[1].correct)
             assert.is_nil(choices[1].path)
+        end)
+
+        it("builds hard-mode choices for mixed early maths formats", function()
+            local rounds = Content.getRounds("early_math")
+            local gs = setmetatable({
+                difficulty = "hard",
+                rounds = rounds,
+            }, {__index = GameScreen})
+            local picture_round
+            local text_round
+            for _, round in ipairs(rounds) do
+                if round.kind == "text_choice" and not text_round then
+                    text_round = round
+                elseif round.kind ~= "text_choice" and not picture_round then
+                    picture_round = round
+                end
+            end
+
+            local picture_choices = gs:buildChoices(picture_round)
+            local text_choices = gs:buildChoices(text_round)
+
+            assert.are_equal(4, #picture_choices)
+            assert.are_equal(4, #text_choices)
+            for _, choice in ipairs(picture_choices) do
+                assert.is_string(choice.path)
+            end
+            for _, choice in ipairs(text_choices) do
+                assert.is_string(choice.text)
+            end
         end)
 
         it("uses large spelling letter boxes and type", function()

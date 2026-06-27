@@ -20,6 +20,7 @@ Content.category_order = {
     "household",
     "emotions",
     "counting",
+    "early_math",
 }
 
 Content.categories = {
@@ -509,6 +510,42 @@ Content.categories = {
             },
         },
     },
+    early_math = {
+        label = "Early Maths",
+        rounds = {
+            {prompt = "Which has more?", answer = "counting/5.png", distractors = {"counting/2.png", "counting/3.png"}, math_skill = "compare"},
+            {prompt = "Which has more?", answer = "counting/8.png", distractors = {"counting/4.png", "counting/6.png"}, math_skill = "compare"},
+            {prompt = "Which has fewer?", answer = "counting/1.png", distractors = {"counting/3.png", "counting/5.png"}, math_skill = "compare"},
+            {prompt = "Which has fewer?", answer = "counting/4.png", distractors = {"counting/7.png", "counting/9.png"}, math_skill = "compare"},
+
+            {kind = "text_choice", prompt = "Biggest number", answer_text = "8", distractors_text = {"3", "5"}, math_skill = "size"},
+            {kind = "text_choice", prompt = "Biggest number", answer_text = "10", distractors_text = {"6", "9"}, math_skill = "size"},
+            {kind = "text_choice", prompt = "Smallest number", answer_text = "2", distractors_text = {"4", "7"}, math_skill = "size"},
+            {kind = "text_choice", prompt = "Smallest number", answer_text = "1", distractors_text = {"5", "3"}, math_skill = "size"},
+
+            {kind = "text_choice", prompt = "After 2", answer_text = "3", distractors_text = {"1", "4"}, math_skill = "order"},
+            {kind = "text_choice", prompt = "After 6", answer_text = "7", distractors_text = {"5", "8"}, math_skill = "order"},
+            {kind = "text_choice", prompt = "Before 5", answer_text = "4", distractors_text = {"3", "6"}, math_skill = "order"},
+            {kind = "text_choice", prompt = "Before 9", answer_text = "8", distractors_text = {"7", "10"}, math_skill = "order"},
+
+            {kind = "text_choice", prompt = "1 2 _ 4", answer_text = "3", distractors_text = {"2", "5"}, math_skill = "missing"},
+            {kind = "text_choice", prompt = "4 _ 6", answer_text = "5", distractors_text = {"3", "7"}, math_skill = "missing"},
+            {kind = "text_choice", prompt = "7 8 _ 10", answer_text = "9", distractors_text = {"6", "8"}, math_skill = "missing"},
+
+            {prompt = "1 + 1", answer = "counting/2.png", distractors = {"counting/1.png", "counting/3.png"}, math_skill = "arithmetic", equation_result = 2},
+            {prompt = "2 + 1", answer = "counting/3.png", distractors = {"counting/2.png", "counting/4.png"}, math_skill = "arithmetic", equation_result = 3},
+            {prompt = "2 + 2", answer = "counting/4.png", distractors = {"counting/3.png", "counting/5.png"}, math_skill = "arithmetic", equation_result = 4},
+            {prompt = "4 + 1", answer = "counting/5.png", distractors = {"counting/3.png", "counting/4.png"}, math_skill = "arithmetic", equation_result = 5},
+            {prompt = "3 - 1", answer = "counting/2.png", distractors = {"counting/1.png", "counting/3.png"}, math_skill = "arithmetic", equation_result = 2},
+            {prompt = "4 - 2", answer = "counting/2.png", distractors = {"counting/3.png", "counting/4.png"}, math_skill = "arithmetic", equation_result = 2},
+            {prompt = "5 - 1", answer = "counting/4.png", distractors = {"counting/3.png", "counting/5.png"}, math_skill = "arithmetic", equation_result = 4},
+
+            {prompt = "Has 3 sides", answer = "shapes/triangle.png", distractors = {"shapes/circle.png", "shapes/square.png"}, math_skill = "shape_pattern"},
+            {prompt = "Has no corners", answer = "shapes/circle.png", distractors = {"shapes/triangle.png", "shapes/star.png"}, math_skill = "shape_pattern"},
+            {prompt = "circle square circle ?", answer = "shapes/square.png", distractors = {"shapes/circle.png", "shapes/triangle.png"}, math_skill = "shape_pattern"},
+            {prompt = "star circle star ?", answer = "shapes/circle.png", distractors = {"shapes/star.png", "shapes/square.png"}, math_skill = "shape_pattern"},
+        },
+    },
 }
 
 Content.word_bank = {
@@ -719,6 +756,7 @@ function Content.validate(asset_dir)
     local mixed_path_categories = {
         letter_words = true,
         quantities = true,
+        early_math = true,
         beginning_sounds = true,
         reading_words = true,
         cvc_words = true,

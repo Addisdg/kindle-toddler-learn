@@ -23,6 +23,9 @@ plugin for a jailbroken Kindle Paperwhite (7th gen / PW3, firmware
   the matching picture.
 - Number recognition, counting, and numeral-to-quantity matching cover one
   through ten with high-contrast dot cards.
+- Early Maths combines more/fewer, biggest/smallest, number order, missing
+  numbers, visual addition and subtraction to five, shape properties, and
+  simple repeating patterns.
 - Spelling rounds show a picture, large scrambled letter tiles, and large
   answer boxes. Tapping an answer box clears the attempt for another try.
 - Spelling assistance scales with difficulty: starter letters appear for

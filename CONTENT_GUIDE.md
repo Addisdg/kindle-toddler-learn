@@ -78,6 +78,9 @@ Guidelines:
   must share that ending and distractors must not.
 - Sentence prompts should contain one concrete idea, end with a period, and
   remain under the 24-character prompt limit.
+- Early maths rounds use `math_skill` to identify comparison, size, ordering,
+  missing-number, arithmetic, and shape-pattern coverage. Arithmetic answers
+  use dot cards so the result remains visual.
 
 ## Where to get images
 
