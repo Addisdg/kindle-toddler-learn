@@ -638,6 +638,7 @@ def make_picture_halves(puzzle_id, source_folder, source_name):
 print("\nGenerating picture puzzle pieces...")
 make_picture_halves("cat", "animals", "cat")
 make_picture_halves("apple", "fruit", "apple")
+make_picture_halves("square", "shapes", "square")
 make_picture_puzzle("cat", "animals", "cat")
 make_picture_puzzle("apple", "fruit", "apple")
 make_picture_puzzle("bus", "vehicles", "bus")

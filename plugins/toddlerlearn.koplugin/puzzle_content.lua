@@ -22,6 +22,7 @@ end
 PuzzleContent.puzzles = {
     {id = "cat_halves", kind = "picture", prompt = "Build the cat", level = 1, skill = "picture_assembly", pieces = pictureHalves("cat")},
     {id = "apple_halves", kind = "picture", prompt = "Build the apple", level = 1, skill = "picture_assembly", pieces = pictureHalves("apple")},
+    {id = "square_halves", kind = "shape", prompt = "Build the square", level = 1, skill = "shape_composition", pieces = pictureHalves("square")},
     {
         id = "number_order_1", kind = "sequence", prompt = "Put numbers in order",
         level = 1, skill = "number_sequence",
