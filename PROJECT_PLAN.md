@@ -39,7 +39,7 @@ shows *something* (even a blank screen) that can be closed.
 - [ ] `_meta.lua` is read correctly (plugin shows up with the right name)
 - [ ] `main.lua` registers a menu item without Lua errors
 - [ ] Tapping the menu item opens `gamescreen.lua`'s widget
-- [ ] Two-finger tap (or your chosen gesture) closes it and returns to
+- [x] Two-finger hold opens a parent-code dialog and code `1234` returns to
       the menu without crashing
 
 **Done when:** you can open and close the game screen repeatedly with no
@@ -103,8 +103,8 @@ emulator.
 - [ ] Add simple "correct!" feedback (e.g. a checkmark overlay, brief
       invert) before advancing
 - [ ] Confirm touch targets are big enough for small fingers
-- [ ] Lock down KOReader gestures while the game is active (menu/back)
-- [ ] Decide on and implement the exit gesture/PIN
+- [x] Lock down KOReader gestures while the game is active (menu/back)
+- [x] Protect two-finger-hold exit with a parent code
 
 **Done when:** a non-technical adult could hand the Kindle to a toddler
 and they could play without getting lost in KOReader's UI.

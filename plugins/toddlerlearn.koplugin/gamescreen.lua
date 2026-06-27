@@ -5,6 +5,7 @@ local VerticalGroup = require("ui/widget/verticalgroup")
 local HorizontalGroup = require("ui/widget/horizontalgroup")
 local ImageWidget = require("ui/widget/imagewidget")
 local TextWidget = require("ui/widget/textwidget")
+local InputDialog = require("ui/widget/inputdialog")
 local Font = require("ui/font")
 local Geom = require("ui/geometry")
 local GestureRange = require("ui/gesturerange")
@@ -44,6 +45,7 @@ local GUIDED_CATEGORIES = {
     "mini_stories",
 }
 local GUIDED_MASTERY_RATIO = 0.7
+local EXIT_CODE = "1234"
 local PROFILE_IDS = {"child1", "child2", "child3"}
 local PROFILE_LABELS = {
     child1 = "Child 1",
@@ -59,7 +61,6 @@ local GameScreen = InputContainer:extend{
     assets_dir = nil,
     active_category = "mixed",
     difficulty = "normal",
-    session_length = 10,
     parent_mode = false,
     progress_mode = false,
     profile_id = "child1",
@@ -73,7 +74,7 @@ function GameScreen:init()
         h = Screen:getHeight()
     }
 
-    -- Close on two-finger tap
+    -- A two-finger hold opens the parent-code exit dialog during gameplay.
     self.ges_events = {
         Close = {GestureRange:new{
             ges = "two_finger_hold",
@@ -114,7 +115,6 @@ function GameScreen:init()
         self.selected_profile_id = self.selected_profile_id or self.profile_id or "child1"
         self.selected_category = self.selected_category or self.active_category or "mixed"
         self.selected_difficulty = self.selected_difficulty or self.difficulty or "normal"
-        self.selected_session_length = self.selected_session_length or self.session_length or 10
         self:renderParentMenu()
         return
     end
@@ -303,16 +303,6 @@ function GameScreen:cycleDifficulty()
     }
     self.selected_difficulty = next_by_difficulty[self.selected_difficulty] or "normal"
     return self.selected_difficulty
-end
-
-function GameScreen:cycleSessionLength()
-    local next_length = {
-        [5] = 10,
-        [10] = 15,
-        [15] = 5,
-    }
-    self.selected_session_length = next_length[self.selected_session_length] or 10
-    return self.selected_session_length
 end
 
 function GameScreen:getProfileLabel(profile_id)
@@ -505,7 +495,6 @@ function GameScreen:renderParentMenu()
     local profile_text = "Profile: " .. self:getProfileLabel(self.selected_profile_id)
     local category_text = "Category: " .. self:getCategoryLabel(self.selected_category)
     local difficulty_text = "Difficulty: " .. self:getDifficultyLabel(self.selected_difficulty)
-    local session_text = "Session: " .. tostring(self.selected_session_length) .. " rounds"
     local start_text = "Start"
 
     local content = CenterContainer:new{
@@ -538,17 +527,12 @@ function GameScreen:renderParentMenu()
                 self:cycleDifficulty()
                 self:renderParentMenu()
             end),
-            self:renderParentButton(session_text, function()
-                self:cycleSessionLength()
-                self:renderParentMenu()
-            end),
             self:renderParentButton(start_text, function()
                 UIManager:close(self)
                 UIManager:show(GameScreen:new{
                     assets_dir = self.assets_dir,
                     active_category = self.selected_category,
                     difficulty = self.selected_difficulty,
-                    session_length = self.selected_session_length,
                     profile_id = self.selected_profile_id,
                 })
             end),
@@ -1574,51 +1558,8 @@ function GameScreen:recordCorrectAnswer()
     return self.correct_count % REWARD_EVERY == 0
 end
 
-function GameScreen:isSessionComplete()
-    return self.session_length
-        and (self.session_completed or 0) >= self.session_length
-end
-
 function GameScreen:advanceAfterFeedback()
-    if self:isSessionComplete() then
-        self:renderSessionComplete()
-    else
-        self:loadRound()
-    end
-end
-
-function GameScreen:renderSessionComplete()
-    self.session_finished = true
-    if not self.dimen then
-        return
-    end
-
-    self[1] = FrameContainer:new{
-        width = self.dimen.w,
-        height = self.dimen.h,
-        bordersize = 0,
-        padding = 0,
-        background = Blitbuffer.COLOR_WHITE,
-        CenterContainer:new{
-            dimen = self.dimen,
-            VerticalGroup:new{
-                align = "center",
-                TextWidget:new{
-                    text = "All done!",
-                    face = Font:getFace("tfont", 86),
-                },
-                TextWidget:new{
-                    text = "* * * * *",
-                    face = Font:getFace("tfont", 64),
-                },
-                TextWidget:new{
-                    text = tostring(self.session_completed) .. " rounds",
-                    face = Font:getFace("tfont", 42),
-                }
-            }
-        }
-    }
-    UIManager:setDirty(self, "full")
+    self:loadRound()
 end
 
 function GameScreen:showWrongFeedback(choice_index)
@@ -1711,8 +1652,71 @@ function GameScreen:showRewardFeedback()
     end)
 end
 
+function GameScreen:verifyExitCode(code)
+    return tostring(code or "") == EXIT_CODE
+end
+
+function GameScreen:closeExitCodeDialog()
+    if self.exit_code_dialog then
+        UIManager:close(self.exit_code_dialog)
+        self.exit_code_dialog = nil
+    end
+end
+
+function GameScreen:submitExitCode()
+    if not self.exit_code_dialog then
+        return false
+    end
+    local code = self.exit_code_dialog:getInputText()
+    self:closeExitCodeDialog()
+    if self:verifyExitCode(code) then
+        UIManager:close(self)
+        return true
+    end
+    self:showExitCodeDialog("Incorrect code")
+    return false
+end
+
+function GameScreen:showExitCodeDialog(title)
+    if self.exit_code_dialog then
+        return
+    end
+    local dialog
+    dialog = InputDialog:new{
+        title = title or "Parent code",
+        input_hint = "Enter code",
+        input_type = "number",
+        text_type = "password",
+        buttons = {
+            {
+                {
+                    text = "Cancel",
+                    id = "close",
+                    callback = function()
+                        self:closeExitCodeDialog()
+                    end,
+                },
+                {
+                    text = "Exit",
+                    is_enter_default = true,
+                    callback = function()
+                        self:submitExitCode()
+                    end,
+                },
+            },
+        },
+    }
+    self.exit_code_dialog = dialog
+    UIManager:show(dialog)
+    dialog:onShowKeyboard()
+end
+
 function GameScreen:onClose()
-    UIManager:close(self)
+    if self.parent_mode or self.progress_mode then
+        UIManager:close(self)
+    else
+        self:showExitCodeDialog()
+    end
     return true
 end
 function GameScreen:onSwipeNoop()

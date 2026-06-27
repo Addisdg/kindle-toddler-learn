@@ -470,12 +470,12 @@ describe("ToddlerLearn", function()
             assert.are_equal("normal", gs:cycleDifficulty())
         end)
 
-        it("cycles session length through 5 10 and 15 rounds", function()
-            local gs = setmetatable({selected_session_length = 5}, {__index = GameScreen})
+        it("requires the parent code before exiting gameplay", function()
+            local gs = setmetatable({}, {__index = GameScreen})
 
-            assert.are_equal(10, gs:cycleSessionLength())
-            assert.are_equal(15, gs:cycleSessionLength())
-            assert.are_equal(5, gs:cycleSessionLength())
+            assert.is_false(gs:verifyExitCode("0000"))
+            assert.is_false(gs:verifyExitCode("123"))
+            assert.is_true(gs:verifyExitCode("1234"))
         end)
 
         it("labels parent menu choices clearly", function()
@@ -1045,22 +1045,21 @@ describe("ToddlerLearn", function()
             assert.are_equal(5, gs.correct_count)
         end)
 
-        it("finishes after the selected number of completed rounds", function()
-            local loaded = false
+        it("continues loading rounds without a session limit", function()
+            local loaded = 0
             local gs = setmetatable({
-                session_length = 2,
-                session_completed = 1,
                 loadRound = function()
-                    loaded = true
+                    loaded = loaded + 1
                 end,
             }, {__index = GameScreen})
 
-            gs:recordCorrectAnswer()
-            gs:advanceAfterFeedback()
+            for _ = 1, 100 do
+                gs:recordCorrectAnswer()
+                gs:advanceAfterFeedback()
+            end
 
-            assert.is_true(gs.session_finished)
-            assert.is_false(loaded)
-            assert.are_equal(2, gs.session_completed)
+            assert.are_equal(100, loaded)
+            assert.are_equal(100, gs.session_completed)
         end)
 
     end)

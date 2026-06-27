@@ -50,9 +50,7 @@ plugin for a jailbroken Kindle Paperwhite (7th gen / PW3, firmware
   another try.
 - The normal menu entry starts mixed review immediately.
 - The parent setup menu lets an adult pick a category and difficulty before
-  starting, plus a focused session length of 5, 10, or 15 rounds.
-- A completed session ends on a clear reward screen instead of looping
-  indefinitely.
+  starting. Play continues without a question limit.
 - Progress stays local on the Kindle; rounds with more mistakes return more
   often while mastered material remains in lighter review.
 - A separate parent progress screen shows overall accuracy, mastery by
@@ -61,7 +59,8 @@ plugin for a jailbroken Kindle Paperwhite (7th gen / PW3, firmware
   local mastery history; existing progress is retained as Child 1.
 - Guided Learning follows a mastery-based path from letter pairs through
   sounds, short words, word families, and simple sentences.
-- Two-finger hold exits back to KOReader's file browser.
+- A two-finger hold opens the parent exit dialog. Enter `1234` to return to
+  KOReader; incorrect codes keep the game open.
 
 Everything is local — no internet, no accounts, no ads, no sound (the
 7th-gen Paperwhite has no speaker anyway).
@@ -155,9 +154,8 @@ Once it runs correctly in the emulator:
   silhouettes, and no tiny detail. The generator in `generate_assets.py`
   follows this style.
 
-## Safety / lock-down ideas (for later)
+## Safety / lock-down
 
-- Disable KOReader's normal swipe-to-menu gestures while the game is
+- KOReader's normal swipe-to-menu gestures are disabled while the game is
   running, so a toddler can't wander into settings or the file browser.
-- Consider a PIN-protected exit gesture instead of (or in addition to)
-  two-finger tap.
+- The two-finger hold exit is protected by the parent code `1234`.
