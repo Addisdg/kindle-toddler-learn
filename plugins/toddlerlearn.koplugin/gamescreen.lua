@@ -369,8 +369,41 @@ function GameScreen:startSpellingRound(round)
         filled = {},
         used = {},
         feedback = nil,
+        hint_count = self:getSpellingHintCount(round),
     }
+    self:applySpellingHints()
     self:renderSpellingRound()
+end
+
+function GameScreen:getSpellingHintCount(round)
+    local word_length = #(round.word or "")
+    if word_length < 2 or self.difficulty == "hard" then
+        return 0
+    end
+    if self.difficulty == "easy" then
+        return math.min(word_length > 3 and 2 or 1, word_length - 1)
+    end
+    if round.level == 1 then
+        return 1
+    end
+    return 0
+end
+
+function GameScreen:applySpellingHints()
+    if not self.spelling then
+        return
+    end
+
+    for position = 1, self.spelling.hint_count or 0 do
+        local target = self.spelling.word:sub(position, position)
+        for index, letter in ipairs(self.spelling.letters) do
+            if not self.spelling.used[index] and letter == target then
+                table.insert(self.spelling.filled, target)
+                self.spelling.used[index] = true
+                break
+            end
+        end
+    end
 end
 
 function GameScreen:getSpellingAnswer()
@@ -396,6 +429,7 @@ function GameScreen:resetSpellingAttempt()
     self.spelling.filled = {}
     self.spelling.used = {}
     self.spelling.feedback = nil
+    self:applySpellingHints()
     if self.dimen then
         self:renderSpellingRound()
     end

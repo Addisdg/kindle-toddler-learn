@@ -413,6 +413,48 @@ describe("ToddlerLearn", function()
             assert.are_equal("act", table.concat(letters, ""))
         end)
 
+        it("reduces spelling help as difficulty increases", function()
+            local round = {
+                kind = "spelling",
+                word = "cat",
+                answer = "animals/cat.png",
+                level = 1,
+            }
+
+            local easy = setmetatable({difficulty = "easy"}, {__index = GameScreen})
+            local normal = setmetatable({difficulty = "normal"}, {__index = GameScreen})
+            local hard = setmetatable({difficulty = "hard"}, {__index = GameScreen})
+
+            assert.are_equal(1, easy:getSpellingHintCount(round))
+            assert.are_equal(1, normal:getSpellingHintCount(round))
+            assert.are_equal(0, hard:getSpellingHintCount(round))
+            round.level = 2
+            assert.are_equal(0, normal:getSpellingHintCount(round))
+        end)
+
+        it("prefills and preserves spelling hints when an attempt resets", function()
+            local gs = setmetatable({
+                spelling = {
+                    word = "cat",
+                    letters = {"t", "c", "a"},
+                    filled = {},
+                    used = {},
+                    hint_count = 1,
+                },
+            }, {__index = GameScreen})
+
+            gs:applySpellingHints()
+            assert.are_equal("c", gs:getSpellingAnswer())
+            assert.is_true(gs.spelling.used[2])
+
+            gs:onSpellingLetterTap(3)
+            gs:resetSpellingAttempt()
+
+            assert.are_equal("c", gs:getSpellingAnswer())
+            assert.is_true(gs.spelling.used[2])
+            assert.is_nil(gs.spelling.used[3])
+        end)
+
         it("advances after a correctly completed spelling word", function()
             local advanced = false
             local gs = setmetatable({

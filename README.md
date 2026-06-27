@@ -21,6 +21,8 @@ plugin for a jailbroken Kindle Paperwhite (7th gen / PW3, firmware
   and `-ed` using large text choices.
 - Spelling rounds show a picture, large scrambled letter tiles, and large
   answer boxes. Tapping an answer box clears the attempt for another try.
+- Spelling assistance scales with difficulty: starter letters appear for
+  early learners and disappear as the level becomes harder.
 - A correct tap shows calm feedback, advances the round, and every five
   correct answers shows a simple reward screen.
 - An incorrect tap briefly emphasizes the selected tile and waits for
