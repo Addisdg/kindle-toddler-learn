@@ -87,6 +87,7 @@ function GameScreen:init()
     end
 
     math.randomseed(os.time())
+    self.progress = self.progress or self:loadProgress()
     self:resetRoundOrder()
 
     self:loadRound()
@@ -101,12 +102,64 @@ end
 
 function GameScreen:resetRoundOrder()
     self.rounds = Content.getRounds(self.active_category)
-    self.round_order = {}
-    for i = 1, #self.rounds do
-        table.insert(self.round_order, i)
-    end
+    self.round_order = self:buildAdaptiveRoundOrder(self.rounds)
     self:shuffle(self.round_order)
     self.round_pos = 0
+end
+
+function GameScreen:getRoundKey(round)
+    local identity = round.word or round.answer_text or round.answer or round.prompt
+    return (round.category or "unknown") .. ":" .. (round.kind or "picture") .. ":" .. identity
+end
+
+function GameScreen:loadProgress()
+    local settings = self.settings or rawget(_G, "G_reader_settings")
+    if settings and settings.readSetting then
+        return settings:readSetting("toddlerlearn_progress", {}) or {}
+    end
+    return {}
+end
+
+function GameScreen:saveProgress()
+    local settings = self.settings or rawget(_G, "G_reader_settings")
+    if not settings or not settings.saveSetting then
+        return
+    end
+    settings:saveSetting("toddlerlearn_progress", self.progress or {})
+    if settings.flush then
+        settings:flush()
+    end
+end
+
+function GameScreen:recordRoundResult(is_correct)
+    if not self.current_round then
+        return
+    end
+    self.progress = self.progress or {}
+    local key = self:getRoundKey(self.current_round)
+    local result = self.progress[key] or {correct = 0, wrong = 0}
+    if is_correct then
+        result.correct = result.correct + 1
+    else
+        result.wrong = result.wrong + 1
+    end
+    self.progress[key] = result
+    self:saveProgress()
+end
+
+function GameScreen:buildAdaptiveRoundOrder(rounds)
+    self.round_order = {}
+    for i, round in ipairs(rounds or {}) do
+        table.insert(self.round_order, i)
+        local result = (self.progress or {})[self:getRoundKey(round)]
+        if result and result.wrong > result.correct then
+            table.insert(self.round_order, i)
+            if result.wrong >= result.correct + 3 then
+                table.insert(self.round_order, i)
+            end
+        end
+    end
+    return self.round_order
 end
 
 function GameScreen:setCategory(category)
@@ -844,6 +897,7 @@ end
 
 function GameScreen:onAnswer(is_correct, choice_index)
     if is_correct then
+        self:recordRoundResult(true)
         self.feedback = {
             kind = "correct",
             choice_index = choice_index
@@ -854,6 +908,7 @@ function GameScreen:onAnswer(is_correct, choice_index)
             self:showCorrectFeedback()
         end
     else
+        self:recordRoundResult(false)
         self:showWrongFeedback(choice_index)
     end
     return true
@@ -875,6 +930,7 @@ function GameScreen:onSpellingLetterTap(letter_index)
     end
 
     if self:isSpellingCorrect() then
+        self:recordRoundResult(true)
         if self:recordCorrectAnswer() then
             self:showRewardFeedback()
         else
@@ -884,6 +940,7 @@ function GameScreen:onSpellingLetterTap(letter_index)
     end
 
     self.spelling.feedback = "Try again"
+    self:recordRoundResult(false)
     if self.dimen then
         self:renderSpellingRound()
     end

@@ -434,6 +434,48 @@ describe("ToddlerLearn", function()
             assert.are_equal("animals", gs.rounds[gs.round_order[1]].category)
         end)
 
+        it("repeats difficult rounds in adaptive review", function()
+            local rounds = Content.getRounds("animals")
+            local gs = setmetatable({progress = {}}, {__index = GameScreen})
+            local key = gs:getRoundKey(rounds[1])
+            gs.progress[key] = {correct = 1, wrong = 4}
+
+            local order = gs:buildAdaptiveRoundOrder(rounds)
+            local first_count = 0
+            for _, index in ipairs(order) do
+                if index == 1 then
+                    first_count = first_count + 1
+                end
+            end
+
+            assert.are_equal(3, first_count)
+            assert.are_equal(#rounds + 2, #order)
+        end)
+
+        it("persists correct and wrong results by stable round key", function()
+            local saved
+            local settings = {
+                saveSetting = function(_, key, value)
+                    assert.are_equal("toddlerlearn_progress", key)
+                    saved = value
+                end,
+                flush = function() end,
+            }
+            local round = Content.getRounds("animals")[1]
+            local gs = setmetatable({
+                current_round = round,
+                progress = {},
+                settings = settings,
+            }, {__index = GameScreen})
+
+            gs:recordRoundResult(false)
+            gs:recordRoundResult(true)
+
+            local result = saved[gs:getRoundKey(round)]
+            assert.are_equal(1, result.correct)
+            assert.are_equal(1, result.wrong)
+        end)
+
         it("builds fewer choices on easy difficulty", function()
             local gs = setmetatable({
                 difficulty = "easy",

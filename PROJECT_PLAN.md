@@ -9,6 +9,7 @@ work has added polished layout, categorized content, difficulty selection,
 parent setup, rewards, expanded generated assets, caption-free reading rounds,
 large resettable spelling controls, and content validation. The latest UI
 revision has been smoke-tested successfully on the Kindle.
+Adaptive review now stores per-round correct and incorrect counts locally.
 
 ---
 

@@ -32,6 +32,8 @@ plugin for a jailbroken Kindle Paperwhite (7th gen / PW3, firmware
 - The normal menu entry starts mixed review immediately.
 - The parent setup menu lets an adult pick a category and difficulty before
   starting.
+- Progress stays local on the Kindle; rounds with more mistakes return more
+  often while mastered material remains in lighter review.
 - Two-finger hold exits back to KOReader's file browser.
 
 Everything is local — no internet, no accounts, no ads, no sound (the
