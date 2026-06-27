@@ -71,7 +71,7 @@ screen time.
   correct answers shows a simple reward screen.
 - An incorrect tap briefly emphasizes the selected tile and waits for
   another try.
-- The normal menu entry starts mixed review immediately.
+- The normal menu entry opens the child-facing Learn, Puzzles, and Draw chooser.
 - The parent setup menu lets an adult pick a category and difficulty before
   starting. Play continues without a question limit.
 - Progress stays local on the Kindle; rounds with more mistakes return more
@@ -96,11 +96,16 @@ kindle-toddler-learn/
 ├── PROJECT_PLAN.md         <- phased roadmap + checklists
 ├── CONTENT_GUIDE.md         <- how to add new rounds / images
 ├── LEARNING_DESIGN.md       <- curriculum, modes, and product principles
+├── RELEASE_CHECKLIST.md      <- automated, emulator, Kindle, and family gates
 └── plugins/
     └── toddlerlearn.koplugin/
         ├── _meta.lua        <- plugin name/description (KOReader reads this)
         ├── main.lua         <- registers the plugin in KOReader's menu
-        ├── gamescreen.lua    <- the actual game UI/logic
+        ├── appscreen.lua     <- child-facing activity chooser and mode router
+        ├── gamescreen.lua    <- Learn mode UI and adaptive logic
+        ├── puzzlescreen.lua  <- tap-to-place Puzzle mode
+        ├── puzzle_content.lua <- validated puzzle definitions
+        ├── drawscreen.lua    <- retained-stroke Draw mode
         ├── content.lua       <- categorized prompts + validation helpers
         └── assets/           <- images, organized by category
             ├── animals/
@@ -112,7 +117,9 @@ kindle-toddler-learn/
             ├── body/
             ├── household/
             ├── emotions/
-            └── counting/
+            ├── counting/
+            ├── math/
+            └── puzzles/
 ```
 
 ## Status
@@ -123,9 +130,10 @@ caption-free reading, spelling, stories, early maths, adaptive review, child
 profiles, parent progress, and content validation tests. Puzzle mode adds
 tap-to-place picture, sequence, pattern, word, and number activities. Draw mode
 adds bounded continuous strokes, regional refreshes, undo, and tracing guides.
-KOReader's
-internal widget APIs can vary between versions, so run `./run-tests.sh` and do
-a device smoke test before handing a new build to a child.
+KOReader's internal widget APIs can vary between versions, so run
+`./run-tests.sh` and do
+the checks in [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) before handing a new
+build to a child.
 
 ## Development setup (on your computer)
 

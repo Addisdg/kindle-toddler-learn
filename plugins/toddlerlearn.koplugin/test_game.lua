@@ -630,6 +630,17 @@ describe("ToddlerLearn", function()
             assert.are_equal(gs, returned)
         end)
 
+        it("constructs the chooser puzzle and drawing screens", function()
+            local assets = "plugins/toddlerlearn.koplugin/assets/"
+            local app = AppScreen:new{assets_dir = assets}
+            local puzzle = PuzzleScreen:new{assets_dir = assets, shuffle = function() end}
+            local draw = DrawScreen:new{}
+            assert.is_not_nil(app[1])
+            assert.is_not_nil(puzzle[1])
+            assert.is_not_nil(draw[1])
+            assert.are_equal("Free", draw:getTemplate())
+        end)
+
         it("cycles through mixed and content categories", function()
             local gs = setmetatable({
                 selected_category = "mixed",

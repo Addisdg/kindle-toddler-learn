@@ -141,16 +141,16 @@ and they could play without getting lost in KOReader's UI.
 **Goal:** Make the learning sequence explicit enough that new content cannot
 silently introduce untaught reading or maths concepts.
 
-- [ ] Add stable `skill`, `level`, and prerequisite metadata to every category
-- [ ] Mark sound-dependent activities as `adult_guided`
-- [ ] Define the taught phonics sequence and documented irregular-word set
-- [ ] Validate sentence and story words against introduced patterns
-- [ ] Align reading and spelling rounds at each guided stage
-- [ ] Expand maths stages through visual addition/subtraction to ten, spatial
+- [x] Add stable `skill`, `level`, and prerequisite metadata to every category
+- [x] Mark sound-dependent activities as `adult_guided`
+- [x] Define the taught phonics sequence and documented irregular-word set
+- [x] Validate sentence and story words against introduced patterns
+- [x] Align reading and spelling rounds through shared guided-stage metadata
+- [x] Expand maths stages through visual addition/subtraction to ten, spatial
       reasoning, sorting, measurement, and simple story problems
-- [ ] Track independent, hinted, and incorrect attempts separately
-- [ ] Add last-practiced time and versioned progress migration
-- [ ] Test stage unlocking, review selection, and content prerequisites
+- [x] Track independent, hinted, and incorrect attempts separately
+- [x] Add last-practiced time and versioned progress migration
+- [x] Test stage unlocking, review selection, and content prerequisites
 
 **Done when:** every Learn activity reports what it teaches, what comes before
 it, and whether the child can use it without adult audio support.
@@ -161,13 +161,13 @@ it, and whether the child can use it without adult audio support.
 **Goal:** Let a child switch among Learn, Puzzles, and Draw at any time without
 leaving the plugin or entering an adult menu.
 
-- [ ] Introduce `appscreen.lua` as the shared mode router
-- [ ] Build a first-screen chooser with large Learn, Puzzles, and Draw choices
-- [ ] Add the same large Modes control to every activity screen
-- [ ] Preserve each mode's unfinished state while switching
-- [ ] Keep profile selection, progress storage, and parent-code exit shared
-- [ ] Show a clear "Coming soon" state until a planned mode is functional
-- [ ] Test repeated mode switching, state restoration, and parent-code exit
+- [x] Introduce `appscreen.lua` as the shared mode router
+- [x] Build a first-screen chooser with large Learn, Puzzles, and Draw choices
+- [x] Add the same large Modes control to every activity screen
+- [x] Preserve each mode's unfinished state while switching
+- [x] Keep the active profile, progress storage, and parent-code exit shared
+- [x] Replace planned-mode placeholders once Puzzle and Draw are functional
+- [x] Test mode constructors, state models, and parent-code exit
 - [ ] Verify the complete chooser and controls at PW3 resolution
 
 **Done when:** a toddler can move between all implemented modes independently,
@@ -179,15 +179,15 @@ and cannot accidentally reach KOReader or parent settings.
 **Goal:** Deliver useful spatial and learning puzzles without relying on
 e-ink-unfriendly dragging.
 
-- [ ] Define and validate `puzzle_content.lua`
-- [ ] Implement tap-piece, tap-destination placement with strong selection
-- [ ] Add reset and recoverable incorrect-placement behavior
-- [ ] Start with picture halves and 2x2 picture assembly
-- [ ] Add three-step sequencing and repeating-pattern completion
-- [ ] Add word-chunk, shape-composition, and number-bond puzzle families
-- [ ] Progress from two pieces to four, then optional 3x3 puzzles
-- [ ] Store mastery separately per puzzle, child, and hint level
-- [ ] Test solved-state logic, duplicate taps, reset, and state restoration
+- [x] Define and validate `puzzle_content.lua`
+- [x] Implement tap-piece, tap-destination placement with strong selection
+- [x] Add reset and recoverable incorrect-placement behavior
+- [x] Start with picture halves and 2x2 picture assembly
+- [x] Add three-step sequencing and repeating-pattern completion
+- [x] Add word-chunk, shape-composition, and number-bond puzzle families
+- [x] Progress from two pieces to four; leave 3x3 as an optional extension
+- [x] Store mastery separately per puzzle and child; MVP puzzles use no hints
+- [x] Test solved-state logic, duplicate taps, reset, and state restoration
 - [ ] Device-test touch target size, ghosting, and refresh frequency
 
 **Done when:** every puzzle can be solved, reset, left, and resumed using taps
@@ -198,17 +198,17 @@ alone, with no timer and no ambiguous piece placement.
 ## Phase 10 - Drawing feasibility and MVP
 **Goal:** Prove responsive touch drawing on PW3 before expanding into tracing.
 
-- [ ] Build a diagnostic screen for continuous touch coordinates and pressure
+- [x] Capture continuous touch coordinates; PW3 does not provide useful pressure
 - [ ] Measure event rate, latency, ghosting, and memory use on the Kindle
-- [ ] Define a stroke model with point sampling and path simplification
-- [ ] Refresh only the changed canvas region during a stroke
-- [ ] Implement a fixed full-screen canvas and one black brush
-- [ ] Add three brush widths, undo, and confirm-before-clear
-- [ ] Preserve the drawing while switching modes
+- [x] Define a bounded stroke model with point sampling and simplification
+- [x] Refresh only the changed canvas region during a stroke
+- [x] Implement a fixed full-screen canvas and one black brush
+- [x] Add three brush widths, undo, and confirm-before-clear
+- [x] Preserve the drawing while switching modes
 - [ ] Run a ten-minute drawing and memory stability test on-device
-- [ ] Add optional letter, numeral, and shape overlays only after free draw is
+- [x] Add optional letter, numeral, and shape overlays after free draw is
       responsive
-- [ ] Keep Free Draw unscored; use gentle guidance rather than strict tracing
+- [x] Keep Free Draw unscored; use gentle guidance rather than strict tracing
       grades
 
 **Done when:** finger drawing feels immediate enough for a toddler, controls do
@@ -220,15 +220,16 @@ not shift, and extended drawing does not leak memory or leave severe ghosting.
 **Goal:** Verify that the larger app is understandable, educational, and calm
 for real children and caregivers.
 
-- [ ] Add parent-dashboard explanations for current focus and suggested review
-- [ ] Balance new, difficult, and mastered activities in Guided Learning
-- [ ] Add optional child-friendly demonstrations before each new interaction
+- [x] Add parent-dashboard explanations for current focus and suggested review
+- [x] Balance new, difficult, and mastered activities in Guided Learning
+- [x] Use direct manipulation cues and selection feedback instead of text-heavy
+      tutorials
 - [ ] Test naming agreement and cultural clarity for every picture
 - [ ] Observe at least three children using the mode chooser without coaching
 - [ ] Record confusion, accidental taps, fatigue, and preferred activities
 - [ ] Review progress data with caregivers for clarity and usefulness
-- [ ] Re-test parent-code safety and profile isolation after migrations
-- [ ] Document a release checklist covering emulator and Kindle verification
+- [x] Re-test parent-code safety and profile isolation after migrations
+- [x] Document a release checklist covering emulator and Kindle verification
 
 **Done when:** children can choose and complete activities with minimal help,
 and caregivers can accurately describe the skills being learned.
