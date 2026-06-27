@@ -12,11 +12,16 @@ local function picturePieces(id)
     return pieces
 end
 
+local function pictureHalves(id)
+    return {
+        {id = id .. "_half_1", image = "puzzles/" .. id .. "_half_1.png", target = 1},
+        {id = id .. "_half_2", image = "puzzles/" .. id .. "_half_2.png", target = 2},
+    }
+end
+
 PuzzleContent.puzzles = {
-    {id = "cat_picture", kind = "picture", prompt = "Build the cat", level = 1, skill = "picture_assembly", pieces = picturePieces("cat")},
-    {id = "apple_picture", kind = "picture", prompt = "Build the apple", level = 1, skill = "picture_assembly", pieces = picturePieces("apple")},
-    {id = "bus_picture", kind = "picture", prompt = "Build the bus", level = 1, skill = "picture_assembly", pieces = picturePieces("bus")},
-    {id = "ball_picture", kind = "picture", prompt = "Build the ball", level = 1, skill = "picture_assembly", pieces = picturePieces("ball")},
+    {id = "cat_halves", kind = "picture", prompt = "Build the cat", level = 1, skill = "picture_assembly", pieces = pictureHalves("cat")},
+    {id = "apple_halves", kind = "picture", prompt = "Build the apple", level = 1, skill = "picture_assembly", pieces = pictureHalves("apple")},
     {
         id = "number_order_1", kind = "sequence", prompt = "Put numbers in order",
         level = 1, skill = "number_sequence",
@@ -44,6 +49,10 @@ PuzzleContent.puzzles = {
         pieces = {{id = "pattern_square", text = "square", target = 1}, {id = "pattern_circle", text = "circle", target = 2}},
         answer_target = 1,
     },
+    {id = "cat_picture", kind = "picture", prompt = "Build the cat", level = 2, skill = "picture_assembly", pieces = picturePieces("cat")},
+    {id = "apple_picture", kind = "picture", prompt = "Build the apple", level = 2, skill = "picture_assembly", pieces = picturePieces("apple")},
+    {id = "bus_picture", kind = "picture", prompt = "Build the bus", level = 2, skill = "picture_assembly", pieces = picturePieces("bus")},
+    {id = "ball_picture", kind = "picture", prompt = "Build the ball", level = 2, skill = "picture_assembly", pieces = picturePieces("ball")},
     {
         id = "number_bond_5", kind = "number_bond", prompt = "2 + ? = 5",
         level = 2, skill = "compose_decompose",
@@ -51,6 +60,11 @@ PuzzleContent.puzzles = {
         answer_target = 1,
     },
 }
+
+table.sort(PuzzleContent.puzzles, function(first, second)
+    if first.level == second.level then return first.id < second.id end
+    return first.level < second.level
+end)
 
 local function pathExists(path)
     local file = io.open(path, "rb")

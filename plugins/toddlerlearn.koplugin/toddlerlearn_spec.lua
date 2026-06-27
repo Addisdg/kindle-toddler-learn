@@ -388,6 +388,12 @@ describe("ToddlerLearn", function()
             local ok, errors = PuzzleContent.validate("./plugins/toddlerlearn.koplugin/assets/")
             assert.is_true(ok, table.concat(errors, "\n"))
             assert.is_true(#PuzzleContent.puzzles >= 10)
+            local previous_level = 0
+            for _, puzzle in ipairs(PuzzleContent.puzzles) do
+                assert.is_true(puzzle.level >= previous_level)
+                previous_level = puzzle.level
+            end
+            assert.are_equal(2, #PuzzleContent.puzzles[1].pieces)
         end)
 
         it("places only the selected piece in its correct destination", function()
@@ -433,7 +439,7 @@ describe("ToddlerLearn", function()
                 saveProgress = function() end,
                 clock = function() return 77 end,
             }, {__index = PuzzleScreen})
-            for index = 1, 4 do
+            for index = 1, #puzzle.pieces do
                 screen:selectPiece(index)
                 assert.is_true(screen:placeSelected(index))
             end

@@ -626,7 +626,18 @@ def make_picture_puzzle(puzzle_id, source_folder, source_name):
         ImageDraw.Draw(framed).rectangle([0, 0, half - 1, half - 1], outline=FG, width=4)
         save(framed, "puzzles", f"{puzzle_id}_{index}")
 
+def make_picture_halves(puzzle_id, source_folder, source_name):
+    source_path = os.path.join(OUT, source_folder, f"{source_name}.png")
+    source = Image.open(source_path).convert("L").resize((SIZE, SIZE))
+    boxes = [(0, 0, SIZE // 2, SIZE), (SIZE // 2, 0, SIZE, SIZE)]
+    for index, box in enumerate(boxes, 1):
+        piece = source.crop(box).resize((SIZE // 2, SIZE // 2), Image.Resampling.LANCZOS)
+        ImageDraw.Draw(piece).rectangle([0, 0, SIZE // 2 - 1, SIZE // 2 - 1], outline=FG, width=4)
+        save(piece, "puzzles", f"{puzzle_id}_half_{index}")
+
 print("\nGenerating picture puzzle pieces...")
+make_picture_halves("cat", "animals", "cat")
+make_picture_halves("apple", "fruit", "apple")
 make_picture_puzzle("cat", "animals", "cat")
 make_picture_puzzle("apple", "fruit", "apple")
 make_picture_puzzle("bus", "vehicles", "bus")
