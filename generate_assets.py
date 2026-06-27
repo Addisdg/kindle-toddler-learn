@@ -608,4 +608,28 @@ save_from_sheet("body", "body", ["hand", "foot", "eye", "ear", "nose"])
 save_from_sheet("household", "household", ["cup", "spoon", "bed", "chair", "ball"])
 save_from_sheet("emotions", "emotions", ["happy", "sad", "sleepy", "surprised"])
 
+def make_picture_puzzle(puzzle_id, source_folder, source_name):
+    """Split a square learning image into four e-ink puzzle pieces."""
+    source_path = os.path.join(OUT, source_folder, f"{source_name}.png")
+    source = Image.open(source_path).convert("L").resize((SIZE, SIZE))
+    half = SIZE // 2
+    boxes = [
+        (0, 0, half, half),
+        (half, 0, SIZE, half),
+        (0, half, half, SIZE),
+        (half, half, SIZE, SIZE),
+    ]
+    for index, box in enumerate(boxes, 1):
+        piece = source.crop(box)
+        framed = Image.new("L", (half, half), BG)
+        framed.paste(piece)
+        ImageDraw.Draw(framed).rectangle([0, 0, half - 1, half - 1], outline=FG, width=4)
+        save(framed, "puzzles", f"{puzzle_id}_{index}")
+
+print("\nGenerating picture puzzle pieces...")
+make_picture_puzzle("cat", "animals", "cat")
+make_picture_puzzle("apple", "fruit", "apple")
+make_picture_puzzle("bus", "vehicles", "bus")
+make_picture_puzzle("ball", "household", "ball")
+
 print("\nDone! All assets generated.")

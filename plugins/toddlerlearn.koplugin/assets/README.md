@@ -12,3 +12,4 @@ Subfolders expected by the default `content.lua`:
 - `tenframes/` — fixed-grid quantity cards from 1.png through 10.png
 - `letters/` — a.png, b.png, c.png
 - `shapes/`, `vehicles/`, `body/`, `household/`, `emotions/`
+- `puzzles/` - generated 2x2 picture pieces used by Puzzle mode

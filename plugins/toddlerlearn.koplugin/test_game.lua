@@ -71,6 +71,8 @@ describe("ToddlerLearn", function()
     local GameScreen
     local Content
     local AppScreen
+    local PuzzleContent
+    local PuzzleScreen
 
     setup(function()
         stub_modules()
@@ -79,6 +81,8 @@ describe("ToddlerLearn", function()
         Content    = require("content")
         GameScreen = require("gamescreen")
         AppScreen  = require("appscreen")
+        PuzzleContent = require("puzzle_content")
+        PuzzleScreen = require("puzzlescreen")
     end)
 
     -- ----------------------------------------------------------------
@@ -438,6 +442,68 @@ describe("ToddlerLearn", function()
             -- Allow up to 2 coincidental matches in 20 runs
             assert.is_true(same_count <= 2,
                 "shuffle never reorders — possible bug")
+        end)
+
+    end)
+
+    describe("Puzzle mode", function()
+
+        it("validates puzzle schemas and generated picture pieces", function()
+            local ok, errors = PuzzleContent.validate("plugins/toddlerlearn.koplugin/assets/")
+            assert.is_true(ok, table.concat(errors, "\n"))
+            assert.is_true(#PuzzleContent.puzzles >= 10)
+        end)
+
+        it("places only the selected piece in its correct destination", function()
+            local puzzle = PuzzleContent.puzzles[1]
+            local screen = setmetatable({
+                current_puzzle = puzzle,
+                progress = {},
+                puzzle_state = {
+                    choices = puzzle.pieces,
+                    selected = nil,
+                    used = {},
+                    slots = {},
+                    correct = 0,
+                    wrong = 0,
+                    solved = false,
+                },
+                saveProgress = function() end,
+            }, {__index = PuzzleScreen})
+
+            assert.is_true(screen:selectPiece(1))
+            assert.is_false(screen:placeSelected(2))
+            assert.are_equal(1, screen.puzzle_state.wrong)
+            assert.is_true(screen:selectPiece(1))
+            assert.is_true(screen:placeSelected(1))
+            assert.are_equal(puzzle.pieces[1], screen.puzzle_state.slots[1])
+            assert.is_false(screen:selectPiece(1))
+        end)
+
+        it("solves a puzzle after every unique piece is placed", function()
+            local puzzle = PuzzleContent.puzzles[1]
+            local screen = setmetatable({
+                current_puzzle = puzzle,
+                progress = {},
+                puzzle_state = {
+                    choices = puzzle.pieces,
+                    selected = nil,
+                    used = {},
+                    slots = {},
+                    correct = 0,
+                    wrong = 0,
+                    solved = false,
+                },
+                saveProgress = function() end,
+                clock = function() return 77 end,
+            }, {__index = PuzzleScreen})
+            for index = 1, 4 do
+                screen:selectPiece(index)
+                assert.is_true(screen:placeSelected(index))
+            end
+            assert.is_true(screen.puzzle_state.solved)
+            assert.are_equal(1, screen.progress[puzzle.id].solved)
+            assert.are_equal(77, screen.progress[puzzle.id].last_practiced)
         end)
 
     end)

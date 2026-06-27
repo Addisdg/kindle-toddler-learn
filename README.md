@@ -12,14 +12,14 @@ interaction principles, and proposed architecture.
 
 ## Product direction
 
-The planned app shell will let the child choose **Learn**, **Puzzles**, or
-**Draw** and switch at any time without leaving the plugin. Learn is available
-today. Puzzles and Draw are planned and must be implemented and device-tested
-before they are described as available features.
+The app shell lets the child choose **Learn**, **Puzzles**, or **Draw** and
+switch at any time without leaving the plugin. Learn and Puzzles are available
+today. Draw remains planned until continuous-touch behavior is implemented and
+device-tested.
 
 - **Learn:** systematic early reading and maths with adaptive local review.
-- **Puzzles:** e-ink-safe tap-to-place picture, sequence, word, shape, and
-  number puzzles.
+- **Puzzles:** e-ink-safe tap-to-place picture, sequence, word, pattern, and
+  number puzzles with reset and separate profile progress.
 - **Draw:** unscored free drawing plus optional letter, numeral, shape, and
   picture-completion practice.
 
@@ -121,8 +121,9 @@ kindle-toddler-learn/
 The expanded Learn mode has been tested successfully on a Kindle. It includes
 guided and category practice, difficulty levels, generated e-ink assets,
 caption-free reading, spelling, stories, early maths, adaptive review, child
-profiles, parent progress, and content validation tests. Puzzle and drawing
-modes are documented future work, not current functionality. KOReader's
+profiles, parent progress, and content validation tests. Puzzle mode adds
+tap-to-place picture, sequence, pattern, word, and number activities. Drawing
+mode remains future work. KOReader's
 internal widget APIs can vary between versions, so run `./run-tests.sh` and do
 a device smoke test before handing a new build to a child.
 
