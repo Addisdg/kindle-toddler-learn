@@ -82,6 +82,36 @@ Content.category_metadata = {
     shapes = {domain = "maths", skill = "shape_recognition", level = 1, prerequisites = {}, adult_guided = false},
 }
 
+Content.reading_lexicon = {}
+
+local function registerWords(words, level, word_type)
+    for word in words:gmatch("%S+") do
+        Content.reading_lexicon[word] = {level = level, word_type = word_type}
+    end
+end
+
+registerWords("cat dog bus cup bed sad hat bat log fog sun run fun red led", 4, "cvc")
+registerWords("fish hand foot boat", 4, "extended_phonics")
+registerWords("bird cow apple ball car happy sleepy", 6, "taught_vocabulary")
+registerWords("banana grapes strawberry orange one two three four five circle square triangle star heart train plane eye ear nose spoon chair surprised", 6, "taught_vocabulary")
+registerWords("sleeps runs fly eat go feel", 7, "connected_text")
+registerWords("swim big sleep drink here from", 8, "connected_text")
+registerWords("feels goes sees tree flies nest stop takes home", 9, "story_vocabulary")
+registerWords("a an the i see is this my can in on to it at us who what went saw", 7, "taught_irregular")
+
+function Content.validateControlledText(text, max_level)
+    for word in text:lower():gmatch("[a-z]+") do
+        local entry = Content.reading_lexicon[word]
+        if not entry then
+            return false, word .. " is not in the taught lexicon"
+        end
+        if entry.level > max_level then
+            return false, word .. " is introduced after level " .. tostring(max_level)
+        end
+    end
+    return true
+end
+
 Content.categories = {
     animals = {
         label = "Animals",
@@ -1041,6 +1071,28 @@ function Content.validate(asset_dir)
                     add_error(round_name .. " has no prompt")
                 elseif #round.prompt > 24 then
                     add_error(round_name .. " prompt is too long: " .. round.prompt)
+                end
+
+                local controlled_texts = {}
+                if category == "sentence_building" then
+                    table.insert(controlled_texts, round.sentence)
+                elseif category == "sentences" then
+                    table.insert(controlled_texts, round.prompt)
+                elseif category == "mini_stories" then
+                    table.insert(controlled_texts, round.prompt)
+                    for _, page in ipairs(round.pages or {}) do
+                        table.insert(controlled_texts, page)
+                    end
+                elseif category == "cvc_words" or category == "spelling_words" then
+                    table.insert(controlled_texts, round.word)
+                elseif category == "word_blending" or category == "word_families" then
+                    table.insert(controlled_texts, round.answer_text)
+                end
+                for _, text in ipairs(controlled_texts) do
+                    local valid, reason = Content.validateControlledText(text, category_data.level)
+                    if not valid then
+                        add_error(round_name .. " uses uncontrolled text: " .. reason)
+                    end
                 end
 
                 if round.kind == "text_choice" then

@@ -136,6 +136,9 @@ Guidelines:
 - [ ] Identify the exact curriculum `skill`, `level`, prerequisites, and
       whether the activity is adult-guided
 - [ ] Check that words and connected text use already introduced patterns
+- [ ] Register every reading/spelling word in `Content.reading_lexicon` with
+      its introduction level and word type; undeclared or early words fail
+      validation
 - [ ] Check that prompts assess reasoning and have one unambiguous answer
 - [ ] Run `python3 generate_assets.py` if assets come from the generator
 - [ ] Run `./run-tests.sh`; this executes `Content.validate(...)` and

@@ -341,6 +341,16 @@ describe("ToddlerLearn", function()
             }, Content.getGuidedCategories("reading"))
         end)
 
+        it("rejects untaught or prematurely introduced connected-text words", function()
+            assert.is_true(Content.validateControlledText("The cat can run.", 7))
+            local valid_unknown, unknown_reason = Content.validateControlledText("The dragon runs.", 9)
+            assert.is_false(valid_unknown)
+            assert.is_truthy(unknown_reason:match("dragon"))
+            local valid_early, early_reason = Content.validateControlledText("The cat feels sleepy.", 7)
+            assert.is_false(valid_early)
+            assert.is_truthy(early_reason:match("feels"))
+        end)
+
     end)
 
     describe("GameScreen.shuffle", function()
