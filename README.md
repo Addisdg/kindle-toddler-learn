@@ -19,6 +19,8 @@ plugin for a jailbroken Kindle Paperwhite (7th gen / PW3, firmware
   slightly harder four-letter words.
 - Word-family rounds contrast matching endings such as `-at`, `-og`, `-un`,
   and `-ed` using large text choices.
+- Simple sentence rounds ask the child to read a short sentence and choose
+  the matching picture.
 - Spelling rounds show a picture, large scrambled letter tiles, and large
   answer boxes. Tapping an answer box clears the attempt for another try.
 - Spelling assistance scales with difficulty: starter letters appear for

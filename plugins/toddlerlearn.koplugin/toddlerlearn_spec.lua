@@ -65,6 +65,7 @@ describe("ToddlerLearn", function()
                 cvc_words = true,
                 word_families = true,
                 spelling_words = true,
+                sentences = true,
                 shapes = true,
                 vehicles = true,
                 body = true,
@@ -158,6 +159,17 @@ describe("ToddlerLearn", function()
                 for _, distractor in ipairs(round.distractors_text) do
                     assert.are_not_equal(round.family, distractor:sub(-#round.family))
                 end
+            end
+        end)
+
+        it("uses short complete sentences for picture comprehension", function()
+            local rounds = Content.getRounds("sentences")
+            assert.is_true(#rounds >= 10)
+            for _, round in ipairs(rounds) do
+                local _, spaces = round.prompt:gsub(" ", "")
+                assert.is_true(spaces >= 2)
+                assert.are_equal(".", round.prompt:sub(-1))
+                assert.is_true(#round.prompt <= 24)
             end
         end)
 

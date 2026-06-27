@@ -12,6 +12,7 @@ Content.category_order = {
     "cvc_words",
     "word_families",
     "spelling_words",
+    "sentences",
     "shapes",
     "vehicles",
     "body",
@@ -310,6 +311,23 @@ Content.categories = {
     spelling_words = {
         label = "Spelling Words",
         rounds = {},
+    },
+    sentences = {
+        label = "Simple Sentences",
+        rounds = {
+            {prompt = "I see a cat.", answer = "animals/cat.png", distractors = {"animals/dog.png", "animals/fish.png"}},
+            {prompt = "The dog is here.", answer = "animals/dog.png", distractors = {"animals/cow.png", "animals/bird.png"}},
+            {prompt = "A bird can fly.", answer = "animals/bird.png", distractors = {"animals/fish.png", "animals/cat.png"}},
+            {prompt = "The fish can swim.", answer = "animals/fish.png", distractors = {"animals/bird.png", "animals/cow.png"}},
+            {prompt = "The cow is big.", answer = "animals/cow.png", distractors = {"animals/cat.png", "animals/dog.png"}},
+            {prompt = "I eat an apple.", answer = "fruit/apple.png", distractors = {"fruit/banana.png", "fruit/orange.png"}},
+            {prompt = "The bus is big.", answer = "vehicles/bus.png", distractors = {"vehicles/car.png", "vehicles/boat.png"}},
+            {prompt = "The car can go.", answer = "vehicles/car.png", distractors = {"vehicles/train.png", "vehicles/plane.png"}},
+            {prompt = "This is my hand.", answer = "body/hand.png", distractors = {"body/foot.png", "body/ear.png"}},
+            {prompt = "I sleep in a bed.", answer = "household/bed.png", distractors = {"household/chair.png", "household/cup.png"}},
+            {prompt = "I drink from a cup.", answer = "household/cup.png", distractors = {"household/spoon.png", "household/ball.png"}},
+            {prompt = "I feel happy.", answer = "emotions/happy.png", distractors = {"emotions/sad.png", "emotions/sleepy.png"}},
+        },
     },
     shapes = {
         label = "Shapes",
@@ -664,6 +682,7 @@ function Content.validate(asset_dir)
         reading_words = true,
         cvc_words = true,
         spelling_words = true,
+        sentences = true,
     }
 
     local function add_error(message)

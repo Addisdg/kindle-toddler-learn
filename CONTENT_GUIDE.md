@@ -76,6 +76,8 @@ Guidelines:
   and hard mode leaves every answer box empty.
 - Word-family text rounds store the expected ending in `family`; answer text
   must share that ending and distractors must not.
+- Sentence prompts should contain one concrete idea, end with a period, and
+  remain under the 24-character prompt limit.
 
 ## Where to get images
 
