@@ -129,4 +129,5 @@ and they could play without getting lost in KOReader's UI.
   KOReader's menu
 - Audio via a USB-attached speaker hack (probably not worth it on PW3)
 - [x] Parent progress dashboard with category mastery and local-data reset
+- [x] Three local child profiles with independent learning progress
 - Letter-tracing mode using touch-path drawing instead of tap-to-select

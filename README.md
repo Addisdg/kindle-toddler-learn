@@ -57,6 +57,8 @@ plugin for a jailbroken Kindle Paperwhite (7th gen / PW3, firmware
   often while mastered material remains in lighter review.
 - A separate parent progress screen shows overall accuracy, mastery by
   category, and rounds that need more practice. Resetting requires two taps.
+- Parent Setup and Progress support three child profiles, each with separate
+  local mastery history; existing progress is retained as Child 1.
 - Guided Learning follows a mastery-based path from letter pairs through
   sounds, short words, word families, and simple sentences.
 - Two-finger hold exits back to KOReader's file browser.

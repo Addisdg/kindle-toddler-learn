@@ -44,6 +44,12 @@ local GUIDED_CATEGORIES = {
     "mini_stories",
 }
 local GUIDED_MASTERY_RATIO = 0.7
+local PROFILE_IDS = {"child1", "child2", "child3"}
+local PROFILE_LABELS = {
+    child1 = "Child 1",
+    child2 = "Child 2",
+    child3 = "Child 3",
+}
 
 --------------------------------------------------------------------------
 -- GameScreen
@@ -56,6 +62,7 @@ local GameScreen = InputContainer:extend{
     session_length = 10,
     parent_mode = false,
     progress_mode = false,
+    profile_id = "child1",
 }
 
 function GameScreen:init()
@@ -94,6 +101,8 @@ function GameScreen:init()
     self.ges_events.PanNoop = {pan_range}
 
     if self.progress_mode then
+        self.selected_profile_id = self.selected_profile_id or self.profile_id or "child1"
+        self.profile_id = self.selected_profile_id
         self.progress = self.progress or self:loadProgress()
         self.selected_progress_category = self.selected_progress_category
             or Content.category_order[1]
@@ -102,6 +111,7 @@ function GameScreen:init()
     end
 
     if self.parent_mode then
+        self.selected_profile_id = self.selected_profile_id or self.profile_id or "child1"
         self.selected_category = self.selected_category or self.active_category or "mixed"
         self.selected_difficulty = self.selected_difficulty or self.difficulty or "normal"
         self.selected_session_length = self.selected_session_length or self.session_length or 10
@@ -170,10 +180,20 @@ function GameScreen:getRoundKey(round)
     return (round.category or "unknown") .. ":" .. (round.kind or "picture") .. ":" .. tostring(identity)
 end
 
+function GameScreen:getProgressSettingKey(profile_id)
+    return "toddlerlearn_progress_" .. (profile_id or self.profile_id or "child1")
+end
+
 function GameScreen:loadProgress()
     local settings = self.settings or rawget(_G, "G_reader_settings")
     if settings and settings.readSetting then
-        return settings:readSetting("toddlerlearn_progress", {}) or {}
+        local saved = settings:readSetting(self:getProgressSettingKey(), nil)
+        if saved ~= nil then
+            return saved
+        end
+        if (self.profile_id or "child1") == "child1" then
+            return settings:readSetting("toddlerlearn_progress", {}) or {}
+        end
     end
     return {}
 end
@@ -183,7 +203,7 @@ function GameScreen:saveProgress()
     if not settings or not settings.saveSetting then
         return
     end
-    settings:saveSetting("toddlerlearn_progress", self.progress or {})
+    settings:saveSetting(self:getProgressSettingKey(), self.progress or {})
     if settings.flush then
         settings:flush()
     end
@@ -295,6 +315,34 @@ function GameScreen:cycleSessionLength()
     return self.selected_session_length
 end
 
+function GameScreen:getProfileLabel(profile_id)
+    return PROFILE_LABELS[profile_id or self.selected_profile_id or self.profile_id] or "Child 1"
+end
+
+function GameScreen:cycleProfile()
+    local current = self.selected_profile_id or self.profile_id or PROFILE_IDS[1]
+    local next_index = 1
+    for i, profile_id in ipairs(PROFILE_IDS) do
+        if profile_id == current then
+            next_index = i + 1
+            break
+        end
+    end
+    if next_index > #PROFILE_IDS then
+        next_index = 1
+    end
+    self.selected_profile_id = PROFILE_IDS[next_index]
+    return self.selected_profile_id
+end
+
+function GameScreen:cycleProgressProfile()
+    self:cycleProfile()
+    self.profile_id = self.selected_profile_id
+    self.progress = self:loadProgress()
+    self.reset_progress_armed = false
+    return self.profile_id
+end
+
 function GameScreen:getProgressSummary(category)
     local summary = {
         correct = 0,
@@ -383,6 +431,10 @@ function GameScreen:renderProgressScreen()
                 dimen = Geom:new{w = self.dimen.w - EDGE_MARGIN * 2, h = 180},
                 TextWidget:new{text = summary_text, face = Font:getFace("tfont", 32)},
             },
+            self:renderParentButton("Profile: " .. self:getProfileLabel(self.profile_id), function()
+                self:cycleProgressProfile()
+                self:renderProgressScreen()
+            end),
             self:renderParentButton("Category: " .. self:getCategoryLabel(category), function()
                 self:cycleProgressCategory()
                 self:renderProgressScreen()
@@ -450,6 +502,7 @@ function GameScreen:renderParentButton(text, on_tap)
 end
 
 function GameScreen:renderParentMenu()
+    local profile_text = "Profile: " .. self:getProfileLabel(self.selected_profile_id)
     local category_text = "Category: " .. self:getCategoryLabel(self.selected_category)
     local difficulty_text = "Difficulty: " .. self:getDifficultyLabel(self.selected_difficulty)
     local session_text = "Session: " .. tostring(self.selected_session_length) .. " rounds"
@@ -473,6 +526,10 @@ function GameScreen:renderParentMenu()
                     }
                 }
             },
+            self:renderParentButton(profile_text, function()
+                self:cycleProfile()
+                self:renderParentMenu()
+            end),
             self:renderParentButton(category_text, function()
                 self:cycleCategory()
                 self:renderParentMenu()
@@ -492,6 +549,7 @@ function GameScreen:renderParentMenu()
                     active_category = self.selected_category,
                     difficulty = self.selected_difficulty,
                     session_length = self.selected_session_length,
+                    profile_id = self.selected_profile_id,
                 })
             end),
         }

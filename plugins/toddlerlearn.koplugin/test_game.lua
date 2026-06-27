@@ -515,6 +515,34 @@ describe("ToddlerLearn", function()
             assert.is_nil(next(gs.progress))
         end)
 
+        it("cycles three clearly labelled child profiles", function()
+            local gs = setmetatable({selected_profile_id = "child1"}, {__index = GameScreen})
+
+            assert.are_equal("Child 1", gs:getProfileLabel("child1"))
+            assert.are_equal("child2", gs:cycleProfile())
+            assert.are_equal("child3", gs:cycleProfile())
+            assert.are_equal("child1", gs:cycleProfile())
+        end)
+
+        it("loads separate progress for each child and preserves legacy Child 1 data", function()
+            local legacy = {old_round = {correct = 2, wrong = 0}}
+            local child_two = {new_round = {correct = 1, wrong = 1}}
+            local store = {toddlerlearn_progress = legacy, toddlerlearn_progress_child2 = child_two}
+            local settings = {
+                readSetting = function(_, key, default)
+                    if store[key] == nil then return default end
+                    return store[key]
+                end,
+            }
+            local gs = setmetatable({settings = settings, profile_id = "child1"}, {__index = GameScreen})
+
+            assert.are_equal(legacy, gs:loadProgress())
+            gs.profile_id = "child2"
+            assert.are_equal(child_two, gs:loadProgress())
+            gs.profile_id = "child3"
+            assert.is_nil(next(gs:loadProgress()))
+        end)
+
     end)
 
     describe("GameScreen round progression", function()
@@ -666,7 +694,7 @@ describe("ToddlerLearn", function()
             local saved
             local settings = {
                 saveSetting = function(_, key, value)
-                    assert.are_equal("toddlerlearn_progress", key)
+                    assert.are_equal("toddlerlearn_progress_child1", key)
                     saved = value
                 end,
                 flush = function() end,
