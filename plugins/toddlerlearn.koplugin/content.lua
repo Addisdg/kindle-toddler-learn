@@ -30,6 +30,58 @@ Content.category_order = {
     "early_math",
 }
 
+Content.curriculum = {
+    guided_reading = {
+        "letter_pairs",
+        "beginning_sounds",
+        "ending_sounds",
+        "cvc_words",
+        "word_blending",
+        "word_families",
+        "sentence_building",
+        "sentences",
+        "mini_stories",
+    },
+    guided_maths = {
+        "tap_counting",
+        "quantities",
+        "numbers",
+        "tenframes",
+        "number_bonds",
+        "early_math",
+    },
+}
+
+Content.category_metadata = {
+    animals = {domain = "language", skill = "picture_vocabulary", level = 1, prerequisites = {}, adult_guided = false},
+    fruit = {domain = "language", skill = "picture_vocabulary", level = 1, prerequisites = {}, adult_guided = false},
+    vehicles = {domain = "language", skill = "picture_vocabulary", level = 1, prerequisites = {}, adult_guided = false},
+    body = {domain = "language", skill = "picture_vocabulary", level = 1, prerequisites = {}, adult_guided = false},
+    household = {domain = "language", skill = "picture_vocabulary", level = 1, prerequisites = {}, adult_guided = false},
+    emotions = {domain = "language", skill = "emotion_vocabulary", level = 1, prerequisites = {}, adult_guided = false},
+    letters = {domain = "reading", skill = "letter_recognition", level = 1, prerequisites = {}, adult_guided = false},
+    letter_pairs = {domain = "reading", skill = "letter_case_matching", level = 1, prerequisites = {}, adult_guided = false},
+    letter_words = {domain = "reading", skill = "letter_word_association", level = 2, prerequisites = {"letters"}, adult_guided = true},
+    beginning_sounds = {domain = "reading", skill = "initial_sound_isolation", level = 2, prerequisites = {"letter_pairs"}, adult_guided = true},
+    ending_sounds = {domain = "reading", skill = "final_sound_isolation", level = 3, prerequisites = {"beginning_sounds"}, adult_guided = true},
+    cvc_words = {domain = "reading", skill = "phoneme_encoding", level = 4, prerequisites = {"beginning_sounds"}, adult_guided = false},
+    word_blending = {domain = "reading", skill = "onset_rime_blending", level = 4, prerequisites = {"beginning_sounds"}, adult_guided = true},
+    word_families = {domain = "reading", skill = "word_part_analysis", level = 5, prerequisites = {"word_blending"}, adult_guided = false},
+    reading_words = {domain = "reading", skill = "word_recognition", level = 6, prerequisites = {"word_blending"}, adult_guided = false},
+    spelling_words = {domain = "reading", skill = "word_encoding", level = 6, prerequisites = {"cvc_words"}, adult_guided = false},
+    sentence_building = {domain = "reading", skill = "sentence_syntax", level = 7, prerequisites = {"word_families"}, adult_guided = false},
+    sentences = {domain = "reading", skill = "connected_text", level = 8, prerequisites = {"sentence_building"}, adult_guided = false},
+    mini_stories = {domain = "reading", skill = "story_comprehension", level = 9, prerequisites = {"sentences"}, adult_guided = false},
+    tap_counting = {domain = "maths", skill = "one_to_one_counting", level = 1, prerequisites = {}, adult_guided = false},
+    counting = {domain = "maths", skill = "cardinality", level = 1, prerequisites = {}, adult_guided = false},
+    quantities = {domain = "maths", skill = "quantity_recognition", level = 2, prerequisites = {"tap_counting"}, adult_guided = false},
+    numbers = {domain = "maths", skill = "numeral_recognition", level = 2, prerequisites = {"tap_counting"}, adult_guided = false},
+    tenframes = {domain = "maths", skill = "structured_quantity", level = 3, prerequisites = {"quantities"}, adult_guided = false},
+    number_bonds = {domain = "maths", skill = "compose_decompose", level = 4, prerequisites = {"tenframes"}, adult_guided = false},
+    early_math = {domain = "maths", skill = "early_operations", level = 5, prerequisites = {"number_bonds"}, adult_guided = false},
+    shapes = {domain = "maths", skill = "shape_recognition", level = 1, prerequisites = {}, adult_guided = false},
+}
+
 Content.categories = {
     animals = {
         label = "Animals",
@@ -877,6 +929,32 @@ addEndingSoundRounds()
 addWordFamilyRounds()
 addReadingAndSpellingRounds()
 
+for category, metadata in pairs(Content.category_metadata) do
+    local category_data = Content.categories[category]
+    if category_data then
+        category_data.domain = metadata.domain
+        category_data.skill = metadata.skill
+        category_data.level = metadata.level
+        category_data.prerequisites = metadata.prerequisites
+        category_data.adult_guided = metadata.adult_guided
+        for _, round in ipairs(category_data.rounds) do
+            round.domain = round.domain or metadata.domain
+            round.skill = round.skill or metadata.skill
+            round.curriculum_level = round.curriculum_level or metadata.level
+            if round.adult_guided == nil then
+                round.adult_guided = metadata.adult_guided
+            end
+        end
+    end
+end
+
+function Content.getGuidedCategories(domain)
+    if domain == "maths" then
+        return Content.curriculum.guided_maths
+    end
+    return Content.curriculum.guided_reading
+end
+
 function Content.getRounds(category)
     if not category or category == "mixed" then
         return Content
@@ -925,11 +1003,24 @@ function Content.validate(asset_dir)
             add_error("missing category: " .. category)
         elseif not category_data.label or category_data.label == "" then
             add_error("missing category label: " .. category)
+        elseif not category_data.domain or not category_data.skill
+            or type(category_data.level) ~= "number"
+            or type(category_data.prerequisites) ~= "table"
+            or type(category_data.adult_guided) ~= "boolean"
+        then
+            add_error("category has invalid curriculum metadata: " .. category)
         elseif #category_data.rounds == 0 then
             add_error("category has no rounds: " .. category)
         else
             for i, round in ipairs(category_data.rounds) do
                 local round_name = category .. " round " .. tostring(i)
+                if round.domain ~= category_data.domain
+                    or not round.skill
+                    or type(round.curriculum_level) ~= "number"
+                    or type(round.adult_guided) ~= "boolean"
+                then
+                    add_error(round_name .. " has invalid curriculum metadata")
+                end
                 if not round.prompt or round.prompt == "" then
                     add_error(round_name .. " has no prompt")
                 elseif #round.prompt > 24 then
@@ -1023,6 +1114,17 @@ function Content.validate(asset_dir)
                     end
                 end
 
+            end
+        end
+    end
+
+    for category, metadata in pairs(Content.category_metadata) do
+        for _, prerequisite in ipairs(metadata.prerequisites) do
+            local prerequisite_data = Content.categories[prerequisite]
+            if not prerequisite_data then
+                add_error(category .. " has unknown prerequisite: " .. prerequisite)
+            elseif prerequisite_data.level >= metadata.level then
+                add_error(category .. " prerequisite is not earlier: " .. prerequisite)
             end
         end
     end

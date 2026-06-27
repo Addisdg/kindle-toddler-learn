@@ -380,6 +380,28 @@ describe("ToddlerLearn", function()
             assert.is_true(ok, table.concat(errors, "\n"))
         end)
 
+        it("defines curriculum metadata and valid prerequisites for every round", function()
+            for _, category in ipairs(Content.category_order) do
+                local category_data = Content.categories[category]
+                assert.is_string(category_data.domain)
+                assert.is_string(category_data.skill)
+                assert.is_number(category_data.level)
+                assert.is_table(category_data.prerequisites)
+                assert.is_boolean(category_data.adult_guided)
+                for _, round in ipairs(category_data.rounds) do
+                    assert.are_equal(category_data.domain, round.domain)
+                    assert.is_string(round.skill)
+                    assert.is_number(round.curriculum_level)
+                    assert.is_boolean(round.adult_guided)
+                end
+            end
+            assert.are_same({
+                "letter_pairs", "beginning_sounds", "ending_sounds",
+                "cvc_words", "word_blending", "word_families",
+                "sentence_building", "sentences", "mini_stories",
+            }, Content.getGuidedCategories("reading"))
+        end)
+
     end)
 
     -- ----------------------------------------------------------------

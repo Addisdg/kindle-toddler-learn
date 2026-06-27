@@ -33,17 +33,6 @@ local SPELLING_LETTER_MAX = 88
 local SPELLING_LETTER_HEIGHT = 84
 local SPELLING_FONT_MAX = 56
 local TEXT_CHOICE_FONT = 84
-local GUIDED_CATEGORIES = {
-    "letter_pairs",
-    "beginning_sounds",
-    "ending_sounds",
-    "cvc_words",
-    "word_blending",
-    "word_families",
-    "sentence_building",
-    "sentences",
-    "mini_stories",
-}
 local GUIDED_MASTERY_RATIO = 0.7
 local EXIT_CODE = "1234"
 local PROFILE_IDS = {"child1", "child2", "child3"}
@@ -167,12 +156,13 @@ function GameScreen:getCategoryMastery(category)
 end
 
 function GameScreen:getGuidedCategory()
-    for _, category in ipairs(GUIDED_CATEGORIES) do
+    local guided_categories = Content.getGuidedCategories("reading")
+    for _, category in ipairs(guided_categories) do
         if self:getCategoryMastery(category) < GUIDED_MASTERY_RATIO then
             return category
         end
     end
-    return GUIDED_CATEGORIES[#GUIDED_CATEGORIES]
+    return guided_categories[#guided_categories]
 end
 
 function GameScreen:getRoundKey(round)
