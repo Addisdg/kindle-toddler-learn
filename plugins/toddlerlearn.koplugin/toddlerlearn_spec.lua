@@ -62,6 +62,7 @@ describe("ToddlerLearn", function()
                 letter_words = true,
                 beginning_sounds = true,
                 reading_words = true,
+                cvc_words = true,
                 spelling_words = true,
                 shapes = true,
                 vehicles = true,
@@ -131,6 +132,20 @@ describe("ToddlerLearn", function()
             for _, round in ipairs(rounds) do
                 assert.are_equal(round.prompt:lower(), round.sound_word:sub(1, 1))
                 assert.are_equal(1, #round.prompt)
+            end
+        end)
+
+        it("orders leveled short-word spelling from simple to harder words", function()
+            local rounds = Content.getRounds("cvc_words")
+            assert.is_true(#rounds >= 8)
+            local previous_level = 1
+            for _, round in ipairs(rounds) do
+                assert.are_equal("spelling", round.kind)
+                assert.is_true(round.level >= previous_level)
+                if round.level == 1 then
+                    assert.are_equal(3, #round.word)
+                end
+                previous_level = round.level
             end
         end)
 

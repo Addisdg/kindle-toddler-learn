@@ -9,6 +9,7 @@ Content.category_order = {
     "letter_words",
     "beginning_sounds",
     "reading_words",
+    "cvc_words",
     "spelling_words",
     "shapes",
     "vehicles",
@@ -285,6 +286,21 @@ Content.categories = {
     reading_words = {
         label = "Reading Words",
         rounds = {},
+    },
+    cvc_words = {
+        label = "Short Word Spelling",
+        rounds = {
+            {kind = "spelling", prompt = "Spell it", answer = "animals/cat.png", word = "cat", level = 1},
+            {kind = "spelling", prompt = "Spell it", answer = "animals/dog.png", word = "dog", level = 1},
+            {kind = "spelling", prompt = "Spell it", answer = "vehicles/bus.png", word = "bus", level = 1},
+            {kind = "spelling", prompt = "Spell it", answer = "household/cup.png", word = "cup", level = 1},
+            {kind = "spelling", prompt = "Spell it", answer = "household/bed.png", word = "bed", level = 1},
+            {kind = "spelling", prompt = "Spell it", answer = "emotions/sad.png", word = "sad", level = 1},
+            {kind = "spelling", prompt = "Spell it", answer = "animals/fish.png", word = "fish", level = 2},
+            {kind = "spelling", prompt = "Spell it", answer = "body/hand.png", word = "hand", level = 2},
+            {kind = "spelling", prompt = "Spell it", answer = "body/foot.png", word = "foot", level = 2},
+            {kind = "spelling", prompt = "Spell it", answer = "vehicles/boat.png", word = "boat", level = 2},
+        },
     },
     spelling_words = {
         label = "Spelling Words",
@@ -616,6 +632,7 @@ function Content.validate(asset_dir)
         letter_words = true,
         beginning_sounds = true,
         reading_words = true,
+        cvc_words = true,
         spelling_words = true,
     }
 

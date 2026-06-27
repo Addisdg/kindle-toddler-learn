@@ -70,6 +70,8 @@ Guidelines:
   least two `distractors_text` values. This is used for letter pairs.
 - Beginning-sound rounds use a one-letter prompt and store `sound_word` so
   tests can verify that the chosen picture starts with the displayed letter.
+- Leveled spelling rounds use `level = 1` for simple CVC words and higher
+  values for later material; keep category rounds ordered by level.
 
 ## Where to get images
 
