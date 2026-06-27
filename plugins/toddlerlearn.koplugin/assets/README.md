@@ -1,7 +1,8 @@
 # Assets
 
 See `CONTENT_GUIDE.md` in the project root for image specs and how to add
-images here.
+images here. Curriculum order, puzzle art requirements, and planned drawing
+activities are defined in `LEARNING_DESIGN.md`.
 
 Subfolders expected by the default `content.lua`:
 

@@ -13,6 +13,10 @@ Adaptive review now stores per-round correct and incorrect counts locally.
 Early reading and maths now follow structured categories through sentences,
 quantities to ten, arithmetic to five, comparisons, ordering, and patterns.
 Guided Learning turns the reading categories into a mastery-based curriculum.
+The next product stage is defined in `LEARNING_DESIGN.md`: a shared child-facing
+chooser for Learn, Puzzles, and Draw, backed by a more explicit reading and
+maths curriculum. Planned features are not treated as complete until they pass
+automated tests, emulator checks, and an on-device PW3 smoke test.
 
 ---
 
@@ -122,12 +126,116 @@ and they could play without getting lost in KOReader's UI.
 
 ---
 
-## Backlog / ideas for later
+## Completed post-MVP foundations
 
-- Persistent parent preferences across app launches
-- A hidden in-game parent gesture that opens setup without returning to
-  KOReader's menu
-- Audio via a USB-attached speaker hack (probably not worth it on PW3)
+- [x] Adaptive per-round practice and mastery-based Guided Learning
+- [x] Decoding, spelling, sentence building, and decodable mini-stories
+- [x] Counting, ten frames, number bonds, arithmetic, patterns, and shapes
 - [x] Parent progress dashboard with category mastery and local-data reset
 - [x] Three local child profiles with independent learning progress
-- Letter-tracing mode using touch-path drawing instead of tap-to-select
+- [x] Unlimited child-paced play and parent-code exit
+
+---
+
+## Phase 7 - Curriculum and progress model
+**Goal:** Make the learning sequence explicit enough that new content cannot
+silently introduce untaught reading or maths concepts.
+
+- [ ] Add stable `skill`, `level`, and prerequisite metadata to every category
+- [ ] Mark sound-dependent activities as `adult_guided`
+- [ ] Define the taught phonics sequence and documented irregular-word set
+- [ ] Validate sentence and story words against introduced patterns
+- [ ] Align reading and spelling rounds at each guided stage
+- [ ] Expand maths stages through visual addition/subtraction to ten, spatial
+      reasoning, sorting, measurement, and simple story problems
+- [ ] Track independent, hinted, and incorrect attempts separately
+- [ ] Add last-practiced time and versioned progress migration
+- [ ] Test stage unlocking, review selection, and content prerequisites
+
+**Done when:** every Learn activity reports what it teaches, what comes before
+it, and whether the child can use it without adult audio support.
+
+---
+
+## Phase 8 - Shared mode shell
+**Goal:** Let a child switch among Learn, Puzzles, and Draw at any time without
+leaving the plugin or entering an adult menu.
+
+- [ ] Introduce `appscreen.lua` as the shared mode router
+- [ ] Build a first-screen chooser with large Learn, Puzzles, and Draw choices
+- [ ] Add the same large Modes control to every activity screen
+- [ ] Preserve each mode's unfinished state while switching
+- [ ] Keep profile selection, progress storage, and parent-code exit shared
+- [ ] Show a clear "Coming soon" state until a planned mode is functional
+- [ ] Test repeated mode switching, state restoration, and parent-code exit
+- [ ] Verify the complete chooser and controls at PW3 resolution
+
+**Done when:** a toddler can move between all implemented modes independently,
+and cannot accidentally reach KOReader or parent settings.
+
+---
+
+## Phase 9 - Puzzle mode MVP
+**Goal:** Deliver useful spatial and learning puzzles without relying on
+e-ink-unfriendly dragging.
+
+- [ ] Define and validate `puzzle_content.lua`
+- [ ] Implement tap-piece, tap-destination placement with strong selection
+- [ ] Add reset and recoverable incorrect-placement behavior
+- [ ] Start with picture halves and 2x2 picture assembly
+- [ ] Add three-step sequencing and repeating-pattern completion
+- [ ] Add word-chunk, shape-composition, and number-bond puzzle families
+- [ ] Progress from two pieces to four, then optional 3x3 puzzles
+- [ ] Store mastery separately per puzzle, child, and hint level
+- [ ] Test solved-state logic, duplicate taps, reset, and state restoration
+- [ ] Device-test touch target size, ghosting, and refresh frequency
+
+**Done when:** every puzzle can be solved, reset, left, and resumed using taps
+alone, with no timer and no ambiguous piece placement.
+
+---
+
+## Phase 10 - Drawing feasibility and MVP
+**Goal:** Prove responsive touch drawing on PW3 before expanding into tracing.
+
+- [ ] Build a diagnostic screen for continuous touch coordinates and pressure
+- [ ] Measure event rate, latency, ghosting, and memory use on the Kindle
+- [ ] Define a stroke model with point sampling and path simplification
+- [ ] Refresh only the changed canvas region during a stroke
+- [ ] Implement a fixed full-screen canvas and one black brush
+- [ ] Add three brush widths, undo, and confirm-before-clear
+- [ ] Preserve the drawing while switching modes
+- [ ] Run a ten-minute drawing and memory stability test on-device
+- [ ] Add optional letter, numeral, and shape overlays only after free draw is
+      responsive
+- [ ] Keep Free Draw unscored; use gentle guidance rather than strict tracing
+      grades
+
+**Done when:** finger drawing feels immediate enough for a toddler, controls do
+not shift, and extended drawing does not leak memory or leave severe ghosting.
+
+---
+
+## Phase 11 - Learning quality and family testing
+**Goal:** Verify that the larger app is understandable, educational, and calm
+for real children and caregivers.
+
+- [ ] Add parent-dashboard explanations for current focus and suggested review
+- [ ] Balance new, difficult, and mastered activities in Guided Learning
+- [ ] Add optional child-friendly demonstrations before each new interaction
+- [ ] Test naming agreement and cultural clarity for every picture
+- [ ] Observe at least three children using the mode chooser without coaching
+- [ ] Record confusion, accidental taps, fatigue, and preferred activities
+- [ ] Review progress data with caregivers for clarity and usefulness
+- [ ] Re-test parent-code safety and profile isolation after migrations
+- [ ] Document a release checklist covering emulator and Kindle verification
+
+**Done when:** children can choose and complete activities with minimal help,
+and caregivers can accurately describe the skills being learned.
+
+## Deferred ideas
+
+- Persistent parent setup preferences across app launches
+- A parent gesture that opens setup without returning to KOReader's menu
+- A small local drawing gallery after storage and privacy behavior are tested
+- External audio support only if a dependable PW3 hardware path is established

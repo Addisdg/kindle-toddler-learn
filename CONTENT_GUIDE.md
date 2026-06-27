@@ -2,6 +2,29 @@
 
 How to add or change learning rounds (prompt + images).
 
+Content must follow the sequence and child-development principles in
+`LEARNING_DESIGN.md`. A larger content library is not automatically better:
+each round must teach or assess a named skill at the child's current stage.
+
+## Curriculum rules
+
+- Introduce reading patterns explicitly and in a stable order. Spelling,
+  sentences, and stories may use only previously introduced patterns plus a
+  small documented set of taught irregular words.
+- Pair decoding and spelling practice for the same word pattern.
+- Include connected decodable text regularly rather than presenting only
+  isolated words.
+- Mark activities that require an adult to pronounce sounds as
+  `adult_guided = true`; the PW3 cannot provide audio independently.
+- Move maths from familiar objects to structured pictures such as ten frames,
+  then to numerals and equations.
+- Prefer prompts that reveal reasoning, not just answer recognition.
+- Do not use timers, lives, penalties, or color-dependent distinctions.
+- Record a stable `skill` and `level` on new content so adaptive review and the
+  parent dashboard can explain what is being practiced.
+- Test each image with toddlers or at minimum two adults for naming agreement;
+  reject pictures that reasonably suggest more than one answer.
+
 ## Image specs
 
 - **Format:** PNG
@@ -110,6 +133,10 @@ Guidelines:
       across rounds)
 - [ ] Add category metadata and rounds to `content.lua`
 - [ ] Add the category key to `Content.category_order`
+- [ ] Identify the exact curriculum `skill`, `level`, prerequisites, and
+      whether the activity is adult-guided
+- [ ] Check that words and connected text use already introduced patterns
+- [ ] Check that prompts assess reasoning and have one unambiguous answer
 - [ ] Run `python3 generate_assets.py` if assets come from the generator
 - [ ] Run `./run-tests.sh`; this executes `Content.validate(...)` and
       checks referenced assets exist

@@ -1,9 +1,33 @@
 # Toddler Learn — Kindle Paperwhite KOReader Plugin
 
-A simple, e-ink-friendly "tap the matching picture" learning game for
-toddlers, built as a [KOReader](https://github.com/koreader/koreader)
-plugin for a jailbroken Kindle Paperwhite (7th gen / PW3, firmware
-5.16.2.1.1).
+An e-ink-friendly early reading and maths environment for toddlers, built as a
+[KOReader](https://github.com/koreader/koreader) plugin for a jailbroken Kindle
+Paperwhite (7th gen / PW3, firmware 5.16.2.1.1).
+
+The current Learn mode combines visual matching, phonics practice, decoding,
+spelling, connected text, counting, number sense, and early arithmetic. The
+next product stage adds a child-facing mode chooser with integrated Puzzles and
+Draw modes. See [LEARNING_DESIGN.md](LEARNING_DESIGN.md) for the curriculum,
+interaction principles, and proposed architecture.
+
+## Product direction
+
+The planned app shell will let the child choose **Learn**, **Puzzles**, or
+**Draw** and switch at any time without leaving the plugin. Learn is available
+today. Puzzles and Draw are planned and must be implemented and device-tested
+before they are described as available features.
+
+- **Learn:** systematic early reading and maths with adaptive local review.
+- **Puzzles:** e-ink-safe tap-to-place picture, sequence, word, shape, and
+  number puzzles.
+- **Draw:** unscored free drawing plus optional letter, numeral, shape, and
+  picture-completion practice.
+
+The design borrows e-ink restraint and local review from KAnki and KOReader
+Vocabulary Builder, letter manipulation from Kindle's Every Word, and a
+phonics-to-story progression from Poio. It intentionally avoids timers,
+competitive rankings, advertisements, and reward systems designed to prolong
+screen time.
 
 ## How it works
 
@@ -72,6 +96,7 @@ kindle-toddler-learn/
 ├── README.md              <- this file
 ├── PROJECT_PLAN.md         <- phased roadmap + checklists
 ├── CONTENT_GUIDE.md         <- how to add new rounds / images
+├── LEARNING_DESIGN.md       <- curriculum, modes, and product principles
 └── plugins/
     └── toddlerlearn.koplugin/
         ├── _meta.lua        <- plugin name/description (KOReader reads this)
@@ -93,12 +118,13 @@ kindle-toddler-learn/
 
 ## Status
 
-The expanded build has been tested successfully on a Kindle. It includes
-category sessions, difficulty levels, generated e-ink assets, caption-free
-reading practice, large resettable spelling controls, parent setup, reward
-milestones, and content validation tests. KOReader's internal widget APIs can
-still vary between versions, so run `./run-tests.sh` and do a quick device
-smoke test before handing a new build to a child.
+The expanded Learn mode has been tested successfully on a Kindle. It includes
+guided and category practice, difficulty levels, generated e-ink assets,
+caption-free reading, spelling, stories, early maths, adaptive review, child
+profiles, parent progress, and content validation tests. Puzzle and drawing
+modes are documented future work, not current functionality. KOReader's
+internal widget APIs can vary between versions, so run `./run-tests.sh` and do
+a device smoke test before handing a new build to a child.
 
 ## Development setup (on your computer)
 
