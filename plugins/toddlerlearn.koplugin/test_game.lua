@@ -833,6 +833,62 @@ describe("ToddlerLearn", function()
             assert.are_equal(#Content.getRounds("letter_pairs"), #gs.rounds)
         end)
 
+        it("mixes current guided work with targeted and mastered review", function()
+            local previous = Content.getRounds("letter_pairs")
+            local gs = setmetatable({
+                active_category = "guided",
+                progress = {},
+                shuffle = function() end,
+            }, {__index = GameScreen})
+            local required = math.ceil(#previous * 0.7)
+            for index = 1, required do
+                gs.progress[gs:getRoundKey(previous[index])] = {
+                    correct = 2, wrong = 0, independent_correct = 2,
+                }
+            end
+            gs.progress[gs:getRoundKey(previous[#previous])] = {
+                correct = 0, wrong = 3, independent_correct = 0,
+            }
+
+            gs:resetRoundOrder()
+
+            assert.are_equal("beginning_sounds", gs.guided_category)
+            assert.is_true(#gs.rounds > #Content.getRounds("beginning_sounds"))
+            local found_difficult = false
+            for _, round in ipairs(gs.rounds) do
+                if round == previous[#previous] then found_difficult = true end
+            end
+            assert.is_true(found_difficult)
+        end)
+
+        it("recommends adult help for sound-dependent focus", function()
+            local gs = setmetatable({progress = {}}, {__index = GameScreen})
+            for _, round in ipairs(Content.getRounds("letter_pairs")) do
+                gs.progress[gs:getRoundKey(round)] = {
+                    correct = 2, wrong = 0, independent_correct = 2,
+                }
+            end
+            local category, recommendation = gs:getLearningRecommendation()
+            assert.are_equal("beginning_sounds", category)
+            assert.is_truthy(recommendation:match("Practice together"))
+        end)
+
+        it("summarizes puzzle progress for the selected child", function()
+            local settings = {
+                readSetting = function(_, key)
+                    assert.are_equal("toddlerlearn_puzzle_progress_child2", key)
+                    return {version = 1, rounds = {
+                        one = {solved = 2, wrong = 1},
+                        two = {solved = 1, wrong = 2},
+                    }}
+                end,
+            }
+            local gs = setmetatable({settings = settings, profile_id = "child2"}, {__index = GameScreen})
+            local summary = gs:getPuzzleProgressSummary()
+            assert.are_equal(3, summary.solved)
+            assert.are_equal(6, summary.attempts)
+        end)
+
         it("repeats difficult rounds in adaptive review", function()
             local rounds = Content.getRounds("animals")
             local gs = setmetatable({progress = {}}, {__index = GameScreen})

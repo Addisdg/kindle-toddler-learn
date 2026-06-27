@@ -136,10 +136,42 @@ function GameScreen:resetRoundOrder()
         category = self:getGuidedCategory()
         self.guided_category = category
     end
-    self.rounds = Content.getRounds(category)
+    self.rounds = self.active_category == "guided"
+        and self:buildGuidedRoundPool(category) or Content.getRounds(category)
     self.round_order = self:buildAdaptiveRoundOrder(self.rounds)
     self:shuffle(self.round_order)
     self.round_pos = 0
+end
+
+function GameScreen:buildGuidedRoundPool(current_category)
+    local pool = {}
+    for _, round in ipairs(Content.getRounds(current_category)) do
+        table.insert(pool, round)
+    end
+    local guided = Content.getGuidedCategories("reading")
+    local current_index = 1
+    for index, category in ipairs(guided) do
+        if category == current_category then current_index = index break end
+    end
+    if current_index == 1 then return pool end
+
+    local mastered_review = {}
+    for index = 1, current_index - 1 do
+        for _, round in ipairs(Content.getRounds(guided[index])) do
+            local result = (self.progress or {})[self:getRoundKey(round)]
+            local independent = result and (result.independent_correct or result.correct or 0) or 0
+            if result and (result.wrong or 0) > independent then
+                table.insert(pool, round)
+            elseif self:isRoundMastered(round) then
+                table.insert(mastered_review, round)
+            end
+        end
+    end
+    self:shuffle(mastered_review)
+    for index = 1, math.min(2, #mastered_review) do
+        table.insert(pool, mastered_review[index])
+    end
+    return pool
 end
 
 function GameScreen:isRoundMastered(round)
@@ -428,6 +460,34 @@ function GameScreen:getOverallProgressSummary()
     return summary
 end
 
+function GameScreen:getPuzzleProgressSummary()
+    local settings = self.settings or rawget(_G, "G_reader_settings")
+    local summary = {solved = 0, attempts = 0}
+    if not settings or not settings.readSetting then return summary end
+    local saved = settings:readSetting(
+        "toddlerlearn_puzzle_progress_" .. (self.profile_id or "child1"), {}
+    ) or {}
+    for _, result in pairs(saved.rounds or saved) do
+        summary.solved = summary.solved + (result.solved or 0)
+        summary.attempts = summary.attempts + (result.solved or 0) + (result.wrong or 0)
+    end
+    return summary
+end
+
+function GameScreen:getLearningRecommendation()
+    local category = self:getGuidedCategory()
+    local category_data = Content.categories[category]
+    local skill = (category_data.skill or category):gsub("_", " ")
+    local summary = self:getProgressSummary(category)
+    if category_data.adult_guided then
+        return category, "Practice together: " .. skill
+    end
+    if summary.needs_practice > 0 then
+        return category, "Review: " .. skill
+    end
+    return category, "Next focus: " .. skill
+end
+
 function GameScreen:cycleProgressCategory()
     local next_index = 1
     for i, category in ipairs(Content.category_order) do
@@ -457,6 +517,8 @@ function GameScreen:renderProgressScreen()
     local category = self.selected_progress_category
     local category_summary = self:getProgressSummary(category)
     local overall = self:getOverallProgressSummary()
+    local puzzle_summary = self:getPuzzleProgressSummary()
+    local focus_category, recommendation = self:getLearningRecommendation()
     local accuracy = overall.attempts > 0
         and math.floor((overall.correct / overall.attempts) * 100 + 0.5)
         or 0
@@ -464,8 +526,13 @@ function GameScreen:renderProgressScreen()
     local summary_text = table.concat({
         "Overall: " .. tostring(overall.correct) .. "/" .. tostring(overall.attempts)
             .. " correct (" .. tostring(accuracy) .. "%)",
+        "Independent: " .. tostring(overall.independent_correct)
+            .. "  With hints: " .. tostring(overall.hinted_correct),
+        "Focus: " .. self:getCategoryLabel(focus_category),
+        recommendation,
         "Mastered: " .. tostring(category_summary.mastered) .. "/" .. tostring(category_summary.total),
         "Needs practice: " .. tostring(category_summary.needs_practice),
+        "Puzzles solved: " .. tostring(puzzle_summary.solved),
     }, "\n")
     local content = CenterContainer:new{
         dimen = self.dimen,
@@ -476,8 +543,8 @@ function GameScreen:renderProgressScreen()
                 TextWidget:new{text = "Learning Progress", face = Font:getFace("tfont", 48)},
             },
             CenterContainer:new{
-                dimen = Geom:new{w = self.dimen.w - EDGE_MARGIN * 2, h = 180},
-                TextWidget:new{text = summary_text, face = Font:getFace("tfont", 32)},
+                dimen = Geom:new{w = self.dimen.w - EDGE_MARGIN * 2, h = 270},
+                TextWidget:new{text = summary_text, face = Font:getFace("tfont", 27)},
             },
             self:renderParentButton("Profile: " .. self:getProfileLabel(self.profile_id), function()
                 self:cycleProgressProfile()
