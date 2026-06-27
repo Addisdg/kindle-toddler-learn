@@ -72,6 +72,8 @@ Guidelines:
   tests can verify that the chosen picture starts with the displayed letter.
 - Leveled spelling rounds use `level = 1` for simple CVC words and higher
   values for later material; keep category rounds ordered by level.
+- Word-family text rounds store the expected ending in `family`; answer text
+  must share that ending and distractors must not.
 
 ## Where to get images
 

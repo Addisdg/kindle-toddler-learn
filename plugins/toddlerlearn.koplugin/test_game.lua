@@ -139,6 +139,7 @@ describe("ToddlerLearn", function()
                 beginning_sounds = true,
                 reading_words = true,
                 cvc_words = true,
+                word_families = true,
                 spelling_words = true,
                 shapes = true,
                 vehicles = true,
@@ -222,6 +223,17 @@ describe("ToddlerLearn", function()
                     assert.are_equal(3, #round.word)
                 end
                 previous_level = round.level
+            end
+        end)
+
+        it("contrasts words by common ending families", function()
+            local rounds = Content.getRounds("word_families")
+            assert.are_equal(12, #rounds)
+            for _, round in ipairs(rounds) do
+                assert.are_equal(round.family, round.answer_text:sub(-#round.family))
+                for _, distractor in ipairs(round.distractors_text) do
+                    assert.are_not_equal(round.family, distractor:sub(-#round.family))
+                end
             end
         end)
 

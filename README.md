@@ -17,6 +17,8 @@ plugin for a jailbroken Kindle Paperwhite (7th gen / PW3, firmware
   starts with that letter.
 - Short-word spelling begins with three-letter CVC words before introducing
   slightly harder four-letter words.
+- Word-family rounds contrast matching endings such as `-at`, `-og`, `-un`,
+  and `-ed` using large text choices.
 - Spelling rounds show a picture, large scrambled letter tiles, and large
   answer boxes. Tapping an answer box clears the attempt for another try.
 - A correct tap shows calm feedback, advances the round, and every five

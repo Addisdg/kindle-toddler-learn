@@ -10,6 +10,7 @@ Content.category_order = {
     "beginning_sounds",
     "reading_words",
     "cvc_words",
+    "word_families",
     "spelling_words",
     "shapes",
     "vehicles",
@@ -302,6 +303,10 @@ Content.categories = {
             {kind = "spelling", prompt = "Spell it", answer = "vehicles/boat.png", word = "boat", level = 2},
         },
     },
+    word_families = {
+        label = "Word Families",
+        rounds = {},
+    },
     spelling_words = {
         label = "Spelling Words",
         rounds = {},
@@ -575,6 +580,30 @@ local function addBeginningSoundRounds()
     end
 end
 
+local function addWordFamilyRounds()
+    local families = {
+        {ending = "at", words = {"cat", "hat", "bat"}, others = {"dog", "sun"}},
+        {ending = "og", words = {"dog", "log", "fog"}, others = {"cat", "bed"}},
+        {ending = "un", words = {"sun", "run", "fun"}, others = {"hat", "dog"}},
+        {ending = "ed", words = {"bed", "red", "led"}, others = {"sun", "cat"}},
+    }
+
+    for _, family in ipairs(families) do
+        for i, word in ipairs(family.words) do
+            table.insert(Content.categories.word_families.rounds, {
+                kind = "text_choice",
+                prompt = "-" .. family.ending,
+                answer_text = word,
+                distractors_text = {
+                    family.others[((i - 1) % #family.others) + 1],
+                    family.others[(i % #family.others) + 1],
+                },
+                family = family.ending,
+            })
+        end
+    end
+end
+
 local function getWordDistractors(index)
     return {
         getWordBankItem(index + 1),
@@ -602,6 +631,7 @@ end
 
 addLetterPairRounds()
 addBeginningSoundRounds()
+addWordFamilyRounds()
 addReadingAndSpellingRounds()
 
 function Content.getRounds(category)
