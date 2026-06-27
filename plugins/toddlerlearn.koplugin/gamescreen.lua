@@ -32,6 +32,14 @@ local SPELLING_LETTER_MAX = 88
 local SPELLING_LETTER_HEIGHT = 84
 local SPELLING_FONT_MAX = 56
 local TEXT_CHOICE_FONT = 84
+local GUIDED_CATEGORIES = {
+    "letter_pairs",
+    "beginning_sounds",
+    "cvc_words",
+    "word_families",
+    "sentences",
+}
+local GUIDED_MASTERY_RATIO = 0.7
 
 --------------------------------------------------------------------------
 -- GameScreen
@@ -103,10 +111,45 @@ function GameScreen:shuffle(list)
 end
 
 function GameScreen:resetRoundOrder()
-    self.rounds = Content.getRounds(self.active_category)
+    local category = self.active_category
+    if category == "guided" then
+        category = self:getGuidedCategory()
+        self.guided_category = category
+    end
+    self.rounds = Content.getRounds(category)
     self.round_order = self:buildAdaptiveRoundOrder(self.rounds)
     self:shuffle(self.round_order)
     self.round_pos = 0
+end
+
+function GameScreen:isRoundMastered(round)
+    local result = (self.progress or {})[self:getRoundKey(round)]
+    return result ~= nil
+        and result.correct >= 2
+        and result.correct > result.wrong
+end
+
+function GameScreen:getCategoryMastery(category)
+    local rounds = Content.getRounds(category)
+    if #rounds == 0 then
+        return 0
+    end
+    local mastered = 0
+    for _, round in ipairs(rounds) do
+        if self:isRoundMastered(round) then
+            mastered = mastered + 1
+        end
+    end
+    return mastered / #rounds
+end
+
+function GameScreen:getGuidedCategory()
+    for _, category in ipairs(GUIDED_CATEGORIES) do
+        if self:getCategoryMastery(category) < GUIDED_MASTERY_RATIO then
+            return category
+        end
+    end
+    return GUIDED_CATEGORIES[#GUIDED_CATEGORIES]
 end
 
 function GameScreen:getRoundKey(round)
@@ -176,7 +219,7 @@ function GameScreen:setDifficulty(difficulty)
 end
 
 function GameScreen:getCategoryOptions()
-    local options = {"mixed"}
+    local options = {"guided", "mixed"}
     for _, category in ipairs(Content.category_order) do
         table.insert(options, category)
     end
@@ -184,6 +227,9 @@ function GameScreen:getCategoryOptions()
 end
 
 function GameScreen:getCategoryLabel(category)
+    if category == "guided" then
+        return "Guided Learning"
+    end
     if category == "mixed" then
         return "Mixed Review"
     end

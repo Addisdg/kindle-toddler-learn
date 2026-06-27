@@ -41,6 +41,8 @@ plugin for a jailbroken Kindle Paperwhite (7th gen / PW3, firmware
   indefinitely.
 - Progress stays local on the Kindle; rounds with more mistakes return more
   often while mastered material remains in lighter review.
+- Guided Learning follows a mastery-based path from letter pairs through
+  sounds, short words, word families, and simple sentences.
 - Two-finger hold exits back to KOReader's file browser.
 
 Everything is local — no internet, no accounts, no ads, no sound (the

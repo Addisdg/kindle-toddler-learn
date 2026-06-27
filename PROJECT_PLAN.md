@@ -12,6 +12,7 @@ revision has been smoke-tested successfully on the Kindle.
 Adaptive review now stores per-round correct and incorrect counts locally.
 Early reading and maths now follow structured categories through sentences,
 quantities to ten, arithmetic to five, comparisons, ordering, and patterns.
+Guided Learning turns the reading categories into a mastery-based curriculum.
 
 ---
 

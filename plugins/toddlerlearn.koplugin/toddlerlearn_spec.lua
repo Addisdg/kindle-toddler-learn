@@ -379,6 +379,37 @@ describe("ToddlerLearn", function()
             assert.are_equal("animals", gs.rounds[gs.round_order[1]].category)
         end)
 
+        it("starts guided learning with letter pairs", function()
+            local gs = setmetatable({progress = {}}, {__index = GameScreen})
+
+            assert.are_equal("letter_pairs", gs:getGuidedCategory())
+        end)
+
+        it("unlocks beginning sounds after letter-pair mastery", function()
+            local gs = setmetatable({progress = {}}, {__index = GameScreen})
+            local rounds = Content.getRounds("letter_pairs")
+            local required = math.ceil(#rounds * 0.7)
+            for i = 1, required do
+                gs.progress[gs:getRoundKey(rounds[i])] = {correct = 2, wrong = 0}
+            end
+
+            assert.is_true(gs:getCategoryMastery("letter_pairs") >= 0.7)
+            assert.are_equal("beginning_sounds", gs:getGuidedCategory())
+        end)
+
+        it("builds guided sessions from the current learning stage", function()
+            local gs = setmetatable({
+                active_category = "guided",
+                progress = {},
+                shuffle = function() end,
+            }, {__index = GameScreen})
+
+            gs:resetRoundOrder()
+
+            assert.are_equal("letter_pairs", gs.guided_category)
+            assert.are_equal(#Content.getRounds("letter_pairs"), #gs.rounds)
+        end)
+
         it("repeats difficult rounds in adaptive review", function()
             local rounds = Content.getRounds("animals")
             local gs = setmetatable({progress = {}}, {__index = GameScreen})
