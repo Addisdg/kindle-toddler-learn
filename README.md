@@ -35,6 +35,8 @@ plugin for a jailbroken Kindle Paperwhite (7th gen / PW3, firmware
   build recognition without counting every dot.
 - Number-bond rounds ask for a missing part and use ten-frame answers to make
   addition facts through ten concrete and visible.
+- Tap-to-count rounds let the child touch each object once and show the running
+  total, connecting one-to-one counting with the number sequence.
 - Early Maths combines more/fewer, biggest/smallest, number order, missing
   numbers, visual addition and subtraction to five, shape properties, and
   simple repeating patterns.

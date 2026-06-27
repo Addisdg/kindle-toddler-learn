@@ -157,8 +157,8 @@ function GameScreen:getGuidedCategory()
 end
 
 function GameScreen:getRoundKey(round)
-    local identity = round.word or round.sentence or round.answer_text or round.answer or round.prompt
-    return (round.category or "unknown") .. ":" .. (round.kind or "picture") .. ":" .. identity
+    local identity = round.word or round.sentence or round.answer_text or round.answer or round.count or round.prompt
+    return (round.category or "unknown") .. ":" .. (round.kind or "picture") .. ":" .. tostring(identity)
 end
 
 function GameScreen:loadProgress()
@@ -635,6 +635,113 @@ function GameScreen:startStoryRound(round)
     self:renderStoryPage()
 end
 
+function GameScreen:startTapCountRound(round)
+    self.current_choices = nil
+    self.spelling = nil
+    self.sentence_build = nil
+    self.tap_count = {
+        count = round.count,
+        tapped = {},
+        tapped_total = 0,
+    }
+    self:renderTapCountRound()
+end
+
+function GameScreen:makeCountObject(index)
+    local size = 130
+    local tapped = self.tap_count.tapped[index]
+    local object = FrameContainer:new{
+        width = size,
+        height = size,
+        bordersize = 4,
+        padding = 0,
+        CenterContainer:new{
+            dimen = Geom:new{w = size, h = size},
+            TextWidget:new{
+                text = tapped and "" or "*",
+                face = Font:getFace("tfont", 86),
+            }
+        }
+    }
+    local tappable = InputContainer:new{
+        dimen = Geom:new{x = 0, y = 0, w = size, h = size},
+        object,
+    }
+    tappable.ges_events = {
+        Tap = {GestureRange:new{ges = "tap", range = tappable.dimen}}
+    }
+    tappable.onTap = function()
+        return self:onCountObjectTap(index)
+    end
+    return tappable
+end
+
+function GameScreen:buildCountRow(first, last)
+    local row = HorizontalGroup:new{align = "center"}
+    for index = first, last do
+        table.insert(row, self:makeCountObject(index))
+        if index < last then
+            table.insert(row, self:makeBlankSpacer(24, 130))
+        end
+    end
+    return row
+end
+
+function GameScreen:renderTapCountRound()
+    if not self.current_round or not self.tap_count then
+        return
+    end
+    local count = self.tap_count.count
+    local first_row_end = math.min(4, count)
+    local group = VerticalGroup:new{
+        align = "center",
+        CenterContainer:new{
+            dimen = Geom:new{w = self.dimen.w - EDGE_MARGIN * 2, h = 150},
+            TextWidget:new{text = self.current_round.prompt, face = Font:getFace("tfont", 58)},
+        },
+        self:buildCountRow(1, first_row_end),
+    }
+    if count > first_row_end then
+        table.insert(group, self:makeBlankSpacer(self.dimen.w - EDGE_MARGIN * 2, 24))
+        table.insert(group, self:buildCountRow(first_row_end + 1, count))
+    end
+    table.insert(group, CenterContainer:new{
+        dimen = Geom:new{w = self.dimen.w - EDGE_MARGIN * 2, h = 90},
+        TextWidget:new{
+            text = tostring(self.tap_count.tapped_total) .. " / " .. tostring(count),
+            face = Font:getFace("tfont", 42),
+        }
+    })
+    self[1] = FrameContainer:new{
+        width = self.dimen.w,
+        height = self.dimen.h,
+        bordersize = 0,
+        padding = 0,
+        background = Blitbuffer.COLOR_WHITE,
+        CenterContainer:new{dimen = self.dimen, group},
+    }
+    UIManager:setDirty(self, "full")
+end
+
+function GameScreen:onCountObjectTap(index)
+    if not self.tap_count or self.tap_count.tapped[index] then
+        return true
+    end
+    self.tap_count.tapped[index] = true
+    self.tap_count.tapped_total = self.tap_count.tapped_total + 1
+    if self.tap_count.tapped_total == self.tap_count.count then
+        self:recordRoundResult(true)
+        if self:recordCorrectAnswer() then
+            self:showRewardFeedback()
+        else
+            self:showCorrectFeedback()
+        end
+    elseif self.dimen then
+        self:renderTapCountRound()
+    end
+    return true
+end
+
 function GameScreen:renderStoryPage()
     local round = self.current_round
     if not round or not self.story_page then
@@ -1032,10 +1139,15 @@ function GameScreen:loadRound()
         self:startStoryRound(round)
         return
     end
+    if round.kind == "tap_count" then
+        self:startTapCountRound(round)
+        return
+    end
 
     self.spelling = nil
     self.sentence_build = nil
     self.story_page = nil
+    self.tap_count = nil
 
     local choices = self:buildChoices(round)
     self:shuffle(choices)

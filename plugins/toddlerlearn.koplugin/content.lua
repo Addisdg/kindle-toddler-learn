@@ -7,6 +7,7 @@ Content.category_order = {
     "quantities",
     "tenframes",
     "number_bonds",
+    "tap_counting",
     "letters",
     "letter_pairs",
     "letter_words",
@@ -130,6 +131,10 @@ Content.categories = {
     },
     number_bonds = {
         label = "Number Bonds",
+        rounds = {},
+    },
+    tap_counting = {
+        label = "Tap to Count",
         rounds = {},
     },
     letters = {
@@ -752,6 +757,14 @@ local function addNumberRoundsToTen()
             bond_total = bond.total,
         })
     end
+
+    for count = 1, 8 do
+        table.insert(Content.categories.tap_counting.rounds, {
+            kind = "tap_count",
+            prompt = "Tap each star",
+            count = count,
+        })
+    end
 end
 
 local function addBeginningSoundRounds()
@@ -936,6 +949,10 @@ function Content.validate(asset_dir)
                     elseif table.concat(round.words, " ") ~= round.sentence then
                         add_error(round_name .. " words do not match sentence")
                     end
+                elseif round.kind == "tap_count" then
+                    if type(round.count) ~= "number" or round.count < 1 or round.count > 10 then
+                        add_error(round_name .. " needs a count from 1 to 10")
+                    end
                 elseif round.kind == "story" then
                     if not round.pages or #round.pages < 3 or #round.pages > 5 then
                         add_error(round_name .. " needs 3 to 5 story pages")
@@ -965,7 +982,10 @@ function Content.validate(asset_dir)
                     elseif round.word:match("[^a-z]") then
                         add_error(round_name .. " spelling word must use lowercase letters only: " .. round.word)
                     end
-                elseif round.kind ~= "text_choice" and round.kind ~= "sentence_build" then
+                elseif round.kind ~= "text_choice"
+                    and round.kind ~= "sentence_build"
+                    and round.kind ~= "tap_count"
+                then
                     local seen = {
                         [round.answer] = true,
                     }
@@ -989,6 +1009,7 @@ function Content.validate(asset_dir)
 
                 if round.kind ~= "text_choice"
                     and round.kind ~= "sentence_build"
+                    and round.kind ~= "tap_count"
                     and not mixed_path_categories[category]
                 then
                     local expected_prefix = category .. "/"

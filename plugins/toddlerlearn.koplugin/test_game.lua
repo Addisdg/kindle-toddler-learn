@@ -99,7 +99,9 @@ describe("ToddlerLearn", function()
 
         it("every picture round has an answer image path", function()
             for i, round in ipairs(Content) do
-                if round.kind ~= "text_choice" and round.kind ~= "sentence_build" then
+                if round.kind ~= "text_choice" and round.kind ~= "sentence_build"
+                    and round.kind ~= "tap_count"
+                then
                     assert.is_string(round.answer,
                         "round " .. i .. " missing answer")
                     assert.is_true(round.answer:match("%.png$") ~= nil,
@@ -113,6 +115,7 @@ describe("ToddlerLearn", function()
                 if round.kind ~= "spelling"
                     and round.kind ~= "text_choice"
                     and round.kind ~= "sentence_build"
+                    and round.kind ~= "tap_count"
                 then
                     assert.is_table(round.distractors,
                         "round " .. i .. " missing distractors table")
@@ -139,6 +142,7 @@ describe("ToddlerLearn", function()
                 quantities = true,
                 tenframes = true,
                 number_bonds = true,
+                tap_counting = true,
                 letters = true,
                 letter_pairs = true,
                 letter_words = true,
@@ -331,6 +335,15 @@ describe("ToddlerLearn", function()
             end
         end)
 
+        it("provides distinct objects for tap-to-count rounds", function()
+            local rounds = Content.getRounds("tap_counting")
+            assert.are_equal(8, #rounds)
+            for count, round in ipairs(rounds) do
+                assert.are_equal("tap_count", round.kind)
+                assert.are_equal(count, round.count)
+            end
+        end)
+
         it("covers all foundational early maths skills", function()
             local expected = {
                 compare = true,
@@ -501,6 +514,27 @@ describe("ToddlerLearn", function()
 
             gs:onAnswer(true)
             assert.are_equal(2, gs.round_pos)
+        end)
+
+        it("counts each tapped object once and completes on the last object", function()
+            local completed = 0
+            local gs = setmetatable({
+                current_round = {category = "tap_counting", kind = "tap_count", count = 3},
+                tap_count = {count = 3, tapped = {}, tapped_total = 0},
+                progress = {},
+                saveProgress = function() end,
+                recordCorrectAnswer = function() completed = completed + 1 return false end,
+                showCorrectFeedback = function() end,
+            }, {__index = GameScreen})
+
+            gs:onCountObjectTap(1)
+            gs:onCountObjectTap(1)
+            gs:onCountObjectTap(2)
+            assert.are_equal(2, gs.tap_count.tapped_total)
+            assert.are_equal(0, completed)
+            gs:onCountObjectTap(3)
+            assert.are_equal(3, gs.tap_count.tapped_total)
+            assert.are_equal(1, completed)
         end)
 
         it("wrong answer does not advance round", function()

@@ -91,6 +91,8 @@ Guidelines:
   use dot cards so the result remains visual.
 - Number-bond rounds keep `bond_part`, `missing_part`, and `bond_total`
   metadata consistent, with the missing part shown by a ten-frame answer.
+- Tap-to-count rounds use `kind = "tap_count"` and a `count` from 1 to 10;
+  they are interactive and do not use image answers or distractors.
 
 ## Where to get images
 
