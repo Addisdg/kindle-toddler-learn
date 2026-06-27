@@ -28,6 +28,10 @@ local WRONG_FEEDBACK_SECONDS = 0.35
 local PARENT_ROW_HEIGHT = 120
 local REWARD_EVERY = 5
 local REWARD_SECONDS = 0.8
+local SPELLING_GAP = 8
+local SPELLING_LETTER_MIN = 32
+local SPELLING_LETTER_MAX = 54
+local SPELLING_RESET_SECONDS = 0.55
 
 --------------------------------------------------------------------------
 -- GameScreen
@@ -320,6 +324,251 @@ function GameScreen:buildChoices(round)
     return choices
 end
 
+function GameScreen:getSpellingLetters(word)
+    local letters = {}
+    for i = 1, #word do
+        table.insert(letters, word:sub(i, i))
+    end
+    return letters
+end
+
+function GameScreen:getScrambledLetters(word)
+    local letters = self:getSpellingLetters(word)
+    local original = table.concat(letters, "")
+    self:shuffle(letters)
+
+    if #letters > 2 and table.concat(letters, "") == original then
+        letters[1], letters[#letters] = letters[#letters], letters[1]
+    end
+
+    return letters
+end
+
+function GameScreen:startSpellingRound(round)
+    self.current_choices = nil
+    self.spelling = {
+        word = round.word,
+        letters = self:getScrambledLetters(round.word),
+        filled = {},
+        used = {},
+        feedback = nil,
+    }
+    self:renderSpellingRound()
+end
+
+function GameScreen:getSpellingAnswer()
+    if not self.spelling then
+        return ""
+    end
+    return table.concat(self.spelling.filled, "")
+end
+
+function GameScreen:isSpellingComplete()
+    return self.spelling and #self.spelling.filled == #self.spelling.word
+end
+
+function GameScreen:isSpellingCorrect()
+    return self:isSpellingComplete() and self:getSpellingAnswer() == self.spelling.word
+end
+
+function GameScreen:resetSpellingAttempt()
+    if not self.spelling then
+        return
+    end
+
+    self.spelling.filled = {}
+    self.spelling.used = {}
+    self.spelling.feedback = nil
+    if self.dimen then
+        self:renderSpellingRound()
+    end
+end
+
+function GameScreen:getSpellingLayout(letter_count)
+    local sw = Screen:getWidth()
+    local sh = Screen:getHeight()
+    local usable_w = sw - EDGE_MARGIN * 2
+    local letter_w = math.floor((usable_w - (letter_count - 1) * SPELLING_GAP) / letter_count)
+    letter_w = math.min(SPELLING_LETTER_MAX, math.max(SPELLING_LETTER_MIN, letter_w))
+    local image_size = math.min(250, usable_w, math.floor(sh * 0.34))
+
+    return {
+        screen_w = sw,
+        screen_h = sh,
+        usable_w = usable_w,
+        prompt_h = 90,
+        image_size = image_size,
+        letter_w = letter_w,
+        letter_h = 58,
+        letter_gap = SPELLING_GAP,
+    }
+end
+
+function GameScreen:makeBlankSpacer(width, height)
+    return FrameContainer:new{
+        bordersize = 0,
+        padding = 0,
+        dimen = Geom:new{
+            w = width,
+            h = height
+        },
+        TextWidget:new{
+            text = "",
+            face = Font:getFace("cfont", 10)
+        }
+    }
+end
+
+function GameScreen:buildSpellingBoxes(layout)
+    local boxes = HorizontalGroup:new{
+        align = "center"
+    }
+
+    for i = 1, #self.spelling.word do
+        local letter = self.spelling.filled[i] or ""
+        table.insert(boxes, FrameContainer:new{
+            width = layout.letter_w,
+            height = layout.letter_h,
+            bordersize = 4,
+            padding = 0,
+            CenterContainer:new{
+                dimen = Geom:new{
+                    w = layout.letter_w,
+                    h = layout.letter_h,
+                },
+                TextWidget:new{
+                    text = letter,
+                    face = Font:getFace("tfont", 34)
+                }
+            }
+        })
+
+        if i < #self.spelling.word then
+            table.insert(boxes, self:makeBlankSpacer(layout.letter_gap, layout.letter_h))
+        end
+    end
+
+    return boxes
+end
+
+function GameScreen:buildSpellingLetters(layout)
+    local letters = HorizontalGroup:new{
+        align = "center"
+    }
+
+    for i, letter in ipairs(self.spelling.letters) do
+        local letter_index = i
+        local used = self.spelling.used[i]
+        local letter_text = used and "" or letter
+        local button = FrameContainer:new{
+            width = layout.letter_w,
+            height = layout.letter_h,
+            bordersize = used and 1 or 4,
+            padding = 0,
+            CenterContainer:new{
+                dimen = Geom:new{
+                    w = layout.letter_w,
+                    h = layout.letter_h,
+                },
+                TextWidget:new{
+                    text = letter_text,
+                    face = Font:getFace("tfont", 34)
+                }
+            }
+        }
+
+        local tappable = InputContainer:new{
+            dimen = Geom:new{
+                x = 0,
+                y = 0,
+                w = layout.letter_w,
+                h = layout.letter_h
+            }
+        }
+        tappable.ges_events = {
+            Tap = {GestureRange:new{
+                ges = "tap",
+                range = tappable.dimen
+            }}
+        }
+        tappable[1] = button
+        tappable.onTap = function()
+            self:onSpellingLetterTap(letter_index)
+            return true
+        end
+
+        table.insert(letters, tappable)
+
+        if i < #self.spelling.letters then
+            table.insert(letters, self:makeBlankSpacer(layout.letter_gap, layout.letter_h))
+        end
+    end
+
+    return letters
+end
+
+function GameScreen:renderSpellingRound()
+    local round = self.current_round
+    if not round or not self.spelling then
+        return
+    end
+
+    local layout = self:getSpellingLayout(#self.spelling.word)
+    local img_path = self.assets_dir .. round.answer
+    logger.warn("ToddlerLearn: loading spelling image", img_path)
+
+    local feedback_text = self.spelling.feedback or " "
+
+    local content = CenterContainer:new{
+        dimen = self.dimen,
+        VerticalGroup:new{
+            align = "center",
+            self:makeBlankSpacer(layout.usable_w, EDGE_MARGIN),
+            CenterContainer:new{
+                dimen = Geom:new{
+                    w = layout.usable_w,
+                    h = layout.prompt_h,
+                },
+                TextWidget:new{
+                    text = round.prompt,
+                    face = Font:getFace("tfont", 58)
+                }
+            },
+            ImageWidget:new{
+                file = img_path,
+                width = layout.image_size,
+                height = layout.image_size,
+                scale_factor = 0
+            },
+            self:makeBlankSpacer(layout.usable_w, 18),
+            self:buildSpellingBoxes(layout),
+            self:makeBlankSpacer(layout.usable_w, 16),
+            self:buildSpellingLetters(layout),
+            CenterContainer:new{
+                dimen = Geom:new{
+                    w = layout.usable_w,
+                    h = 52,
+                },
+                TextWidget:new{
+                    text = feedback_text,
+                    face = Font:getFace("tfont", 30)
+                }
+            }
+        }
+    }
+
+    self[1] = FrameContainer:new{
+        width = self.dimen.w,
+        height = self.dimen.h,
+        bordersize = 0,
+        padding = 0,
+        background = Blitbuffer.COLOR_WHITE,
+        content
+    }
+
+    UIManager:setDirty(self, "full")
+end
+
 function GameScreen:getLayout(choice_count)
     local sw = Screen:getWidth()
     local sh = Screen:getHeight()
@@ -366,6 +615,13 @@ function GameScreen:loadRound()
     self.feedback = nil
     local round = self.current_round
     logger.warn("ToddlerLearn: loading round", round.prompt)
+
+    if round.kind == "spelling" then
+        self:startSpellingRound(round)
+        return
+    end
+
+    self.spelling = nil
 
     local choices = self:buildChoices(round)
     self:shuffle(choices)
@@ -541,6 +797,43 @@ function GameScreen:onAnswer(is_correct, choice_index)
     else
         self:showWrongFeedback(choice_index)
     end
+    return true
+end
+
+function GameScreen:onSpellingLetterTap(letter_index)
+    if not self.spelling or self.spelling.used[letter_index] then
+        return true
+    end
+
+    table.insert(self.spelling.filled, self.spelling.letters[letter_index])
+    self.spelling.used[letter_index] = true
+
+    if not self:isSpellingComplete() then
+        if self.dimen then
+            self:renderSpellingRound()
+        end
+        return true
+    end
+
+    if self:isSpellingCorrect() then
+        if self:recordCorrectAnswer() then
+            self:showRewardFeedback()
+        else
+            self:showCorrectFeedback()
+        end
+        return true
+    end
+
+    self.spelling.feedback = "Try again"
+    if not self.dimen then
+        self:resetSpellingAttempt()
+        return true
+    end
+
+    self:renderSpellingRound()
+    UIManager:scheduleIn(SPELLING_RESET_SECONDS, function()
+        self:resetSpellingAttempt()
+    end)
     return true
 end
 

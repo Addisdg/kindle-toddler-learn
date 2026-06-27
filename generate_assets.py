@@ -385,54 +385,6 @@ draw_grapes()
 draw_strawberry()
 draw_orange()
 
-# ── COLORS ─────────────────────────────────────────────────────────────────
-
-def draw_color(name, pattern):
-    """pattern: 'fill', 'stripes', 'dots', 'checkers', 'empty' """
-    img, d = new_img()
-    # outer circle
-    d.ellipse([60,60,340,340], outline=FG, width=10)
-    if pattern == "fill":
-        d.ellipse([70,70,330,330], fill=FG)
-    elif pattern == "stripes":
-        for y in range(70, 330, 20):
-            d.line([(70,y),(330,y)], fill=FG, width=8)
-        # clip to circle by drawing white outside
-        mask = Image.new("L", (SIZE,SIZE), BG)
-        md = ImageDraw.Draw(mask)
-        md.ellipse([70,70,330,330], fill=0)
-        img = Image.composite(img, Image.new("L",(SIZE,SIZE),BG), mask)
-        d = ImageDraw.Draw(img)
-        d.ellipse([60,60,340,340], outline=FG, width=10)
-    elif pattern == "dots":
-        for dy in range(90, 330, 45):
-            for dx in range(90, 330, 45):
-                if (dx-200)**2 + (dy-200)**2 < 130**2:
-                    d.ellipse([dx-12,dy-12,dx+12,dy+12], fill=FG)
-    elif pattern == "checkers":
-        sq = 40
-        for row in range(8):
-            for col in range(8):
-                if (row+col) % 2 == 0:
-                    x1,y1 = 60+col*sq, 60+row*sq
-                    x2,y2 = x1+sq, y1+sq
-                    cx,cy = (x1+x2)//2, (y1+y2)//2
-                    if (cx-200)**2+(cy-200)**2 < 135**2:
-                        d.rectangle([x1,y1,x2,y2], fill=FG)
-        d.ellipse([60,60,340,340], outline=FG, width=10)
-    # label inside
-    try:
-        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 48)
-    except:
-        font = ImageFont.load_default()
-    save(img, "colors", name)
-
-draw_color("red",    "fill")       # solid = darkest = red
-draw_color("blue",   "stripes")    # stripes = medium = blue
-draw_color("green",  "dots")       # dots = medium = green
-draw_color("yellow", "checkers")   # checkers = light = yellow
-draw_color("white",  "empty")      # empty circle = white
-
 # ── SHAPES ────────────────────────────────────────────────────────────────
 
 def draw_shapes():

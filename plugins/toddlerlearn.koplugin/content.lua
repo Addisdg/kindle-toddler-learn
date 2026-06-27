@@ -3,11 +3,11 @@ local Content = {}
 Content.category_order = {
     "animals",
     "fruit",
-    "colors",
     "numbers",
     "letters",
     "letter_words",
     "reading_words",
+    "spelling_words",
     "shapes",
     "vehicles",
     "body",
@@ -74,36 +74,6 @@ Content.categories = {
                 prompt = "Orange",
                 answer = "fruit/orange.png",
                 distractors = {"fruit/apple.png", "fruit/strawberry.png"},
-            },
-        },
-    },
-    colors = {
-        label = "Colors",
-        rounds = {
-            {
-                prompt = "Red",
-                answer = "colors/red.png",
-                distractors = {"colors/blue.png", "colors/yellow.png"},
-            },
-            {
-                prompt = "Blue",
-                answer = "colors/blue.png",
-                distractors = {"colors/red.png", "colors/green.png"},
-            },
-            {
-                prompt = "Green",
-                answer = "colors/green.png",
-                distractors = {"colors/yellow.png", "colors/blue.png"},
-            },
-            {
-                prompt = "Yellow",
-                answer = "colors/yellow.png",
-                distractors = {"colors/red.png", "colors/white.png"},
-            },
-            {
-                prompt = "White",
-                answer = "colors/white.png",
-                distractors = {"colors/green.png", "colors/blue.png"},
             },
         },
     },
@@ -190,6 +160,86 @@ Content.categories = {
                 answer = "letters/j.png",
                 distractors = {"letters/i.png", "letters/k.png"},
             },
+            {
+                prompt = "K",
+                answer = "letters/k.png",
+                distractors = {"letters/j.png", "letters/l.png"},
+            },
+            {
+                prompt = "L",
+                answer = "letters/l.png",
+                distractors = {"letters/k.png", "letters/m.png"},
+            },
+            {
+                prompt = "M",
+                answer = "letters/m.png",
+                distractors = {"letters/l.png", "letters/n.png"},
+            },
+            {
+                prompt = "N",
+                answer = "letters/n.png",
+                distractors = {"letters/m.png", "letters/o.png"},
+            },
+            {
+                prompt = "O",
+                answer = "letters/o.png",
+                distractors = {"letters/n.png", "letters/p.png"},
+            },
+            {
+                prompt = "P",
+                answer = "letters/p.png",
+                distractors = {"letters/o.png", "letters/q.png"},
+            },
+            {
+                prompt = "Q",
+                answer = "letters/q.png",
+                distractors = {"letters/p.png", "letters/r.png"},
+            },
+            {
+                prompt = "R",
+                answer = "letters/r.png",
+                distractors = {"letters/q.png", "letters/s.png"},
+            },
+            {
+                prompt = "S",
+                answer = "letters/s.png",
+                distractors = {"letters/r.png", "letters/t.png"},
+            },
+            {
+                prompt = "T",
+                answer = "letters/t.png",
+                distractors = {"letters/s.png", "letters/u.png"},
+            },
+            {
+                prompt = "U",
+                answer = "letters/u.png",
+                distractors = {"letters/t.png", "letters/v.png"},
+            },
+            {
+                prompt = "V",
+                answer = "letters/v.png",
+                distractors = {"letters/u.png", "letters/w.png"},
+            },
+            {
+                prompt = "W",
+                answer = "letters/w.png",
+                distractors = {"letters/v.png", "letters/x.png"},
+            },
+            {
+                prompt = "X",
+                answer = "letters/x.png",
+                distractors = {"letters/w.png", "letters/y.png"},
+            },
+            {
+                prompt = "Y",
+                answer = "letters/y.png",
+                distractors = {"letters/x.png", "letters/z.png"},
+            },
+            {
+                prompt = "Z",
+                answer = "letters/z.png",
+                distractors = {"letters/y.png", "letters/a.png"},
+            },
         },
     },
     letter_words = {
@@ -224,140 +274,11 @@ Content.categories = {
     },
     reading_words = {
         label = "Reading Words",
-        rounds = {
-            {
-                prompt = "Read: cat",
-                answer = "animals/cat.png",
-                distractors = {"animals/dog.png", "animals/cow.png"},
-                labels = {
-                    ["animals/cat.png"] = "cat",
-                    ["animals/dog.png"] = "dog",
-                    ["animals/cow.png"] = "cow",
-                },
-                show_labels = true,
-            },
-            {
-                prompt = "Read: dog",
-                answer = "animals/dog.png",
-                distractors = {"animals/cat.png", "animals/bird.png"},
-                labels = {
-                    ["animals/dog.png"] = "dog",
-                    ["animals/cat.png"] = "cat",
-                    ["animals/bird.png"] = "bird",
-                },
-                show_labels = true,
-            },
-            {
-                prompt = "Read: fish",
-                answer = "animals/fish.png",
-                distractors = {"animals/bird.png", "animals/cow.png"},
-                labels = {
-                    ["animals/fish.png"] = "fish",
-                    ["animals/bird.png"] = "bird",
-                    ["animals/cow.png"] = "cow",
-                },
-                show_labels = true,
-            },
-            {
-                prompt = "Read: apple",
-                answer = "fruit/apple.png",
-                distractors = {"fruit/banana.png", "fruit/orange.png"},
-                labels = {
-                    ["fruit/apple.png"] = "apple",
-                    ["fruit/banana.png"] = "banana",
-                    ["fruit/orange.png"] = "orange",
-                },
-                show_labels = true,
-            },
-            {
-                prompt = "Read: banana",
-                answer = "fruit/banana.png",
-                distractors = {"fruit/apple.png", "fruit/grapes.png"},
-                labels = {
-                    ["fruit/banana.png"] = "banana",
-                    ["fruit/apple.png"] = "apple",
-                    ["fruit/grapes.png"] = "grapes",
-                },
-                show_labels = true,
-            },
-            {
-                prompt = "Read: car",
-                answer = "vehicles/car.png",
-                distractors = {"vehicles/bus.png", "vehicles/train.png"},
-                labels = {
-                    ["vehicles/car.png"] = "car",
-                    ["vehicles/bus.png"] = "bus",
-                    ["vehicles/train.png"] = "train",
-                },
-                show_labels = true,
-            },
-            {
-                prompt = "Read: bus",
-                answer = "vehicles/bus.png",
-                distractors = {"vehicles/car.png", "vehicles/boat.png"},
-                labels = {
-                    ["vehicles/bus.png"] = "bus",
-                    ["vehicles/car.png"] = "car",
-                    ["vehicles/boat.png"] = "boat",
-                },
-                show_labels = true,
-            },
-            {
-                prompt = "Read: hand",
-                answer = "body/hand.png",
-                distractors = {"body/foot.png", "body/ear.png"},
-                labels = {
-                    ["body/hand.png"] = "hand",
-                    ["body/foot.png"] = "foot",
-                    ["body/ear.png"] = "ear",
-                },
-                show_labels = true,
-            },
-            {
-                prompt = "Read: eye",
-                answer = "body/eye.png",
-                distractors = {"body/ear.png", "body/nose.png"},
-                labels = {
-                    ["body/eye.png"] = "eye",
-                    ["body/ear.png"] = "ear",
-                    ["body/nose.png"] = "nose",
-                },
-                show_labels = true,
-            },
-            {
-                prompt = "Read: cup",
-                answer = "household/cup.png",
-                distractors = {"household/spoon.png", "household/bed.png"},
-                labels = {
-                    ["household/cup.png"] = "cup",
-                    ["household/spoon.png"] = "spoon",
-                    ["household/bed.png"] = "bed",
-                },
-                show_labels = true,
-            },
-            {
-                prompt = "Read: bed",
-                answer = "household/bed.png",
-                distractors = {"household/chair.png", "household/ball.png"},
-                labels = {
-                    ["household/bed.png"] = "bed",
-                    ["household/chair.png"] = "chair",
-                    ["household/ball.png"] = "ball",
-                },
-                show_labels = true,
-            },
-            {
-                prompt = "Read: happy",
-                answer = "emotions/happy.png",
-                distractors = {"emotions/sad.png", "emotions/sleepy.png"},
-                labels = {
-                    ["emotions/happy.png"] = "happy",
-                    ["emotions/sad.png"] = "sad",
-                    ["emotions/sleepy.png"] = "sleepy",
-                },
-                show_labels = true,
-            },
-        },
+        rounds = {},
+    },
+    spelling_words = {
+        label = "Spelling Words",
+        rounds = {},
     },
     shapes = {
         label = "Shapes",
@@ -536,6 +457,88 @@ Content.categories = {
     },
 }
 
+Content.word_bank = {
+    {word = "cat", path = "animals/cat.png"},
+    {word = "dog", path = "animals/dog.png"},
+    {word = "bird", path = "animals/bird.png"},
+    {word = "fish", path = "animals/fish.png"},
+    {word = "cow", path = "animals/cow.png"},
+    {word = "apple", path = "fruit/apple.png"},
+    {word = "banana", path = "fruit/banana.png"},
+    {word = "grapes", path = "fruit/grapes.png"},
+    {word = "strawberry", path = "fruit/strawberry.png"},
+    {word = "orange", path = "fruit/orange.png"},
+    {word = "one", path = "counting/1.png"},
+    {word = "two", path = "counting/2.png"},
+    {word = "three", path = "counting/3.png"},
+    {word = "four", path = "counting/4.png"},
+    {word = "five", path = "counting/5.png"},
+    {word = "circle", path = "shapes/circle.png"},
+    {word = "square", path = "shapes/square.png"},
+    {word = "triangle", path = "shapes/triangle.png"},
+    {word = "star", path = "shapes/star.png"},
+    {word = "heart", path = "shapes/heart.png"},
+    {word = "car", path = "vehicles/car.png"},
+    {word = "bus", path = "vehicles/bus.png"},
+    {word = "train", path = "vehicles/train.png"},
+    {word = "boat", path = "vehicles/boat.png"},
+    {word = "plane", path = "vehicles/plane.png"},
+    {word = "hand", path = "body/hand.png"},
+    {word = "foot", path = "body/foot.png"},
+    {word = "eye", path = "body/eye.png"},
+    {word = "ear", path = "body/ear.png"},
+    {word = "nose", path = "body/nose.png"},
+    {word = "cup", path = "household/cup.png"},
+    {word = "spoon", path = "household/spoon.png"},
+    {word = "bed", path = "household/bed.png"},
+    {word = "chair", path = "household/chair.png"},
+    {word = "ball", path = "household/ball.png"},
+    {word = "happy", path = "emotions/happy.png"},
+    {word = "sad", path = "emotions/sad.png"},
+    {word = "sleepy", path = "emotions/sleepy.png"},
+    {word = "surprised", path = "emotions/surprised.png"},
+}
+
+local function getWordBankItem(index)
+    local count = #Content.word_bank
+    return Content.word_bank[((index - 1) % count) + 1]
+end
+
+local function getWordDistractors(index)
+    return {
+        getWordBankItem(index + 1),
+        getWordBankItem(index + 2),
+    }
+end
+
+local function addReadingAndSpellingRounds()
+    for i, item in ipairs(Content.word_bank) do
+        local distractors = getWordDistractors(i)
+        local labels = {
+            [item.path] = item.word,
+            [distractors[1].path] = distractors[1].word,
+            [distractors[2].path] = distractors[2].word,
+        }
+
+        table.insert(Content.categories.reading_words.rounds, {
+            prompt = "Read: " .. item.word,
+            answer = item.path,
+            distractors = {distractors[1].path, distractors[2].path},
+            labels = labels,
+            show_labels = true,
+        })
+
+        table.insert(Content.categories.spelling_words.rounds, {
+            kind = "spelling",
+            prompt = "Spell it",
+            answer = item.path,
+            word = item.word,
+        })
+    end
+end
+
+addReadingAndSpellingRounds()
+
 function Content.getRounds(category)
     if not category or category == "mixed" then
         return Content
@@ -563,6 +566,7 @@ function Content.validate(asset_dir)
     local mixed_path_categories = {
         letter_words = true,
         reading_words = true,
+        spelling_words = true,
     }
 
     local function add_error(message)
@@ -592,22 +596,30 @@ function Content.validate(asset_dir)
                     add_error(round_name .. " missing answer asset: " .. round.answer)
                 end
 
-                local seen = {
-                    [round.answer] = true,
-                }
-                if not round.distractors or #round.distractors < 2 then
-                    add_error(round_name .. " needs at least 2 distractors")
+                if round.kind == "spelling" then
+                    if not round.word or round.word == "" then
+                        add_error(round_name .. " has no spelling word")
+                    elseif round.word:match("[^a-z]") then
+                        add_error(round_name .. " spelling word must use lowercase letters only: " .. round.word)
+                    end
                 else
-                    for _, distractor in ipairs(round.distractors) do
-                        if seen[distractor] then
-                            add_error(round_name .. " has duplicate image: " .. distractor)
-                        end
-                        seen[distractor] = true
+                    local seen = {
+                        [round.answer] = true,
+                    }
+                    if not round.distractors or #round.distractors < 2 then
+                        add_error(round_name .. " needs at least 2 distractors")
+                    else
+                        for _, distractor in ipairs(round.distractors) do
+                            if seen[distractor] then
+                                add_error(round_name .. " has duplicate image: " .. distractor)
+                            end
+                            seen[distractor] = true
 
-                        if not distractor:match("%.png$") then
-                            add_error(round_name .. " distractor is not a png: " .. distractor)
-                        elseif asset_dir and not Content.pathExists(asset_dir .. distractor) then
-                            add_error(round_name .. " missing distractor asset: " .. distractor)
+                            if not distractor:match("%.png$") then
+                                add_error(round_name .. " distractor is not a png: " .. distractor)
+                            elseif asset_dir and not Content.pathExists(asset_dir .. distractor) then
+                                add_error(round_name .. " missing distractor asset: " .. distractor)
+                            end
                         end
                     end
                 end

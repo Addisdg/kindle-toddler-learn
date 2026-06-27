@@ -7,7 +7,7 @@ plugin for a jailbroken Kindle Paperwhite (7th gen / PW3, firmware
 
 ## How it works
 
-- A word, letter, number, or color name is shown at the top of the screen.
+- A word, letter, or number is shown at the top of the screen.
 - Several large images are shown below it.
 - The child taps the image that matches the prompt.
 - A correct tap shows calm feedback, advances the round, and every five
@@ -38,7 +38,6 @@ kindle-toddler-learn/
         └── assets/           <- images, organized by category
             ├── animals/
             ├── fruit/
-            ├── colors/
             ├── numbers/
             ├── letters/
             ├── shapes/
@@ -103,7 +102,7 @@ Once it runs correctly in the emulator:
   tiles that are at least a quarter of the screen each.
 - Avoid relying on animation; e-ink can't do smooth motion. Feedback
   should be discrete (a checkmark image, a brief full-screen refresh,
-  inverted colors for a moment).
+  a clear border change for a moment).
 - Full-screen refreshes ("flashes") clear ghosting but are slow and
   visually jarring for a toddler — use them sparingly (e.g. once per
   round, not per tap).

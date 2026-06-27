@@ -106,18 +106,20 @@ describe("ToddlerLearn", function()
             end
         end)
 
-        it("every round has at least 2 distractors", function()
+        it("every multiple-choice round has at least 2 distractors", function()
             for i, round in ipairs(Content) do
-                assert.is_table(round.distractors,
-                    "round " .. i .. " missing distractors table")
-                assert.is_true(#round.distractors >= 2,
-                    "round " .. i .. " needs at least 2 distractors")
+                if round.kind ~= "spelling" then
+                    assert.is_table(round.distractors,
+                        "round " .. i .. " missing distractors table")
+                    assert.is_true(#round.distractors >= 2,
+                        "round " .. i .. " needs at least 2 distractors")
+                end
             end
         end)
 
         it("answer is not duplicated in distractors", function()
             for i, round in ipairs(Content) do
-                for _, d in ipairs(round.distractors) do
+                for _, d in ipairs(round.distractors or {}) do
                     assert.are_not_equal(round.answer, d,
                         "round " .. i .. ": answer appears in distractors")
                 end
@@ -128,11 +130,11 @@ describe("ToddlerLearn", function()
             local expected_categories = {
                 animals = true,
                 fruit = true,
-                colors = true,
                 numbers = true,
                 letters = true,
                 letter_words = true,
                 reading_words = true,
+                spelling_words = true,
                 shapes = true,
                 vehicles = true,
                 body = true,
@@ -143,6 +145,7 @@ describe("ToddlerLearn", function()
             assert.is_table(Content.categories)
             assert.is_table(Content.category_order)
             assert.is_true(#Content.category_order >= 13)
+            assert.is_nil(Content.categories.colors)
             for _, category in ipairs(Content.category_order) do
                 assert.is_true(expected_categories[category],
                     "unexpected or misspelled category " .. category)
@@ -165,7 +168,7 @@ describe("ToddlerLearn", function()
 
         it("has reading rounds with visible word labels", function()
             local rounds = Content.getRounds("reading_words")
-            assert.is_true(#rounds >= 10)
+            assert.are_equal(#Content.word_bank, #rounds)
             for _, round in ipairs(rounds) do
                 assert.is_true(round.show_labels)
                 assert.is_table(round.labels)
@@ -174,6 +177,22 @@ describe("ToddlerLearn", function()
                     assert.is_string(round.labels[distractor])
                 end
             end
+        end)
+
+        it("has spelling rounds for the picture word bank", function()
+            local rounds = Content.getRounds("spelling_words")
+            assert.are_equal(#Content.word_bank, #rounds)
+            for _, round in ipairs(rounds) do
+                assert.are_equal("spelling", round.kind)
+                assert.is_string(round.word)
+                assert.is_true(round.word:match("^[a-z]+$") ~= nil)
+                assert.is_nil(round.distractors)
+            end
+        end)
+
+        it("at least doubles the original MVP content", function()
+            assert.is_true(#Content >= 150, "expected at least twice the original content pool")
+            assert.are_equal(26, #Content.getRounds("letters"))
         end)
 
         it("passes the content quality checklist", function()
@@ -403,6 +422,75 @@ describe("ToddlerLearn", function()
             assert.are_equal("cat", choices[1].label)
             assert.is_true(#choices[2].label > 0)
             assert.is_true(#choices[3].label > 0)
+        end)
+
+        it("scrambles spelling letters while keeping the same letters", function()
+            local gs = setmetatable({
+                shuffle = function(_, list)
+                    list[1], list[#list] = list[#list], list[1]
+                end,
+            }, { __index = GameScreen })
+
+            local letters = gs:getScrambledLetters("cat")
+            table.sort(letters)
+
+            assert.are_equal("act", table.concat(letters, ""))
+        end)
+
+        it("advances after a correctly completed spelling word", function()
+            local advanced = false
+            local gs = setmetatable({
+                current_round = {
+                    kind = "spelling",
+                    word = "cat",
+                    answer = "animals/cat.png",
+                },
+                spelling = {
+                    word = "cat",
+                    letters = {"c", "a", "t"},
+                    filled = {},
+                    used = {},
+                },
+                recordCorrectAnswer = GameScreen.recordCorrectAnswer,
+                showCorrectFeedback = function()
+                    advanced = true
+                end,
+                showRewardFeedback = function()
+                    advanced = true
+                end,
+            }, { __index = GameScreen })
+
+            gs:onSpellingLetterTap(1)
+            gs:onSpellingLetterTap(2)
+            gs:onSpellingLetterTap(3)
+
+            assert.is_true(advanced)
+            assert.are_equal("cat", gs:getSpellingAnswer())
+        end)
+
+        it("resets an incorrect spelling attempt without advancing", function()
+            local advanced = false
+            local gs = setmetatable({
+                spelling = {
+                    word = "cat",
+                    letters = {"t", "a", "c"},
+                    filled = {},
+                    used = {},
+                },
+                showCorrectFeedback = function()
+                    advanced = true
+                end,
+                showRewardFeedback = function()
+                    advanced = true
+                end,
+            }, { __index = GameScreen })
+
+            gs:onSpellingLetterTap(1)
+            gs:onSpellingLetterTap(2)
+            gs:onSpellingLetterTap(3)
+
+            assert.is_false(advanced)
+            assert.are_equal("", gs:getSpellingAnswer())
         end)
 
         it("shows a reward every five correct answers", function()
