@@ -23,6 +23,8 @@ plugin for a jailbroken Kindle Paperwhite (7th gen / PW3, firmware
   decodable word.
 - Simple sentence rounds ask the child to read a short sentence and choose
   the matching picture.
+- Sentence-building rounds scramble three or four words for the child to tap
+  into the correct order; tapping the answer row clears an attempt.
 - Number recognition, counting, and numeral-to-quantity matching cover one
   through ten with high-contrast dot cards.
 - Early Maths combines more/fewer, biggest/smallest, number order, missing

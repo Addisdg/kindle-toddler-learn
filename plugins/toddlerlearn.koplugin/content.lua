@@ -14,6 +14,7 @@ Content.category_order = {
     "word_blending",
     "word_families",
     "spelling_words",
+    "sentence_building",
     "sentences",
     "shapes",
     "vehicles",
@@ -335,6 +336,19 @@ Content.categories = {
     spelling_words = {
         label = "Spelling Words",
         rounds = {},
+    },
+    sentence_building = {
+        label = "Build Sentences",
+        rounds = {
+            {kind = "sentence_build", prompt = "Build the sentence", sentence = "The cat sleeps", words = {"The", "cat", "sleeps"}},
+            {kind = "sentence_build", prompt = "Build the sentence", sentence = "The dog runs", words = {"The", "dog", "runs"}},
+            {kind = "sentence_build", prompt = "Build the sentence", sentence = "I see a fish", words = {"I", "see", "a", "fish"}},
+            {kind = "sentence_build", prompt = "Build the sentence", sentence = "A bird can fly", words = {"A", "bird", "can", "fly"}},
+            {kind = "sentence_build", prompt = "Build the sentence", sentence = "I eat an apple", words = {"I", "eat", "an", "apple"}},
+            {kind = "sentence_build", prompt = "Build the sentence", sentence = "The bus can go", words = {"The", "bus", "can", "go"}},
+            {kind = "sentence_build", prompt = "Build the sentence", sentence = "This is my hand", words = {"This", "is", "my", "hand"}},
+            {kind = "sentence_build", prompt = "Build the sentence", sentence = "I feel happy", words = {"I", "feel", "happy"}},
+        },
     },
     sentences = {
         label = "Simple Sentences",
@@ -810,6 +824,12 @@ function Content.validate(asset_dir)
                     if not round.distractors_text or #round.distractors_text < 2 then
                         add_error(round_name .. " needs at least 2 text distractors")
                     end
+                elseif round.kind == "sentence_build" then
+                    if not round.words or #round.words < 3 then
+                        add_error(round_name .. " needs at least 3 sentence words")
+                    elseif table.concat(round.words, " ") ~= round.sentence then
+                        add_error(round_name .. " words do not match sentence")
+                    end
                 else
                     if not round.answer or not round.answer:match("%.png$") then
                         add_error(round_name .. " answer is not a png")
@@ -824,7 +844,7 @@ function Content.validate(asset_dir)
                     elseif round.word:match("[^a-z]") then
                         add_error(round_name .. " spelling word must use lowercase letters only: " .. round.word)
                     end
-                elseif round.kind ~= "text_choice" then
+                elseif round.kind ~= "text_choice" and round.kind ~= "sentence_build" then
                     local seen = {
                         [round.answer] = true,
                     }
@@ -846,7 +866,10 @@ function Content.validate(asset_dir)
                     end
                 end
 
-                if round.kind ~= "text_choice" and not mixed_path_categories[category] then
+                if round.kind ~= "text_choice"
+                    and round.kind ~= "sentence_build"
+                    and not mixed_path_categories[category]
+                then
                     local expected_prefix = category .. "/"
                     if round.answer and round.answer:sub(1, #expected_prefix) ~= expected_prefix then
                         add_error(round_name .. " answer is outside category: " .. round.answer)

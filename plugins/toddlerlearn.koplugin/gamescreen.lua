@@ -38,6 +38,7 @@ local GUIDED_CATEGORIES = {
     "cvc_words",
     "word_blending",
     "word_families",
+    "sentence_building",
     "sentences",
 }
 local GUIDED_MASTERY_RATIO = 0.7
@@ -154,7 +155,7 @@ function GameScreen:getGuidedCategory()
 end
 
 function GameScreen:getRoundKey(round)
-    local identity = round.word or round.answer_text or round.answer or round.prompt
+    local identity = round.word or round.sentence or round.answer_text or round.answer or round.prompt
     return (round.category or "unknown") .. ":" .. (round.kind or "picture") .. ":" .. identity
 end
 
@@ -480,6 +481,148 @@ function GameScreen:getScrambledLetters(word)
     end
 
     return letters
+end
+
+function GameScreen:getScrambledWords(words)
+    local scrambled = {}
+    for _, word in ipairs(words) do
+        table.insert(scrambled, word)
+    end
+    self:shuffle(scrambled)
+    if #scrambled > 2 and table.concat(scrambled, " ") == table.concat(words, " ") then
+        scrambled[1], scrambled[#scrambled] = scrambled[#scrambled], scrambled[1]
+    end
+    return scrambled
+end
+
+function GameScreen:startSentenceBuildRound(round)
+    self.current_choices = nil
+    self.spelling = nil
+    self.sentence_build = {
+        answer_words = round.words,
+        choices = self:getScrambledWords(round.words),
+        filled = {},
+        used = {},
+        feedback = nil,
+    }
+    self:renderSentenceBuildRound()
+end
+
+function GameScreen:getSentenceAnswer()
+    if not self.sentence_build then
+        return ""
+    end
+    return table.concat(self.sentence_build.filled, " ")
+end
+
+function GameScreen:resetSentenceAttempt()
+    if not self.sentence_build then
+        return
+    end
+    self.sentence_build.filled = {}
+    self.sentence_build.used = {}
+    self.sentence_build.feedback = nil
+    if self.dimen then
+        self:renderSentenceBuildRound()
+    end
+end
+
+function GameScreen:getSentenceLayout(word_count)
+    local usable_w = Screen:getWidth() - EDGE_MARGIN * 2
+    local gap = 10
+    local available_w = math.floor((usable_w - (word_count - 1) * gap) / word_count)
+    local word_w = math.min(220, math.max(1, available_w))
+    return {
+        usable_w = usable_w,
+        word_w = word_w,
+        word_h = 84,
+        gap = gap,
+        font_size = math.min(42, math.max(26, math.floor(word_w / 5))),
+    }
+end
+
+function GameScreen:makeSentenceToken(text, layout, on_tap, used)
+    local token = FrameContainer:new{
+        width = layout.word_w,
+        height = layout.word_h,
+        bordersize = used and 1 or 4,
+        padding = 0,
+        CenterContainer:new{
+            dimen = Geom:new{w = layout.word_w, h = layout.word_h},
+            TextWidget:new{
+                text = used and "" or text,
+                face = Font:getFace("tfont", layout.font_size),
+            }
+        }
+    }
+    local tappable = InputContainer:new{
+        dimen = Geom:new{x = 0, y = 0, w = layout.word_w, h = layout.word_h},
+    }
+    tappable.ges_events = {
+        Tap = {GestureRange:new{ges = "tap", range = tappable.dimen}}
+    }
+    tappable[1] = token
+    tappable.onTap = function()
+        on_tap()
+        return true
+    end
+    return tappable
+end
+
+function GameScreen:buildSentenceRow(layout, answer_row)
+    local row = HorizontalGroup:new{align = "center"}
+    local words = answer_row and self.sentence_build.answer_words or self.sentence_build.choices
+    for i, word in ipairs(words) do
+        local index = i
+        local text = answer_row and (self.sentence_build.filled[i] or "") or word
+        local used = not answer_row and self.sentence_build.used[i]
+        local on_tap = answer_row
+            and function() self:resetSentenceAttempt() end
+            or function() self:onSentenceWordTap(index) end
+        table.insert(row, self:makeSentenceToken(text, layout, on_tap, used))
+        if i < #words then
+            table.insert(row, self:makeBlankSpacer(layout.gap, layout.word_h))
+        end
+    end
+    return row
+end
+
+function GameScreen:renderSentenceBuildRound()
+    if not self.current_round or not self.sentence_build then
+        return
+    end
+    local layout = self:getSentenceLayout(#self.sentence_build.answer_words)
+    local content = CenterContainer:new{
+        dimen = self.dimen,
+        VerticalGroup:new{
+            align = "center",
+            self:makeBlankSpacer(layout.usable_w, EDGE_MARGIN),
+            CenterContainer:new{
+                dimen = Geom:new{w = layout.usable_w, h = 150},
+                TextWidget:new{text = self.current_round.prompt, face = Font:getFace("tfont", 58)},
+            },
+            self:makeBlankSpacer(layout.usable_w, 80),
+            self:buildSentenceRow(layout, true),
+            self:makeBlankSpacer(layout.usable_w, 36),
+            self:buildSentenceRow(layout, false),
+            CenterContainer:new{
+                dimen = Geom:new{w = layout.usable_w, h = 60},
+                TextWidget:new{
+                    text = self.sentence_build.feedback or " ",
+                    face = Font:getFace("tfont", 30),
+                }
+            }
+        }
+    }
+    self[1] = FrameContainer:new{
+        width = self.dimen.w,
+        height = self.dimen.h,
+        bordersize = 0,
+        padding = 0,
+        background = Blitbuffer.COLOR_WHITE,
+        content,
+    }
+    UIManager:setDirty(self, "full")
 end
 
 function GameScreen:startSpellingRound(round)
@@ -814,8 +957,13 @@ function GameScreen:loadRound()
         self:startSpellingRound(round)
         return
     end
+    if round.kind == "sentence_build" then
+        self:startSentenceBuildRound(round)
+        return
+    end
 
     self.spelling = nil
+    self.sentence_build = nil
 
     local choices = self:buildChoices(round)
     self:shuffle(choices)
@@ -1018,6 +1166,37 @@ end
 function GameScreen:onSpellingBoxesTap()
     if self.spelling and #self.spelling.filled > 0 then
         self:resetSpellingAttempt()
+    end
+    return true
+end
+
+function GameScreen:onSentenceWordTap(word_index)
+    if not self.sentence_build or self.sentence_build.used[word_index] then
+        return true
+    end
+    table.insert(self.sentence_build.filled, self.sentence_build.choices[word_index])
+    self.sentence_build.used[word_index] = true
+    if #self.sentence_build.filled < #self.sentence_build.answer_words then
+        if self.dimen then
+            self:renderSentenceBuildRound()
+        end
+        return true
+    end
+
+    local expected = table.concat(self.sentence_build.answer_words, " ")
+    if self:getSentenceAnswer() == expected then
+        self:recordRoundResult(true)
+        if self:recordCorrectAnswer() then
+            self:showRewardFeedback()
+        else
+            self:showCorrectFeedback()
+        end
+    else
+        self.sentence_build.feedback = "Try again"
+        self:recordRoundResult(false)
+        if self.dimen then
+            self:renderSentenceBuildRound()
+        end
     end
     return true
 end

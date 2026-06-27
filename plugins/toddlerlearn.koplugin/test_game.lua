@@ -99,7 +99,7 @@ describe("ToddlerLearn", function()
 
         it("every picture round has an answer image path", function()
             for i, round in ipairs(Content) do
-                if round.kind ~= "text_choice" then
+                if round.kind ~= "text_choice" and round.kind ~= "sentence_build" then
                     assert.is_string(round.answer,
                         "round " .. i .. " missing answer")
                     assert.is_true(round.answer:match("%.png$") ~= nil,
@@ -110,7 +110,10 @@ describe("ToddlerLearn", function()
 
         it("every multiple-choice round has at least 2 distractors", function()
             for i, round in ipairs(Content) do
-                if round.kind ~= "spelling" and round.kind ~= "text_choice" then
+                if round.kind ~= "spelling"
+                    and round.kind ~= "text_choice"
+                    and round.kind ~= "sentence_build"
+                then
                     assert.is_table(round.distractors,
                         "round " .. i .. " missing distractors table")
                     assert.is_true(#round.distractors >= 2,
@@ -143,6 +146,7 @@ describe("ToddlerLearn", function()
                 word_blending = true,
                 word_families = true,
                 spelling_words = true,
+                sentence_building = true,
                 sentences = true,
                 shapes = true,
                 vehicles = true,
@@ -258,6 +262,15 @@ describe("ToddlerLearn", function()
                 assert.is_true(spaces >= 2)
                 assert.are_equal(".", round.prompt:sub(-1))
                 assert.is_true(#round.prompt <= 24)
+            end
+        end)
+
+        it("provides ordered words for sentence-building rounds", function()
+            local rounds = Content.getRounds("sentence_building")
+            assert.is_true(#rounds >= 8)
+            for _, round in ipairs(rounds) do
+                assert.are_equal("sentence_build", round.kind)
+                assert.are_equal(round.sentence, table.concat(round.words, " "))
             end
         end)
 
@@ -671,6 +684,52 @@ describe("ToddlerLearn", function()
                 assert.is_true(row_width <= word_layout.usable_w,
                     "spelling row is too wide for " .. item.word)
             end
+        end)
+
+        it("builds a sentence by tapping scrambled words in order", function()
+            local advanced = false
+            local round = Content.getRounds("sentence_building")[1]
+            local gs = setmetatable({
+                current_round = round,
+                sentence_build = {
+                    answer_words = {"The", "cat", "sleeps"},
+                    choices = {"cat", "The", "sleeps"},
+                    filled = {},
+                    used = {},
+                },
+                progress = {},
+                showCorrectFeedback = function() advanced = true end,
+                showRewardFeedback = function() advanced = true end,
+            }, {__index = GameScreen})
+
+            gs:onSentenceWordTap(2)
+            gs:onSentenceWordTap(1)
+            gs:onSentenceWordTap(3)
+
+            assert.are_equal("The cat sleeps", gs:getSentenceAnswer())
+            assert.is_true(advanced)
+        end)
+
+        it("keeps an incorrect sentence available to reset", function()
+            local round = Content.getRounds("sentence_building")[1]
+            local gs = setmetatable({
+                current_round = round,
+                sentence_build = {
+                    answer_words = {"The", "cat", "sleeps"},
+                    choices = {"cat", "The", "sleeps"},
+                    filled = {},
+                    used = {},
+                },
+                progress = {},
+            }, {__index = GameScreen})
+
+            gs:onSentenceWordTap(1)
+            gs:onSentenceWordTap(2)
+            gs:onSentenceWordTap(3)
+            assert.are_equal("Try again", gs.sentence_build.feedback)
+
+            gs:resetSentenceAttempt()
+            assert.are_equal("", gs:getSentenceAnswer())
         end)
 
         it("scrambles spelling letters while keeping the same letters", function()

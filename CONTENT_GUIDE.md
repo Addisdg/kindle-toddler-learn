@@ -80,6 +80,8 @@ Guidelines:
   equal `answer_text`.
 - Sentence prompts should contain one concrete idea, end with a period, and
   remain under the 24-character prompt limit.
+- Sentence-building rounds use `kind = "sentence_build"`, an ordered `words`
+  list, and a matching space-joined `sentence` value.
 - Early maths rounds use `math_skill` to identify comparison, size, ordering,
   missing-number, arithmetic, and shape-pattern coverage. Arithmetic answers
   use dot cards so the result remains visual.
