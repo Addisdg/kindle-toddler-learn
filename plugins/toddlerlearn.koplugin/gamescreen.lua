@@ -35,6 +35,7 @@ local TEXT_CHOICE_FONT = 84
 local GUIDED_CATEGORIES = {
     "letter_pairs",
     "beginning_sounds",
+    "ending_sounds",
     "cvc_words",
     "word_blending",
     "word_families",

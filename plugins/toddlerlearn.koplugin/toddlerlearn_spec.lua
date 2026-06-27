@@ -65,6 +65,7 @@ describe("ToddlerLearn", function()
                 letter_pairs = true,
                 letter_words = true,
                 beginning_sounds = true,
+                ending_sounds = true,
                 reading_words = true,
                 cvc_words = true,
                 word_blending = true,
@@ -141,6 +142,15 @@ describe("ToddlerLearn", function()
             assert.is_true(#rounds >= 10)
             for _, round in ipairs(rounds) do
                 assert.are_equal(round.prompt:lower(), round.sound_word:sub(1, 1))
+                assert.are_equal(1, #round.prompt)
+            end
+        end)
+
+        it("matches ending letters to pictures with that sound", function()
+            local rounds = Content.getRounds("ending_sounds")
+            assert.is_true(#rounds >= 8)
+            for _, round in ipairs(rounds) do
+                assert.are_equal(round.prompt:lower(), round.sound_word:sub(-1))
                 assert.are_equal(1, #round.prompt)
             end
         end)

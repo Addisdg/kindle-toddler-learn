@@ -9,6 +9,7 @@ Content.category_order = {
     "letter_pairs",
     "letter_words",
     "beginning_sounds",
+    "ending_sounds",
     "reading_words",
     "cvc_words",
     "word_blending",
@@ -292,6 +293,10 @@ Content.categories = {
     },
     beginning_sounds = {
         label = "Beginning Sounds",
+        rounds = {},
+    },
+    ending_sounds = {
+        label = "Ending Sounds",
         rounds = {},
     },
     reading_words = {
@@ -740,6 +745,31 @@ local function addBeginningSoundRounds()
     end
 end
 
+local function addEndingSoundRounds()
+    local items = {
+        {word = "cat", path = "animals/cat.png"},
+        {word = "dog", path = "animals/dog.png"},
+        {word = "bus", path = "vehicles/bus.png"},
+        {word = "cup", path = "household/cup.png"},
+        {word = "bed", path = "household/bed.png"},
+        {word = "cow", path = "animals/cow.png"},
+        {word = "spoon", path = "household/spoon.png"},
+        {word = "ball", path = "household/ball.png"},
+        {word = "car", path = "vehicles/car.png"},
+    }
+
+    for i, item in ipairs(items) do
+        local next_one = items[(i % #items) + 1]
+        local next_two = items[((i + 1) % #items) + 1]
+        table.insert(Content.categories.ending_sounds.rounds, {
+            prompt = item.word:sub(-1):upper(),
+            answer = item.path,
+            distractors = {next_one.path, next_two.path},
+            sound_word = item.word,
+        })
+    end
+end
+
 local function addWordFamilyRounds()
     local families = {
         {ending = "at", words = {"cat", "hat", "bat"}, others = {"dog", "sun"}},
@@ -792,6 +822,7 @@ end
 addNumberRoundsToTen()
 addLetterPairRounds()
 addBeginningSoundRounds()
+addEndingSoundRounds()
 addWordFamilyRounds()
 addReadingAndSpellingRounds()
 
@@ -824,6 +855,7 @@ function Content.validate(asset_dir)
         quantities = true,
         early_math = true,
         beginning_sounds = true,
+        ending_sounds = true,
         reading_words = true,
         cvc_words = true,
         spelling_words = true,

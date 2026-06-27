@@ -15,6 +15,8 @@ plugin for a jailbroken Kindle Paperwhite (7th gen / PW3, firmware
 - Uppercase rounds ask the child to choose the matching lowercase letter.
 - Beginning-sound rounds show one letter and ask for the picture whose word
   starts with that letter.
+- Ending-sound rounds show one letter and ask for a picture whose word ends
+  with that letter.
 - Short-word spelling begins with three-letter CVC words before introducing
   slightly harder four-letter words.
 - Word-family rounds contrast matching endings such as `-at`, `-og`, `-un`,
