@@ -19,8 +19,8 @@ function ToddlerLearn:addToMainMenu(menu_items)
         text = _("Toddler Learn"),
         sorting_hint = "tools",
         callback = function()
-            local GameScreen = require("gamescreen")
-            local screen = GameScreen:new{
+            local AppScreen = require("appscreen")
+            local screen = AppScreen:new{
                 assets_dir = self.path .. "/assets/",
             }
             UIManager:show(screen)

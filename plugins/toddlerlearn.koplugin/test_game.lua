@@ -70,6 +70,7 @@ describe("ToddlerLearn", function()
     -- ----------------------------------------------------------------
     local GameScreen
     local Content
+    local AppScreen
 
     setup(function()
         stub_modules()
@@ -77,6 +78,7 @@ describe("ToddlerLearn", function()
         package.path = "../plugins/toddlerlearn.koplugin/?.lua;" .. package.path
         Content    = require("content")
         GameScreen = require("gamescreen")
+        AppScreen  = require("appscreen")
     end)
 
     -- ----------------------------------------------------------------
@@ -471,6 +473,23 @@ describe("ToddlerLearn", function()
     end)
 
     describe("GameScreen parent setup", function()
+
+        it("exposes the three child-facing app modes", function()
+            local app = setmetatable({}, {__index = AppScreen})
+            assert.are_same({"learn", "puzzles", "draw"}, app:getModes())
+            assert.are_equal("Learn", app:getModeLabel("learn"))
+            assert.are_equal("Puzzles", app:getModeLabel("puzzles"))
+            assert.are_equal("Draw", app:getModeLabel("draw"))
+        end)
+
+        it("returns Learn to the shared mode chooser", function()
+            local returned
+            local gs = setmetatable({mode_callback = function(screen) returned = screen end}, {
+                __index = GameScreen,
+            })
+            assert.is_true(gs:onModeChooser())
+            assert.are_equal(gs, returned)
+        end)
 
         it("cycles through mixed and content categories", function()
             local gs = setmetatable({

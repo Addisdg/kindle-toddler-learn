@@ -3,6 +3,7 @@ local FrameContainer = require("ui/widget/container/framecontainer")
 local CenterContainer = require("ui/widget/container/centercontainer")
 local VerticalGroup = require("ui/widget/verticalgroup")
 local HorizontalGroup = require("ui/widget/horizontalgroup")
+local OverlapGroup = require("ui/widget/overlapgroup")
 local ImageWidget = require("ui/widget/imagewidget")
 local TextWidget = require("ui/widget/textwidget")
 local InputDialog = require("ui/widget/inputdialog")
@@ -90,6 +91,12 @@ function GameScreen:init()
     self.ges_events.SwipeNoop = {swipe_range}
     self.ges_events.HoldNoop = {hold_range}
     self.ges_events.PanNoop = {pan_range}
+    if self.mode_callback and not self.parent_mode and not self.progress_mode then
+        self.ges_events.ModeChooser = {GestureRange:new{
+            ges = "two_finger_tap",
+            range = self.dimen,
+        }}
+    end
 
     if self.progress_mode then
         self.selected_profile_id = self.selected_profile_id or self.profile_id or "child1"
@@ -501,6 +508,7 @@ function GameScreen:renderProgressScreen()
         background = Blitbuffer.COLOR_WHITE,
         content,
     }
+    self:decorateRootWithModes()
     UIManager:setDirty(self, "full")
 end
 
@@ -540,6 +548,51 @@ function GameScreen:renderParentButton(text, on_tap)
         return true
     end
     return button
+end
+
+function GameScreen:makeModesButton()
+    local width = 170
+    local height = 78
+    local button = InputContainer:new{
+        dimen = Geom:new{x = 0, y = 0, w = width, h = height},
+        overlap_align = "right",
+    }
+    button.ges_events = {Tap = {GestureRange:new{ges = "tap", range = button.dimen}}}
+    button[1] = FrameContainer:new{
+        width = width,
+        height = height,
+        bordersize = 4,
+        padding = 6,
+        background = Blitbuffer.COLOR_WHITE,
+        CenterContainer:new{
+            dimen = Geom:new{w = width - 20, h = height - 20},
+            TextWidget:new{text = "Modes", face = Font:getFace("tfont", 30)},
+        },
+    }
+    button.onTap = function()
+        self:onModeChooser()
+        return true
+    end
+    return button
+end
+
+function GameScreen:decorateRootWithModes()
+    if self.mode_callback and not self.parent_mode and not self.progress_mode then
+        local root = self[1]
+        self[1] = OverlapGroup:new{
+            dimen = self.dimen,
+            allow_mirroring = false,
+            root,
+            self:makeModesButton(),
+        }
+    end
+end
+
+function GameScreen:onModeChooser()
+    if self.mode_callback then
+        self.mode_callback(self)
+    end
+    return true
 end
 
 function GameScreen:renderParentMenu()
@@ -599,6 +652,7 @@ function GameScreen:renderParentMenu()
         content
     }
 
+    self:decorateRootWithModes()
     UIManager:setDirty(self, "full")
 end
 
@@ -842,6 +896,7 @@ function GameScreen:renderSentenceBuildRound()
         background = Blitbuffer.COLOR_WHITE,
         content,
     }
+    self:decorateRootWithModes()
     UIManager:setDirty(self, "full")
 end
 
@@ -938,6 +993,7 @@ function GameScreen:renderTapCountRound()
         background = Blitbuffer.COLOR_WHITE,
         CenterContainer:new{dimen = self.dimen, group},
     }
+    self:decorateRootWithModes()
     UIManager:setDirty(self, "full")
 end
 
@@ -997,6 +1053,7 @@ function GameScreen:renderStoryPage()
         background = Blitbuffer.COLOR_WHITE,
         content,
     }
+    self:decorateRootWithModes()
     UIManager:setDirty(self, "full")
 end
 
@@ -1295,6 +1352,7 @@ function GameScreen:renderSpellingRound()
         content
     }
 
+    self:decorateRootWithModes()
     UIManager:setDirty(self, "full")
 end
 
@@ -1510,6 +1568,7 @@ function GameScreen:renderRound()
         content
     }
 
+    self:decorateRootWithModes()
     UIManager:setDirty(self, "full")
 end
 
