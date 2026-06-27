@@ -136,6 +136,7 @@ describe("ToddlerLearn", function()
                 letters = true,
                 letter_pairs = true,
                 letter_words = true,
+                beginning_sounds = true,
                 reading_words = true,
                 spelling_words = true,
                 shapes = true,
@@ -197,6 +198,15 @@ describe("ToddlerLearn", function()
                 assert.are_equal("text_choice", round.kind)
                 assert.are_equal(round.prompt:lower(), round.answer_text)
                 assert.are_equal(2, #round.distractors_text)
+            end
+        end)
+
+        it("matches beginning letters to pictures with that sound", function()
+            local rounds = Content.getRounds("beginning_sounds")
+            assert.is_true(#rounds >= 10)
+            for _, round in ipairs(rounds) do
+                assert.are_equal(round.prompt:lower(), round.sound_word:sub(1, 1))
+                assert.are_equal(1, #round.prompt)
             end
         end)
 

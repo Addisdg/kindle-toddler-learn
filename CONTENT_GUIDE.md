@@ -68,6 +68,8 @@ Guidelines:
   The answer boxes are tappable and clear the current attempt.
 - For text-only matching, set `kind = "text_choice"`, `answer_text`, and at
   least two `distractors_text` values. This is used for letter pairs.
+- Beginning-sound rounds use a one-letter prompt and store `sound_word` so
+  tests can verify that the chosen picture starts with the displayed letter.
 
 ## Where to get images
 

@@ -7,6 +7,7 @@ Content.category_order = {
     "letters",
     "letter_pairs",
     "letter_words",
+    "beginning_sounds",
     "reading_words",
     "spelling_words",
     "shapes",
@@ -277,6 +278,10 @@ Content.categories = {
             },
         },
     },
+    beginning_sounds = {
+        label = "Beginning Sounds",
+        rounds = {},
+    },
     reading_words = {
         label = "Reading Words",
         rounds = {},
@@ -525,6 +530,35 @@ local function addLetterPairRounds()
     end
 end
 
+local function addBeginningSoundRounds()
+    local items = {
+        {word = "apple", path = "fruit/apple.png"},
+        {word = "ball", path = "household/ball.png"},
+        {word = "cat", path = "animals/cat.png"},
+        {word = "dog", path = "animals/dog.png"},
+        {word = "eye", path = "body/eye.png"},
+        {word = "fish", path = "animals/fish.png"},
+        {word = "grapes", path = "fruit/grapes.png"},
+        {word = "hand", path = "body/hand.png"},
+        {word = "nose", path = "body/nose.png"},
+        {word = "orange", path = "fruit/orange.png"},
+        {word = "plane", path = "vehicles/plane.png"},
+        {word = "spoon", path = "household/spoon.png"},
+        {word = "train", path = "vehicles/train.png"},
+    }
+
+    for i, item in ipairs(items) do
+        local next_one = items[(i % #items) + 1]
+        local next_two = items[((i + 1) % #items) + 1]
+        table.insert(Content.categories.beginning_sounds.rounds, {
+            prompt = item.word:sub(1, 1):upper(),
+            answer = item.path,
+            distractors = {next_one.path, next_two.path},
+            sound_word = item.word,
+        })
+    end
+end
+
 local function getWordDistractors(index)
     return {
         getWordBankItem(index + 1),
@@ -551,6 +585,7 @@ local function addReadingAndSpellingRounds()
 end
 
 addLetterPairRounds()
+addBeginningSoundRounds()
 addReadingAndSpellingRounds()
 
 function Content.getRounds(category)
@@ -579,6 +614,7 @@ function Content.validate(asset_dir)
     local errors = {}
     local mixed_path_categories = {
         letter_words = true,
+        beginning_sounds = true,
         reading_words = true,
         spelling_words = true,
     }
