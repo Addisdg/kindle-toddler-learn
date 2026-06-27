@@ -10,6 +10,10 @@ plugin for a jailbroken Kindle Paperwhite (7th gen / PW3, firmware
 - A word, letter, or number is shown at the top of the screen.
 - Several large images are shown below it.
 - The child taps the image that matches the prompt.
+- Reading rounds show only the target word above unlabeled pictures, so the
+  child practices reading instead of matching duplicate captions.
+- Spelling rounds show a picture, large scrambled letter tiles, and large
+  answer boxes. Tapping an answer box clears the attempt for another try.
 - A correct tap shows calm feedback, advances the round, and every five
   correct answers shows a simple reward screen.
 - An incorrect tap briefly emphasizes the selected tile and waits for
@@ -50,11 +54,12 @@ kindle-toddler-learn/
 
 ## Status
 
-The first on-device MVP is complete and the app has been expanded with
-category sessions, difficulty levels, generated e-ink assets, parent setup,
-reward milestones, and content validation tests. KOReader's internal widget
-APIs can still vary between versions, so run `./run-tests.sh` and do a quick
-device smoke test before handing a new build to a child.
+The expanded build has been tested successfully on a Kindle. It includes
+category sessions, difficulty levels, generated e-ink assets, caption-free
+reading practice, large resettable spelling controls, parent setup, reward
+milestones, and content validation tests. KOReader's internal widget APIs can
+still vary between versions, so run `./run-tests.sh` and do a quick device
+smoke test before handing a new build to a child.
 
 ## Development setup (on your computer)
 

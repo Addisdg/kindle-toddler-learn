@@ -514,18 +514,10 @@ end
 local function addReadingAndSpellingRounds()
     for i, item in ipairs(Content.word_bank) do
         local distractors = getWordDistractors(i)
-        local labels = {
-            [item.path] = item.word,
-            [distractors[1].path] = distractors[1].word,
-            [distractors[2].path] = distractors[2].word,
-        }
-
         table.insert(Content.categories.reading_words.rounds, {
-            prompt = "Read: " .. item.word,
+            prompt = item.word,
             answer = item.path,
             distractors = {distractors[1].path, distractors[2].path},
-            labels = labels,
-            show_labels = true,
         })
 
         table.insert(Content.categories.spelling_words.rounds, {
@@ -636,20 +628,6 @@ function Content.validate(asset_dir)
                     end
                 end
 
-                if round.show_labels then
-                    if not round.labels then
-                        add_error(round_name .. " shows labels but has no labels table")
-                    else
-                        if round.answer and not round.labels[round.answer] then
-                            add_error(round_name .. " missing answer label")
-                        end
-                        for _, distractor in ipairs(round.distractors or {}) do
-                            if not round.labels[distractor] then
-                                add_error(round_name .. " missing distractor label: " .. distractor)
-                            end
-                        end
-                    end
-                end
             end
         end
     end

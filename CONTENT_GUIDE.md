@@ -55,16 +55,17 @@ Guidelines:
   is a meaningful choice (e.g. don't pair "Cat" with a number and a
   spoon — pair it with other animals). `letter_words` is the intentional
   exception because it teaches letter-object association. `reading_words`
-  is also intentionally mixed because it teaches word recognition with
-  picture captions. `spelling_words` is not a multiple-choice category;
-  it uses one picture plus scrambled letter tiles.
+  is also intentionally mixed because it teaches recognition of the prompt
+  word against unlabeled pictures. `spelling_words` is not a multiple-choice
+  category; it uses one picture plus scrambled letter tiles.
 - Keep `prompt` short. The validator currently rejects prompts longer than
   24 characters.
-- For reading practice rounds, set `show_labels = true` and provide a
-  `labels` table for the answer and every distractor. The game will render
-  those words under the picture tiles.
+- For reading practice rounds, use the target word itself as `prompt`. Keep
+  picture choices unlabeled so children must read the prompt rather than
+  match identical text.
 - For spelling practice rounds, set `kind = "spelling"`, add a lowercase
   `word`, and provide the picture path in `answer`. Do not add distractors.
+  The answer boxes are tappable and clear the current attempt.
 
 ## Where to get images
 

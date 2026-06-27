@@ -6,7 +6,9 @@ until the current one runs cleanly in the emulator.
 
 Status note: the first on-device MVP is complete. The post-MVP upgrade
 work has added polished layout, categorized content, difficulty selection,
-parent setup, rewards, expanded generated assets, and content validation.
+parent setup, rewards, expanded generated assets, caption-free reading rounds,
+large resettable spelling controls, and content validation. The latest UI
+revision has been smoke-tested successfully on the Kindle.
 
 ---
 
@@ -79,7 +81,7 @@ only taps, in the emulator.
 **Goal:** Replace placeholders with real images for the categories you
 care about.
 
-- [ ] Decide which categories to start with (suggest: animals + colors)
+- [ ] Decide which categories to start with (suggest: animals + fruit)
 - [ ] Source/create images per `CONTENT_GUIDE.md` specs
 - [ ] Add corresponding entries to `content.lua`
 - [ ] Spot-check each round in the emulator

@@ -22,16 +22,15 @@ local PROMPT_HEIGHT = 150
 local TILE_GAP = 26
 local TILE_PADDING = 14
 local TILE_BORDER = 5
-local TILE_LABEL_HEIGHT = 44
 local SELECTED_TILE_BORDER = 9
 local WRONG_FEEDBACK_SECONDS = 0.35
 local PARENT_ROW_HEIGHT = 120
 local REWARD_EVERY = 5
 local REWARD_SECONDS = 0.8
 local SPELLING_GAP = 8
-local SPELLING_LETTER_MIN = 32
-local SPELLING_LETTER_MAX = 54
-local SPELLING_RESET_SECONDS = 0.55
+local SPELLING_LETTER_MAX = 88
+local SPELLING_LETTER_HEIGHT = 84
+local SPELLING_FONT_MAX = 56
 
 --------------------------------------------------------------------------
 -- GameScreen
@@ -273,21 +272,11 @@ function GameScreen:getChoiceLimit()
     return 3
 end
 
-function GameScreen:getChoiceLabel(round, path)
-    if round.labels and round.labels[path] then
-        return round.labels[path]
-    end
-
-    local name = path:match("([^/]+)%.png$")
-    return name or ""
-end
-
 function GameScreen:buildChoices(round)
     local choice_limit = self:getChoiceLimit()
     local choices = {{
         path = round.answer,
         correct = true,
-        label = self:getChoiceLabel(round, round.answer),
     }}
     local seen = {
         [round.answer] = true,
@@ -301,7 +290,6 @@ function GameScreen:buildChoices(round)
             table.insert(choices, {
                 path = path,
                 correct = false,
-                label = self:getChoiceLabel(round, path),
             })
             seen[path] = true
         end
@@ -315,7 +303,6 @@ function GameScreen:buildChoices(round)
             table.insert(choices, {
                 path = candidate.answer,
                 correct = false,
-                label = self:getChoiceLabel(candidate, candidate.answer),
             })
             seen[candidate.answer] = true
         end
@@ -388,8 +375,8 @@ function GameScreen:getSpellingLayout(letter_count)
     local sw = Screen:getWidth()
     local sh = Screen:getHeight()
     local usable_w = sw - EDGE_MARGIN * 2
-    local letter_w = math.floor((usable_w - (letter_count - 1) * SPELLING_GAP) / letter_count)
-    letter_w = math.min(SPELLING_LETTER_MAX, math.max(SPELLING_LETTER_MIN, letter_w))
+    local available_letter_w = math.floor((usable_w - (letter_count - 1) * SPELLING_GAP) / letter_count)
+    local letter_w = math.min(SPELLING_LETTER_MAX, math.max(1, available_letter_w))
     local image_size = math.min(250, usable_w, math.floor(sh * 0.34))
 
     return {
@@ -399,7 +386,8 @@ function GameScreen:getSpellingLayout(letter_count)
         prompt_h = 90,
         image_size = image_size,
         letter_w = letter_w,
-        letter_h = 58,
+        letter_h = SPELLING_LETTER_HEIGHT,
+        letter_font_size = math.min(SPELLING_FONT_MAX, math.max(30, letter_w - 16)),
         letter_gap = SPELLING_GAP,
     }
 end
@@ -426,7 +414,7 @@ function GameScreen:buildSpellingBoxes(layout)
 
     for i = 1, #self.spelling.word do
         local letter = self.spelling.filled[i] or ""
-        table.insert(boxes, FrameContainer:new{
+        local box = FrameContainer:new{
             width = layout.letter_w,
             height = layout.letter_h,
             bordersize = 4,
@@ -438,10 +426,31 @@ function GameScreen:buildSpellingBoxes(layout)
                 },
                 TextWidget:new{
                     text = letter,
-                    face = Font:getFace("tfont", 34)
+                    face = Font:getFace("tfont", layout.letter_font_size)
                 }
             }
-        })
+        }
+
+        local tappable = InputContainer:new{
+            dimen = Geom:new{
+                x = 0,
+                y = 0,
+                w = layout.letter_w,
+                h = layout.letter_h,
+            }
+        }
+        tappable.ges_events = {
+            Tap = {GestureRange:new{
+                ges = "tap",
+                range = tappable.dimen,
+            }}
+        }
+        tappable[1] = box
+        tappable.onTap = function()
+            self:onSpellingBoxesTap()
+            return true
+        end
+        table.insert(boxes, tappable)
 
         if i < #self.spelling.word then
             table.insert(boxes, self:makeBlankSpacer(layout.letter_gap, layout.letter_h))
@@ -472,7 +481,7 @@ function GameScreen:buildSpellingLetters(layout)
                 },
                 TextWidget:new{
                     text = letter_text,
-                    face = Font:getFace("tfont", 34)
+                    face = Font:getFace("tfont", layout.letter_font_size)
                 }
             }
         }
@@ -665,41 +674,13 @@ function GameScreen:renderRound()
         local img_path = self.assets_dir .. choice.path
         logger.warn("ToddlerLearn: loading image", img_path)
         local tile_style = self:getTileStyle(layout, i)
-        local show_label = round.show_labels and choice.label and choice.label ~= ""
         local image_height = layout.tile_h - (tile_style.padding + tile_style.border) * 2
-        if show_label then
-            image_height = math.max(80, image_height - TILE_LABEL_HEIGHT)
-        end
-
-        local tile_content
-        if show_label then
-            tile_content = VerticalGroup:new{
-                align = "center",
-                ImageWidget:new{
-                    file = img_path,
-                    width = layout.tile_w - (tile_style.padding + tile_style.border) * 2,
-                    height = image_height,
-                    scale_factor = 0
-                },
-                CenterContainer:new{
-                    dimen = Geom:new{
-                        w = layout.tile_w - (tile_style.padding + tile_style.border) * 2,
-                        h = TILE_LABEL_HEIGHT,
-                    },
-                    TextWidget:new{
-                        text = choice.label,
-                        face = Font:getFace("tfont", 30)
-                    }
-                }
-            }
-        else
-            tile_content = ImageWidget:new{
-                file = img_path,
-                width = layout.tile_w - (tile_style.padding + tile_style.border) * 2,
-                height = image_height,
-                scale_factor = 0
-            }
-        end
+        local tile_content = ImageWidget:new{
+            file = img_path,
+            width = layout.tile_w - (tile_style.padding + tile_style.border) * 2,
+            height = image_height,
+            scale_factor = 0
+        }
 
         local tile = FrameContainer:new{
             width = layout.tile_w,
@@ -825,15 +806,16 @@ function GameScreen:onSpellingLetterTap(letter_index)
     end
 
     self.spelling.feedback = "Try again"
-    if not self.dimen then
-        self:resetSpellingAttempt()
-        return true
+    if self.dimen then
+        self:renderSpellingRound()
     end
+    return true
+end
 
-    self:renderSpellingRound()
-    UIManager:scheduleIn(SPELLING_RESET_SECONDS, function()
+function GameScreen:onSpellingBoxesTap()
+    if self.spelling and #self.spelling.filled > 0 then
         self:resetSpellingAttempt()
-    end)
+    end
     return true
 end
 

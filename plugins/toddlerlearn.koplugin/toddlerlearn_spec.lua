@@ -90,16 +90,13 @@ describe("ToddlerLearn", function()
             assert.are_equal(#Content, #Content.getRounds("mixed"))
         end)
 
-        it("has reading rounds with visible word labels", function()
+        it("has reading rounds with bare word prompts and no picture captions", function()
             local rounds = Content.getRounds("reading_words")
             assert.are_equal(#Content.word_bank, #rounds)
-            for _, round in ipairs(rounds) do
-                assert.is_true(round.show_labels)
-                assert.is_table(round.labels)
-                assert.is_string(round.labels[round.answer])
-                for _, distractor in ipairs(round.distractors) do
-                    assert.is_string(round.labels[distractor])
-                end
+            for i, round in ipairs(rounds) do
+                assert.are_equal(Content.word_bank[i].word, round.prompt)
+                assert.is_nil(round.show_labels)
+                assert.is_nil(round.labels)
             end
         end)
 
@@ -309,7 +306,7 @@ describe("ToddlerLearn", function()
             end
         end)
 
-        it("carries word labels into reading choices", function()
+        it("keeps reading picture choices caption free", function()
             local gs = setmetatable({
                 difficulty = "normal",
                 rounds = Content.getRounds("reading_words"),
@@ -317,9 +314,25 @@ describe("ToddlerLearn", function()
 
             local choices = gs:buildChoices(gs.rounds[1])
 
-            assert.are_equal("cat", choices[1].label)
-            assert.is_true(#choices[2].label > 0)
-            assert.is_true(#choices[3].label > 0)
+            for _, choice in ipairs(choices) do
+                assert.is_nil(choice.label)
+            end
+        end)
+
+        it("uses large spelling letter boxes and type", function()
+            local gs = setmetatable({}, { __index = GameScreen })
+            local layout = gs:getSpellingLayout(5)
+
+            assert.is_true(layout.letter_h >= 80)
+            assert.is_true(layout.letter_font_size >= 40)
+
+            for _, item in ipairs(Content.word_bank) do
+                local word_layout = gs:getSpellingLayout(#item.word)
+                local row_width = #item.word * word_layout.letter_w
+                    + (#item.word - 1) * word_layout.letter_gap
+                assert.is_true(row_width <= word_layout.usable_w,
+                    "spelling row is too wide for " .. item.word)
+            end
         end)
 
         it("scrambles spelling letters while keeping the same letters", function()
@@ -366,7 +379,7 @@ describe("ToddlerLearn", function()
             assert.are_equal("cat", gs:getSpellingAnswer())
         end)
 
-        it("resets an incorrect spelling attempt without advancing", function()
+        it("keeps an incorrect spelling attempt until the answer boxes are tapped", function()
             local advanced = false
             local gs = setmetatable({
                 spelling = {
@@ -388,7 +401,35 @@ describe("ToddlerLearn", function()
             gs:onSpellingLetterTap(3)
 
             assert.is_false(advanced)
+            assert.are_equal("tac", gs:getSpellingAnswer())
+            assert.are_equal("Try again", gs.spelling.feedback)
+
+            gs:onSpellingBoxesTap()
+
             assert.are_equal("", gs:getSpellingAnswer())
+            assert.is_nil(gs.spelling.feedback)
+        end)
+
+        it("clears a partial spelling attempt when an answer box is tapped", function()
+            local gs = setmetatable({
+                spelling = {
+                    word = "cat",
+                    letters = {"c", "a", "t"},
+                    filled = {},
+                    used = {},
+                },
+            }, { __index = GameScreen })
+
+            gs:onSpellingLetterTap(1)
+            assert.are_equal("c", gs:getSpellingAnswer())
+            assert.is_true(gs.spelling.used[1])
+
+            local boxes = gs:buildSpellingBoxes(gs:getSpellingLayout(3))
+            assert.is_function(boxes[1].onTap)
+            boxes[1].onTap()
+
+            assert.are_equal("", gs:getSpellingAnswer())
+            assert.is_nil(gs.spelling.used[1])
         end)
 
         it("shows a reward every five correct answers", function()
