@@ -16,6 +16,7 @@ Content.category_order = {
     "spelling_words",
     "sentence_building",
     "sentences",
+    "mini_stories",
     "shapes",
     "vehicles",
     "body",
@@ -365,6 +366,39 @@ Content.categories = {
             {prompt = "I sleep in a bed.", answer = "household/bed.png", distractors = {"household/chair.png", "household/cup.png"}},
             {prompt = "I drink from a cup.", answer = "household/cup.png", distractors = {"household/spoon.png", "household/ball.png"}},
             {prompt = "I feel happy.", answer = "emotions/happy.png", distractors = {"emotions/sad.png", "emotions/sleepy.png"}},
+        },
+    },
+    mini_stories = {
+        label = "Mini Stories",
+        rounds = {
+            {
+                kind = "story",
+                pages = {"The cat is on a bed.", "The cat feels sleepy.", "The cat goes to sleep."},
+                prompt = "Who went to sleep?",
+                answer = "animals/cat.png",
+                distractors = {"animals/dog.png", "animals/bird.png"},
+            },
+            {
+                kind = "story",
+                pages = {"The dog sees a ball.", "The dog runs to it.", "The dog is happy."},
+                prompt = "Who saw the ball?",
+                answer = "animals/dog.png",
+                distractors = {"animals/cat.png", "animals/cow.png"},
+            },
+            {
+                kind = "story",
+                pages = {"A bird is in a tree.", "The bird can fly.", "It flies to the nest."},
+                prompt = "What can fly?",
+                answer = "animals/bird.png",
+                distractors = {"animals/fish.png", "animals/cow.png"},
+            },
+            {
+                kind = "story",
+                pages = {"A bus is at the stop.", "The bus can go.", "It takes us home."},
+                prompt = "What takes us home?",
+                answer = "vehicles/bus.png",
+                distractors = {"vehicles/boat.png", "vehicles/plane.png"},
+            },
         },
     },
     shapes = {
@@ -794,6 +828,7 @@ function Content.validate(asset_dir)
         cvc_words = true,
         spelling_words = true,
         sentences = true,
+        mini_stories = true,
     }
 
     local function add_error(message)
@@ -829,6 +864,21 @@ function Content.validate(asset_dir)
                         add_error(round_name .. " needs at least 3 sentence words")
                     elseif table.concat(round.words, " ") ~= round.sentence then
                         add_error(round_name .. " words do not match sentence")
+                    end
+                elseif round.kind == "story" then
+                    if not round.pages or #round.pages < 3 or #round.pages > 5 then
+                        add_error(round_name .. " needs 3 to 5 story pages")
+                    else
+                        for _, page in ipairs(round.pages) do
+                            if page == "" or #page > 24 then
+                                add_error(round_name .. " has an invalid story page: " .. page)
+                            end
+                        end
+                    end
+                    if not round.answer or not round.answer:match("%.png$") then
+                        add_error(round_name .. " answer is not a png")
+                    elseif asset_dir and not Content.pathExists(asset_dir .. round.answer) then
+                        add_error(round_name .. " missing answer asset: " .. round.answer)
                     end
                 else
                     if not round.answer or not round.answer:match("%.png$") then

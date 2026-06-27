@@ -40,6 +40,7 @@ local GUIDED_CATEGORIES = {
     "word_families",
     "sentence_building",
     "sentences",
+    "mini_stories",
 }
 local GUIDED_MASTERY_RATIO = 0.7
 
@@ -625,6 +626,71 @@ function GameScreen:renderSentenceBuildRound()
     UIManager:setDirty(self, "full")
 end
 
+function GameScreen:startStoryRound(round)
+    self.current_choices = nil
+    self.spelling = nil
+    self.sentence_build = nil
+    self.story_page = 1
+    self:renderStoryPage()
+end
+
+function GameScreen:renderStoryPage()
+    local round = self.current_round
+    if not round or not self.story_page then
+        return
+    end
+    local next_button = self:renderParentButton(">", function()
+        self:onStoryContinue()
+    end)
+    local content = CenterContainer:new{
+        dimen = self.dimen,
+        VerticalGroup:new{
+            align = "center",
+            CenterContainer:new{
+                dimen = Geom:new{w = self.dimen.w - EDGE_MARGIN * 2, h = 160},
+                TextWidget:new{
+                    text = "Story " .. tostring(self.story_page) .. "/" .. tostring(#round.pages),
+                    face = Font:getFace("tfont", 34),
+                }
+            },
+            CenterContainer:new{
+                dimen = Geom:new{w = self.dimen.w - EDGE_MARGIN * 2, h = 420},
+                TextWidget:new{
+                    text = round.pages[self.story_page],
+                    face = Font:getFace("tfont", 58),
+                }
+            },
+            next_button,
+        }
+    }
+    self[1] = FrameContainer:new{
+        width = self.dimen.w,
+        height = self.dimen.h,
+        bordersize = 0,
+        padding = 0,
+        background = Blitbuffer.COLOR_WHITE,
+        content,
+    }
+    UIManager:setDirty(self, "full")
+end
+
+function GameScreen:onStoryContinue()
+    if not self.current_round or self.current_round.kind ~= "story" then
+        return true
+    end
+    if self.story_page < #self.current_round.pages then
+        self.story_page = self.story_page + 1
+        self:renderStoryPage()
+        return true
+    end
+
+    self.story_page = nil
+    self.current_choices = self:buildChoices(self.current_round)
+    self:shuffle(self.current_choices)
+    self:renderRound()
+    return true
+end
+
 function GameScreen:startSpellingRound(round)
     self.current_choices = nil
     self.spelling = {
@@ -961,9 +1027,14 @@ function GameScreen:loadRound()
         self:startSentenceBuildRound(round)
         return
     end
+    if round.kind == "story" then
+        self:startStoryRound(round)
+        return
+    end
 
     self.spelling = nil
     self.sentence_build = nil
+    self.story_page = nil
 
     local choices = self:buildChoices(round)
     self:shuffle(choices)

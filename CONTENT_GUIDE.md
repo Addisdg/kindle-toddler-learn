@@ -82,6 +82,8 @@ Guidelines:
   remain under the 24-character prompt limit.
 - Sentence-building rounds use `kind = "sentence_build"`, an ordered `words`
   list, and a matching space-joined `sentence` value.
+- Mini-stories use `kind = "story"`, three to five short `pages`, and the
+  normal picture answer fields for the final comprehension question.
 - Early maths rounds use `math_skill` to identify comparison, size, ordering,
   missing-number, arithmetic, and shape-pattern coverage. Arithmetic answers
   use dot cards so the result remains visual.

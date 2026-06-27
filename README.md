@@ -25,6 +25,8 @@ plugin for a jailbroken Kindle Paperwhite (7th gen / PW3, firmware
   the matching picture.
 - Sentence-building rounds scramble three or four words for the child to tap
   into the correct order; tapping the answer row clears an attempt.
+- Decodable mini-stories present three short pages followed by a picture
+  comprehension question.
 - Number recognition, counting, and numeral-to-quantity matching cover one
   through ten with high-contrast dot cards.
 - Early Maths combines more/fewer, biggest/smallest, number order, missing

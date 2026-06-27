@@ -72,6 +72,7 @@ describe("ToddlerLearn", function()
                 spelling_words = true,
                 sentence_building = true,
                 sentences = true,
+                mini_stories = true,
                 shapes = true,
                 vehicles = true,
                 body = true,
@@ -195,6 +196,17 @@ describe("ToddlerLearn", function()
             for _, round in ipairs(rounds) do
                 assert.are_equal("sentence_build", round.kind)
                 assert.are_equal(round.sentence, table.concat(round.words, " "))
+            end
+        end)
+
+        it("provides decodable mini-stories followed by picture questions", function()
+            local rounds = Content.getRounds("mini_stories")
+            assert.is_true(#rounds >= 4)
+            for _, round in ipairs(rounds) do
+                assert.are_equal("story", round.kind)
+                assert.is_true(#round.pages >= 3 and #round.pages <= 5)
+                assert.is_string(round.answer)
+                assert.is_true(#round.distractors >= 2)
             end
         end)
 
@@ -628,6 +640,32 @@ describe("ToddlerLearn", function()
 
             gs:resetSentenceAttempt()
             assert.are_equal("", gs:getSentenceAnswer())
+        end)
+
+        it("advances through story pages before building the question", function()
+            local rendered_pages = 0
+            local rendered_question = false
+            local round = Content.getRounds("mini_stories")[1]
+            local gs = setmetatable({
+                current_round = round,
+                story_page = 1,
+                difficulty = "normal",
+                rounds = {round},
+                renderStoryPage = function() rendered_pages = rendered_pages + 1 end,
+                renderRound = function() rendered_question = true end,
+                shuffle = function() end,
+            }, {__index = GameScreen})
+
+            gs:onStoryContinue()
+            gs:onStoryContinue()
+            assert.are_equal(3, gs.story_page)
+            assert.are_equal(2, rendered_pages)
+            assert.is_false(rendered_question)
+
+            gs:onStoryContinue()
+            assert.is_nil(gs.story_page)
+            assert.is_true(rendered_question)
+            assert.are_equal(3, #gs.current_choices)
         end)
 
         it("scrambles spelling letters while keeping the same letters", function()
