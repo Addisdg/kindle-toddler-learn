@@ -34,6 +34,7 @@ local SPELLING_LETTER_HEIGHT = 84
 local SPELLING_FONT_MAX = 56
 local TEXT_CHOICE_FONT = 84
 local GUIDED_MASTERY_RATIO = 0.7
+local PROGRESS_VERSION = 2
 local EXIT_CODE = "1234"
 local PROFILE_IDS = {"child1", "child2", "child3"}
 local PROFILE_LABELS = {
@@ -136,9 +137,11 @@ end
 
 function GameScreen:isRoundMastered(round)
     local result = (self.progress or {})[self:getRoundKey(round)]
+    local independent_correct = result
+        and (result.independent_correct or result.correct or 0) or 0
     return result ~= nil
-        and result.correct >= 2
-        and result.correct > result.wrong
+        and independent_correct >= 2
+        and independent_correct > (result.wrong or 0)
 end
 
 function GameScreen:getCategoryMastery(category)
@@ -174,15 +177,44 @@ function GameScreen:getProgressSettingKey(profile_id)
     return "toddlerlearn_progress_" .. (profile_id or self.profile_id or "child1")
 end
 
+function GameScreen:normalizeProgressRounds(rounds)
+    local normalized = {}
+    for key, result in pairs(rounds or {}) do
+        if type(result) == "table" then
+            local correct = result.correct or 0
+            local wrong = result.wrong or 0
+            normalized[key] = {
+                correct = correct,
+                wrong = wrong,
+                independent_correct = result.independent_correct or correct,
+                hinted_correct = result.hinted_correct or 0,
+                attempts = result.attempts or correct + wrong,
+                last_practiced = result.last_practiced,
+            }
+        end
+    end
+    return normalized
+end
+
+function GameScreen:migrateProgress(saved)
+    if type(saved) ~= "table" then
+        return {}
+    end
+    if saved.version and saved.rounds then
+        return self:normalizeProgressRounds(saved.rounds)
+    end
+    return self:normalizeProgressRounds(saved)
+end
+
 function GameScreen:loadProgress()
     local settings = self.settings or rawget(_G, "G_reader_settings")
     if settings and settings.readSetting then
         local saved = settings:readSetting(self:getProgressSettingKey(), nil)
         if saved ~= nil then
-            return saved
+            return self:migrateProgress(saved)
         end
         if (self.profile_id or "child1") == "child1" then
-            return settings:readSetting("toddlerlearn_progress", {}) or {}
+            return self:migrateProgress(settings:readSetting("toddlerlearn_progress", {}) or {})
         end
     end
     return {}
@@ -193,24 +225,43 @@ function GameScreen:saveProgress()
     if not settings or not settings.saveSetting then
         return
     end
-    settings:saveSetting(self:getProgressSettingKey(), self.progress or {})
+    settings:saveSetting(self:getProgressSettingKey(), {
+        version = PROGRESS_VERSION,
+        updated_at = (self.clock and self.clock()) or os.time(),
+        rounds = self.progress or {},
+    })
     if settings.flush then
         settings:flush()
     end
 end
 
-function GameScreen:recordRoundResult(is_correct)
+function GameScreen:recordRoundResult(is_correct, used_hint)
     if not self.current_round then
         return
     end
     self.progress = self.progress or {}
     local key = self:getRoundKey(self.current_round)
-    local result = self.progress[key] or {correct = 0, wrong = 0}
+    local result = self.progress[key] or {
+        correct = 0,
+        wrong = 0,
+        independent_correct = 0,
+        hinted_correct = 0,
+        attempts = 0,
+    }
+    result.independent_correct = result.independent_correct or result.correct or 0
+    result.hinted_correct = result.hinted_correct or 0
+    result.attempts = (result.attempts or ((result.correct or 0) + (result.wrong or 0))) + 1
     if is_correct then
         result.correct = result.correct + 1
+        if used_hint then
+            result.hinted_correct = result.hinted_correct + 1
+        else
+            result.independent_correct = result.independent_correct + 1
+        end
     else
         result.wrong = result.wrong + 1
     end
+    result.last_practiced = (self.clock and self.clock()) or os.time()
     self.progress[key] = result
     self:saveProgress()
 end
@@ -220,9 +271,11 @@ function GameScreen:buildAdaptiveRoundOrder(rounds)
     for i, round in ipairs(rounds or {}) do
         table.insert(self.round_order, i)
         local result = (self.progress or {})[self:getRoundKey(round)]
-        if result and result.wrong > result.correct then
+        local independent_correct = result
+            and (result.independent_correct or result.correct or 0) or 0
+        if result and result.wrong > independent_correct then
             table.insert(self.round_order, i)
-            if result.wrong >= result.correct + 3 then
+            if result.wrong >= independent_correct + 3 then
                 table.insert(self.round_order, i)
             end
         end
@@ -326,6 +379,8 @@ end
 function GameScreen:getProgressSummary(category)
     local summary = {
         correct = 0,
+        independent_correct = 0,
+        hinted_correct = 0,
         wrong = 0,
         attempts = 0,
         mastered = 0,
@@ -337,8 +392,11 @@ function GameScreen:getProgressSummary(category)
         local result = (self.progress or {})[self:getRoundKey(round)]
         if result then
             summary.correct = summary.correct + (result.correct or 0)
+            summary.independent_correct = summary.independent_correct
+                + (result.independent_correct or result.correct or 0)
+            summary.hinted_correct = summary.hinted_correct + (result.hinted_correct or 0)
             summary.wrong = summary.wrong + (result.wrong or 0)
-            if (result.correct or 0) >= 2 and (result.correct or 0) > (result.wrong or 0) then
+            if self:isRoundMastered(round) then
                 summary.mastered = summary.mastered + 1
             end
             if (result.wrong or 0) > (result.correct or 0) then
@@ -351,9 +409,12 @@ function GameScreen:getProgressSummary(category)
 end
 
 function GameScreen:getOverallProgressSummary()
-    local summary = {correct = 0, wrong = 0, attempts = 0}
+    local summary = {correct = 0, independent_correct = 0, hinted_correct = 0, wrong = 0, attempts = 0}
     for _, result in pairs(self.progress or {}) do
         summary.correct = summary.correct + (result.correct or 0)
+        summary.independent_correct = summary.independent_correct
+            + (result.independent_correct or result.correct or 0)
+        summary.hinted_correct = summary.hinted_correct + (result.hinted_correct or 0)
         summary.wrong = summary.wrong + (result.wrong or 0)
     end
     summary.attempts = summary.correct + summary.wrong
@@ -1487,7 +1548,7 @@ function GameScreen:onSpellingLetterTap(letter_index)
     end
 
     if self:isSpellingCorrect() then
-        self:recordRoundResult(true)
+        self:recordRoundResult(true, (self.spelling.hint_count or 0) > 0)
         if self:recordCorrectAnswer() then
             self:showRewardFeedback()
         else

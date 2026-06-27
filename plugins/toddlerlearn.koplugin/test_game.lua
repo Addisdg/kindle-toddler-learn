@@ -558,9 +558,13 @@ describe("ToddlerLearn", function()
             }
             local gs = setmetatable({settings = settings, profile_id = "child1"}, {__index = GameScreen})
 
-            assert.are_equal(legacy, gs:loadProgress())
+            local migrated_legacy = gs:loadProgress()
+            assert.are_equal(2, migrated_legacy.old_round.independent_correct)
+            assert.are_equal(2, migrated_legacy.old_round.attempts)
             gs.profile_id = "child2"
-            assert.are_equal(child_two, gs:loadProgress())
+            local migrated_child_two = gs:loadProgress()
+            assert.are_equal(1, migrated_child_two.new_round.independent_correct)
+            assert.are_equal(2, migrated_child_two.new_round.attempts)
             gs.profile_id = "child3"
             assert.is_nil(next(gs:loadProgress()))
         end)
@@ -726,14 +730,42 @@ describe("ToddlerLearn", function()
                 current_round = round,
                 progress = {},
                 settings = settings,
+                clock = function() return 42 end,
             }, {__index = GameScreen})
 
             gs:recordRoundResult(false)
             gs:recordRoundResult(true)
 
-            local result = saved[gs:getRoundKey(round)]
+            assert.are_equal(2, saved.version)
+            local result = saved.rounds[gs:getRoundKey(round)]
             assert.are_equal(1, result.correct)
             assert.are_equal(1, result.wrong)
+            assert.are_equal(1, result.independent_correct)
+            assert.are_equal(0, result.hinted_correct)
+            assert.are_equal(2, result.attempts)
+            assert.are_equal(42, result.last_practiced)
+        end)
+
+        it("does not count hinted answers as independent mastery", function()
+            local round = Content.getRounds("cvc_words")[1]
+            local gs = setmetatable({
+                current_round = round,
+                progress = {},
+                clock = function() return 12345 end,
+                saveProgress = function() end,
+            }, {__index = GameScreen})
+
+            gs:recordRoundResult(true, true)
+            gs:recordRoundResult(true, true)
+            local result = gs.progress[gs:getRoundKey(round)]
+            assert.are_equal(2, result.hinted_correct)
+            assert.are_equal(0, result.independent_correct)
+            assert.are_equal(12345, result.last_practiced)
+            assert.is_false(gs:isRoundMastered(round))
+
+            gs:recordRoundResult(true, false)
+            gs:recordRoundResult(true, false)
+            assert.is_true(gs:isRoundMastered(round))
         end)
 
         it("builds fewer choices on easy difficulty", function()
