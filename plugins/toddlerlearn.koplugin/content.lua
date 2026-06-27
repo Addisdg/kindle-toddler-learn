@@ -4,6 +4,7 @@ Content.category_order = {
     "animals",
     "fruit",
     "numbers",
+    "quantities",
     "letters",
     "letter_pairs",
     "letter_words",
@@ -111,6 +112,10 @@ Content.categories = {
                 distractors = {"numbers/4.png", "numbers/1.png"},
             },
         },
+    },
+    quantities = {
+        label = "Number Quantities",
+        rounds = {},
     },
     letters = {
         label = "Letters",
@@ -569,6 +574,40 @@ local function addLetterPairRounds()
     end
 end
 
+local function numberPath(folder, number)
+    return folder .. "/" .. tostring(number) .. ".png"
+end
+
+local function numberDistractors(folder, number)
+    return {
+        numberPath(folder, (number % 10) + 1),
+        numberPath(folder, ((number + 1) % 10) + 1),
+    }
+end
+
+local function addNumberRoundsToTen()
+    for number = 6, 10 do
+        table.insert(Content.categories.numbers.rounds, {
+            prompt = tostring(number),
+            answer = numberPath("numbers", number),
+            distractors = numberDistractors("numbers", number),
+        })
+        table.insert(Content.categories.counting.rounds, {
+            prompt = tostring(number) .. " dots",
+            answer = numberPath("counting", number),
+            distractors = numberDistractors("counting", number),
+        })
+    end
+
+    for number = 1, 10 do
+        table.insert(Content.categories.quantities.rounds, {
+            prompt = tostring(number),
+            answer = numberPath("counting", number),
+            distractors = numberDistractors("counting", number),
+        })
+    end
+end
+
 local function addBeginningSoundRounds()
     local items = {
         {word = "apple", path = "fruit/apple.png"},
@@ -647,6 +686,7 @@ local function addReadingAndSpellingRounds()
     end
 end
 
+addNumberRoundsToTen()
 addLetterPairRounds()
 addBeginningSoundRounds()
 addWordFamilyRounds()
@@ -678,6 +718,7 @@ function Content.validate(asset_dir)
     local errors = {}
     local mixed_path_categories = {
         letter_words = true,
+        quantities = true,
         beginning_sounds = true,
         reading_words = true,
         cvc_words = true,

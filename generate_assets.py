@@ -161,7 +161,7 @@ def draw_number(n):
     d.text((x, y), text, fill=FG, font=font)
     save(img, "numbers", str(n))
 
-for n in range(1, 6):
+for n in range(1, 11):
     draw_number(n)
 
 def draw_counting(n):
@@ -173,11 +173,21 @@ def draw_counting(n):
         4: [(135, 135), (265, 135), (135, 265), (265, 265)],
         5: [(135, 135), (265, 135), (200, 200), (135, 265), (265, 265)],
     }
-    for x, y in positions[n]:
-        d.ellipse([x-42, y-42, x+42, y+42], fill=FG)
+    if n <= 5:
+        dots = positions[n]
+        radius = 42
+    else:
+        dots = []
+        for i in range(n):
+            row = i // 2
+            column = i % 2
+            dots.append((140 + column * 120, 65 + row * 67))
+        radius = 28
+    for x, y in dots:
+        d.ellipse([x-radius, y-radius, x+radius, y+radius], fill=FG)
     save(img, "counting", str(n))
 
-for n in range(1, 6):
+for n in range(1, 11):
     draw_counting(n)
 
 # ── LETTERS ────────────────────────────────────────────────────────────────

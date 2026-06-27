@@ -133,6 +133,7 @@ describe("ToddlerLearn", function()
                 animals = true,
                 fruit = true,
                 numbers = true,
+                quantities = true,
                 letters = true,
                 letter_pairs = true,
                 letter_words = true,
@@ -246,6 +247,17 @@ describe("ToddlerLearn", function()
                 assert.is_true(spaces >= 2)
                 assert.are_equal(".", round.prompt:sub(-1))
                 assert.is_true(#round.prompt <= 24)
+            end
+        end)
+
+        it("matches numerals and dot quantities from one through ten", function()
+            assert.are_equal(10, #Content.getRounds("numbers"))
+            assert.are_equal(10, #Content.getRounds("counting"))
+            local quantities = Content.getRounds("quantities")
+            assert.are_equal(10, #quantities)
+            for number, round in ipairs(quantities) do
+                assert.are_equal(tostring(number), round.prompt)
+                assert.are_equal("counting/" .. tostring(number) .. ".png", round.answer)
             end
         end)
 

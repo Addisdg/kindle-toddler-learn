@@ -7,6 +7,6 @@ Subfolders expected by the default `content.lua`:
 
 - `animals/` — cat.png, dog.png, cow.png, bird.png
 - `fruit/` — apple.png, banana.png, grapes.png
-- `numbers/` — 1.png, 2.png, 3.png
+- `numbers/` and `counting/` — cards from 1.png through 10.png
 - `letters/` — a.png, b.png, c.png
-- `shapes/`, `vehicles/`, `body/`, `household/`, `emotions/`, `counting/`
+- `shapes/`, `vehicles/`, `body/`, `household/`, `emotions/`
