@@ -73,6 +73,7 @@ describe("ToddlerLearn", function()
     local AppScreen
     local PuzzleContent
     local PuzzleScreen
+    local DrawScreen
 
     setup(function()
         stub_modules()
@@ -83,6 +84,7 @@ describe("ToddlerLearn", function()
         AppScreen  = require("appscreen")
         PuzzleContent = require("puzzle_content")
         PuzzleScreen = require("puzzlescreen")
+        DrawScreen = require("drawscreen")
     end)
 
     -- ----------------------------------------------------------------
@@ -504,6 +506,54 @@ describe("ToddlerLearn", function()
             assert.is_true(screen.puzzle_state.solved)
             assert.are_equal(1, screen.progress[puzzle.id].solved)
             assert.are_equal(77, screen.progress[puzzle.id].last_practiced)
+        end)
+
+    end)
+
+    describe("Draw mode", function()
+
+        local function make_draw_screen()
+            return setmetatable({
+                canvas_dimen = {x = 0, y = 100, w = 600, h = 700},
+                strokes = {},
+                point_count = 0,
+                brush_index = 2,
+                template_index = 1,
+            }, {__index = DrawScreen})
+        end
+
+        it("samples continuous strokes without duplicate nearby points", function()
+            local screen = make_draw_screen()
+            assert.is_true(screen:startStroke({x = 20, y = 120}))
+            assert.is_false(screen:addStrokePoint({x = 21, y = 121}))
+            assert.is_true(screen:addStrokePoint({x = 40, y = 145}))
+            assert.is_true(screen:endStroke({x = 60, y = 165}))
+            assert.are_equal(1, #screen.strokes)
+            assert.are_equal(3, #screen.strokes[1].points)
+            assert.are_equal(20, screen.strokes[1].points[1].y)
+        end)
+
+        it("cycles brush widths and drawing templates", function()
+            local screen = make_draw_screen()
+            assert.are_equal(20, screen:cycleBrush())
+            assert.are_equal(6, screen:cycleBrush())
+            assert.are_equal("Trace A", screen:cycleTemplate())
+            assert.are_equal("Trace 1", screen:cycleTemplate())
+        end)
+
+        it("supports undo and requires confirmation before clear", function()
+            local screen = make_draw_screen()
+            screen:startStroke({x = 20, y = 120})
+            screen:endStroke({x = 50, y = 150})
+            screen:startStroke({x = 60, y = 160})
+            screen:endStroke({x = 90, y = 190})
+            assert.is_true(screen:undo())
+            assert.are_equal(1, #screen.strokes)
+            assert.is_false(screen:clearDrawing())
+            assert.are_equal(1, #screen.strokes)
+            assert.is_true(screen:clearDrawing())
+            assert.are_equal(0, #screen.strokes)
+            assert.are_equal(0, screen.point_count)
         end)
 
     end)

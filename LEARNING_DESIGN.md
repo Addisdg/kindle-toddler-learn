@@ -13,7 +13,7 @@ can be completed independently.
 
 ## Product model
 
-The eventual first screen is a simple mode chooser with three large choices:
+The first screen is a simple mode chooser with three large choices:
 
 1. **Learn** - the existing reading and maths activities.
 2. **Puzzles** - visual, word, sequence, shape, and number puzzles.
@@ -149,11 +149,11 @@ not only an aggregate percentage.
 Keep activity logic separate from the shared app shell:
 
 - `main.lua` registers the plugin and parent tools.
-- A future `appscreen.lua` owns the mode chooser, shared mode button, active
+- `appscreen.lua` owns the mode chooser, shared mode button, active
   child profile, parent-code exit, and state restoration.
 - `gamescreen.lua` remains responsible for Learn mode.
-- A future `puzzlescreen.lua` owns puzzle interaction and puzzle state.
-- A future `drawscreen.lua` owns the canvas, stroke model, and drawing tools.
+- `puzzlescreen.lua` owns puzzle interaction and puzzle state.
+- `drawscreen.lua` owns the canvas, stroke model, and drawing tools.
 - `content.lua` remains declarative learning content; puzzle definitions should
   move to `puzzle_content.lua` once their schema stabilizes.
 - Shared progress storage should use versioned records and provide migration
@@ -185,4 +185,3 @@ smoke test. Before release, verify:
 - [NAEYC developmentally appropriate practice](https://www.naeyc.org/resources/position-statements/dap/statement-position)
 - [Harvard Center on the Developing Child: brain-building through play](https://developingchild.harvard.edu/resources/handouts-tools/brainbuildingthroughplay/)
 - [Head Start school-readiness domains](https://headstart.gov/school-readiness/article/head-start-approach-school-readiness-overview)
-
