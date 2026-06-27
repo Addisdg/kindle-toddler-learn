@@ -632,4 +632,25 @@ make_picture_puzzle("apple", "fruit", "apple")
 make_picture_puzzle("bus", "vehicles", "bus")
 make_picture_puzzle("ball", "household", "ball")
 
+def make_math_reasoning_assets():
+    for name, length in (("short", 130), ("medium", 220), ("long", 320)):
+        img, draw = new_img()
+        left = (SIZE - length) // 2
+        draw.rounded_rectangle([left, 170, left + length, 230], radius=18, fill=FG)
+        save(img, "math", name)
+
+    layouts = {
+        "above": ((200, 105), (200, 290)),
+        "below": ((200, 290), (200, 105)),
+        "beside": ((115, 200), (285, 200)),
+    }
+    for name, (circle, square) in layouts.items():
+        img, draw = new_img()
+        draw.ellipse([circle[0] - 48, circle[1] - 48, circle[0] + 48, circle[1] + 48], outline=FG, width=12)
+        draw.rectangle([square[0] - 48, square[1] - 48, square[0] + 48, square[1] + 48], outline=FG, width=12)
+        save(img, "math", name)
+
+print("\nGenerating maths reasoning cards...")
+make_math_reasoning_assets()
+
 print("\nDone! All assets generated.")

@@ -284,8 +284,13 @@ describe("ToddlerLearn", function()
                 missing = true,
                 arithmetic = true,
                 shape_pattern = true,
+                story_problem = true,
+                sorting = true,
+                spatial = true,
+                measurement = true,
             }
             local seen = {}
+            local arithmetic_through_ten = false
             local rounds = Content.getRounds("early_math")
             assert.is_true(#rounds >= 24)
             for _, round in ipairs(rounds) do
@@ -295,11 +300,13 @@ describe("ToddlerLearn", function()
                         "counting/" .. tostring(round.equation_result) .. ".png",
                         round.answer
                     )
+                    if round.equation_result > 5 then arithmetic_through_ten = true end
                 end
             end
             for skill in pairs(expected) do
                 assert.is_true(seen[skill], "missing maths skill: " .. skill)
             end
+            assert.is_true(arithmetic_through_ten)
         end)
 
         it("at least doubles the original MVP content", function()

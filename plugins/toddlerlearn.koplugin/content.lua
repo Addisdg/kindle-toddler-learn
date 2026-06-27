@@ -677,6 +677,22 @@ Content.categories = {
             {prompt = "3 - 1", answer = "counting/2.png", distractors = {"counting/1.png", "counting/3.png"}, math_skill = "arithmetic", equation_result = 2},
             {prompt = "4 - 2", answer = "counting/2.png", distractors = {"counting/3.png", "counting/4.png"}, math_skill = "arithmetic", equation_result = 2},
             {prompt = "5 - 1", answer = "counting/4.png", distractors = {"counting/3.png", "counting/5.png"}, math_skill = "arithmetic", equation_result = 4},
+            {prompt = "5 + 3", answer = "counting/8.png", distractors = {"counting/7.png", "counting/9.png"}, math_skill = "arithmetic", equation_result = 8},
+            {prompt = "6 + 4", answer = "counting/10.png", distractors = {"counting/8.png", "counting/9.png"}, math_skill = "arithmetic", equation_result = 10},
+            {prompt = "10 - 3", answer = "counting/7.png", distractors = {"counting/6.png", "counting/8.png"}, math_skill = "arithmetic", equation_result = 7},
+            {prompt = "9 - 4", answer = "counting/5.png", distractors = {"counting/4.png", "counting/6.png"}, math_skill = "arithmetic", equation_result = 5},
+
+            {prompt = "2 apples plus 3", answer = "counting/5.png", distractors = {"counting/4.png", "counting/6.png"}, math_skill = "story_problem", equation_result = 5},
+            {prompt = "7 birds take 2", answer = "counting/5.png", distractors = {"counting/4.png", "counting/6.png"}, math_skill = "story_problem", equation_result = 5},
+
+            {prompt = "Which is fruit?", answer = "fruit/apple.png", distractors = {"animals/cat.png", "vehicles/bus.png"}, math_skill = "sorting"},
+            {prompt = "Which is an animal?", answer = "animals/dog.png", distractors = {"fruit/banana.png", "household/cup.png"}, math_skill = "sorting"},
+
+            {prompt = "Which is longest?", answer = "math/long.png", distractors = {"math/short.png", "math/medium.png"}, math_skill = "measurement"},
+            {prompt = "Which is shortest?", answer = "math/short.png", distractors = {"math/medium.png", "math/long.png"}, math_skill = "measurement"},
+
+            {prompt = "Circle above square", answer = "math/above.png", distractors = {"math/below.png", "math/beside.png"}, math_skill = "spatial"},
+            {prompt = "Circle below square", answer = "math/below.png", distractors = {"math/above.png", "math/beside.png"}, math_skill = "spatial"},
 
             {prompt = "Has 3 sides", answer = "shapes/triangle.png", distractors = {"shapes/circle.png", "shapes/square.png"}, math_skill = "shape_pattern"},
             {prompt = "Has no corners", answer = "shapes/circle.png", distractors = {"shapes/triangle.png", "shapes/star.png"}, math_skill = "shape_pattern"},

@@ -13,3 +13,4 @@ Subfolders expected by the default `content.lua`:
 - `letters/` — a.png, b.png, c.png
 - `shapes/`, `vehicles/`, `body/`, `household/`, `emotions/`
 - `puzzles/` - generated 2x2 picture pieces used by Puzzle mode
+- `math/` - length-comparison and spatial-relation cards

@@ -61,8 +61,8 @@ screen time.
 - Tap-to-count rounds let the child touch each object once and show the running
   total, connecting one-to-one counting with the number sequence.
 - Early Maths combines more/fewer, biggest/smallest, number order, missing
-  numbers, visual addition and subtraction to five, shape properties, and
-  simple repeating patterns.
+  numbers, visual addition and subtraction through ten, story problems,
+  sorting, measurement, spatial language, shape properties, and patterns.
 - Spelling rounds show a picture, large scrambled letter tiles, and large
   answer boxes. Tapping an answer box clears the attempt for another try.
 - Spelling assistance scales with difficulty: starter letters appear for
