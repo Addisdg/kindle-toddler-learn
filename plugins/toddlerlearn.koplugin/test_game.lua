@@ -138,6 +138,7 @@ describe("ToddlerLearn", function()
                 numbers = true,
                 quantities = true,
                 tenframes = true,
+                number_bonds = true,
                 letters = true,
                 letter_pairs = true,
                 letter_words = true,
@@ -314,6 +315,19 @@ describe("ToddlerLearn", function()
             for number, round in ipairs(rounds) do
                 assert.are_equal(tostring(number), round.prompt)
                 assert.are_equal("tenframes/" .. tostring(number) .. ".png", round.answer)
+            end
+        end)
+
+        it("uses ten frames to complete number bonds within ten", function()
+            local rounds = Content.getRounds("number_bonds")
+            assert.are_equal(10, #rounds)
+            for _, round in ipairs(rounds) do
+                assert.are_equal(round.bond_total, round.bond_part + round.missing_part)
+                assert.is_true(round.bond_total <= 10)
+                assert.are_equal(
+                    "tenframes/" .. tostring(round.missing_part) .. ".png",
+                    round.answer
+                )
             end
         end)
 

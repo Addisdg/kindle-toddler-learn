@@ -33,6 +33,8 @@ plugin for a jailbroken Kindle Paperwhite (7th gen / PW3, firmware
   through ten with high-contrast dot cards.
 - Ten-frame rounds arrange quantities in a consistent two-by-five grid to
   build recognition without counting every dot.
+- Number-bond rounds ask for a missing part and use ten-frame answers to make
+  addition facts through ten concrete and visible.
 - Early Maths combines more/fewer, biggest/smallest, number order, missing
   numbers, visual addition and subtraction to five, shape properties, and
   simple repeating patterns.

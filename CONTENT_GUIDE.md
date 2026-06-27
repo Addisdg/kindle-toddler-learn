@@ -89,6 +89,8 @@ Guidelines:
 - Early maths rounds use `math_skill` to identify comparison, size, ordering,
   missing-number, arithmetic, and shape-pattern coverage. Arithmetic answers
   use dot cards so the result remains visual.
+- Number-bond rounds keep `bond_part`, `missing_part`, and `bond_total`
+  metadata consistent, with the missing part shown by a ten-frame answer.
 
 ## Where to get images
 

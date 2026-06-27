@@ -6,6 +6,7 @@ Content.category_order = {
     "numbers",
     "quantities",
     "tenframes",
+    "number_bonds",
     "letters",
     "letter_pairs",
     "letter_words",
@@ -125,6 +126,10 @@ Content.categories = {
     },
     tenframes = {
         label = "Ten Frames",
+        rounds = {},
+    },
+    number_bonds = {
+        label = "Number Bonds",
         rounds = {},
     },
     letters = {
@@ -724,6 +729,29 @@ local function addNumberRoundsToTen()
             distractors = numberDistractors("tenframes", number),
         })
     end
+
+    local bonds = {
+        {part = 1, missing = 1, total = 2},
+        {part = 1, missing = 2, total = 3},
+        {part = 2, missing = 2, total = 4},
+        {part = 2, missing = 3, total = 5},
+        {part = 4, missing = 1, total = 5},
+        {part = 3, missing = 3, total = 6},
+        {part = 4, missing = 3, total = 7},
+        {part = 5, missing = 3, total = 8},
+        {part = 5, missing = 4, total = 9},
+        {part = 5, missing = 5, total = 10},
+    }
+    for _, bond in ipairs(bonds) do
+        table.insert(Content.categories.number_bonds.rounds, {
+            prompt = tostring(bond.part) .. " + ? = " .. tostring(bond.total),
+            answer = numberPath("tenframes", bond.missing),
+            distractors = numberDistractors("tenframes", bond.missing),
+            bond_part = bond.part,
+            missing_part = bond.missing,
+            bond_total = bond.total,
+        })
+    end
 end
 
 local function addBeginningSoundRounds()
@@ -863,6 +891,7 @@ function Content.validate(asset_dir)
     local mixed_path_categories = {
         letter_words = true,
         quantities = true,
+        number_bonds = true,
         early_math = true,
         beginning_sounds = true,
         ending_sounds = true,
