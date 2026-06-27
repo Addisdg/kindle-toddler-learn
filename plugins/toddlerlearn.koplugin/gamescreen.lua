@@ -41,6 +41,7 @@ local GameScreen = InputContainer:extend{
     assets_dir = nil,
     active_category = "mixed",
     difficulty = "normal",
+    session_length = 10,
     parent_mode = false,
 }
 
@@ -82,6 +83,7 @@ function GameScreen:init()
     if self.parent_mode then
         self.selected_category = self.selected_category or self.active_category or "mixed"
         self.selected_difficulty = self.selected_difficulty or self.difficulty or "normal"
+        self.selected_session_length = self.selected_session_length or self.session_length or 10
         self:renderParentMenu()
         return
     end
@@ -224,6 +226,16 @@ function GameScreen:cycleDifficulty()
     return self.selected_difficulty
 end
 
+function GameScreen:cycleSessionLength()
+    local next_length = {
+        [5] = 10,
+        [10] = 15,
+        [15] = 5,
+    }
+    self.selected_session_length = next_length[self.selected_session_length] or 10
+    return self.selected_session_length
+end
+
 function GameScreen:renderParentButton(text, on_tap)
     local button = InputContainer:new{
         dimen = Geom:new{
@@ -265,6 +277,7 @@ end
 function GameScreen:renderParentMenu()
     local category_text = "Category: " .. self:getCategoryLabel(self.selected_category)
     local difficulty_text = "Difficulty: " .. self:getDifficultyLabel(self.selected_difficulty)
+    local session_text = "Session: " .. tostring(self.selected_session_length) .. " rounds"
     local start_text = "Start"
 
     local content = CenterContainer:new{
@@ -293,12 +306,17 @@ function GameScreen:renderParentMenu()
                 self:cycleDifficulty()
                 self:renderParentMenu()
             end),
+            self:renderParentButton(session_text, function()
+                self:cycleSessionLength()
+                self:renderParentMenu()
+            end),
             self:renderParentButton(start_text, function()
                 UIManager:close(self)
                 UIManager:show(GameScreen:new{
                     assets_dir = self.assets_dir,
                     active_category = self.selected_category,
                     difficulty = self.selected_difficulty,
+                    session_length = self.selected_session_length,
                 })
             end),
         }
@@ -956,7 +974,55 @@ end
 
 function GameScreen:recordCorrectAnswer()
     self.correct_count = (self.correct_count or 0) + 1
+    self.session_completed = (self.session_completed or 0) + 1
     return self.correct_count % REWARD_EVERY == 0
+end
+
+function GameScreen:isSessionComplete()
+    return self.session_length
+        and (self.session_completed or 0) >= self.session_length
+end
+
+function GameScreen:advanceAfterFeedback()
+    if self:isSessionComplete() then
+        self:renderSessionComplete()
+    else
+        self:loadRound()
+    end
+end
+
+function GameScreen:renderSessionComplete()
+    self.session_finished = true
+    if not self.dimen then
+        return
+    end
+
+    self[1] = FrameContainer:new{
+        width = self.dimen.w,
+        height = self.dimen.h,
+        bordersize = 0,
+        padding = 0,
+        background = Blitbuffer.COLOR_WHITE,
+        CenterContainer:new{
+            dimen = self.dimen,
+            VerticalGroup:new{
+                align = "center",
+                TextWidget:new{
+                    text = "All done!",
+                    face = Font:getFace("tfont", 86),
+                },
+                TextWidget:new{
+                    text = "* * * * *",
+                    face = Font:getFace("tfont", 64),
+                },
+                TextWidget:new{
+                    text = tostring(self.session_completed) .. " rounds",
+                    face = Font:getFace("tfont", 42),
+                }
+            }
+        }
+    }
+    UIManager:setDirty(self, "full")
 end
 
 function GameScreen:showWrongFeedback(choice_index)
@@ -980,7 +1046,7 @@ end
 function GameScreen:showCorrectFeedback()
     -- In test environment dimen may not be set, skip UI and go straight to next round
     if not self.dimen then
-        self:loadRound()
+        self:advanceAfterFeedback()
         return
     end
 
@@ -1004,13 +1070,13 @@ function GameScreen:showCorrectFeedback()
 
     UIManager:scheduleIn(0.4, function()
         UIManager:close(feedback)
-        self:loadRound()
+        self:advanceAfterFeedback()
     end)
 end
 
 function GameScreen:showRewardFeedback()
     if not self.dimen then
-        self:loadRound()
+        self:advanceAfterFeedback()
         return
     end
 
@@ -1045,7 +1111,7 @@ function GameScreen:showRewardFeedback()
 
     UIManager:scheduleIn(REWARD_SECONDS, function()
         UIManager:close(reward)
-        self:loadRound()
+        self:advanceAfterFeedback()
     end)
 end
 

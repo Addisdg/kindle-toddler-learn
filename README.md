@@ -31,7 +31,9 @@ plugin for a jailbroken Kindle Paperwhite (7th gen / PW3, firmware
   another try.
 - The normal menu entry starts mixed review immediately.
 - The parent setup menu lets an adult pick a category and difficulty before
-  starting.
+  starting, plus a focused session length of 5, 10, or 15 rounds.
+- A completed session ends on a clear reward screen instead of looping
+  indefinitely.
 - Progress stays local on the Kindle; rounds with more mistakes return more
   often while mastered material remains in lighter review.
 - Two-finger hold exits back to KOReader's file browser.

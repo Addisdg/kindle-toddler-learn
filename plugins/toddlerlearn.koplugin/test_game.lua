@@ -349,6 +349,14 @@ describe("ToddlerLearn", function()
             assert.are_equal("normal", gs:cycleDifficulty())
         end)
 
+        it("cycles session length through 5 10 and 15 rounds", function()
+            local gs = setmetatable({selected_session_length = 5}, {__index = GameScreen})
+
+            assert.are_equal(10, gs:cycleSessionLength())
+            assert.are_equal(15, gs:cycleSessionLength())
+            assert.are_equal(5, gs:cycleSessionLength())
+        end)
+
         it("labels parent menu choices clearly", function()
             local gs = setmetatable({}, { __index = GameScreen })
 
@@ -704,6 +712,24 @@ describe("ToddlerLearn", function()
             assert.is_false(gs:recordCorrectAnswer())
             assert.is_true(gs:recordCorrectAnswer())
             assert.are_equal(5, gs.correct_count)
+        end)
+
+        it("finishes after the selected number of completed rounds", function()
+            local loaded = false
+            local gs = setmetatable({
+                session_length = 2,
+                session_completed = 1,
+                loadRound = function()
+                    loaded = true
+                end,
+            }, {__index = GameScreen})
+
+            gs:recordCorrectAnswer()
+            gs:advanceAfterFeedback()
+
+            assert.is_true(gs.session_finished)
+            assert.is_false(loaded)
+            assert.are_equal(2, gs.session_completed)
         end)
 
     end)
