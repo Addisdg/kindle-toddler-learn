@@ -36,6 +36,7 @@ local GUIDED_CATEGORIES = {
     "letter_pairs",
     "beginning_sounds",
     "cvc_words",
+    "word_blending",
     "word_families",
     "sentences",
 }

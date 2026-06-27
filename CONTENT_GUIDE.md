@@ -76,6 +76,8 @@ Guidelines:
   and hard mode leaves every answer box empty.
 - Word-family text rounds store the expected ending in `family`; answer text
   must share that ending and distractors must not.
+- Word-blending rounds store `onset` and `rime`; their concatenation must
+  equal `answer_text`.
 - Sentence prompts should contain one concrete idea, end with a period, and
   remain under the 24-character prompt limit.
 - Early maths rounds use `math_skill` to identify comparison, size, ordering,

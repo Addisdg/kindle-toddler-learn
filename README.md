@@ -19,6 +19,8 @@ plugin for a jailbroken Kindle Paperwhite (7th gen / PW3, firmware
   slightly harder four-letter words.
 - Word-family rounds contrast matching endings such as `-at`, `-og`, `-un`,
   and `-ed` using large text choices.
+- Word-blending rounds join visible chunks such as `c + at` into a complete
+  decodable word.
 - Simple sentence rounds ask the child to read a short sentence and choose
   the matching picture.
 - Number recognition, counting, and numeral-to-quantity matching cover one

@@ -140,6 +140,7 @@ describe("ToddlerLearn", function()
                 beginning_sounds = true,
                 reading_words = true,
                 cvc_words = true,
+                word_blending = true,
                 word_families = true,
                 spelling_words = true,
                 sentences = true,
@@ -237,6 +238,15 @@ describe("ToddlerLearn", function()
                 for _, distractor in ipairs(round.distractors_text) do
                     assert.are_not_equal(round.family, distractor:sub(-#round.family))
                 end
+            end
+        end)
+
+        it("blends onset and rime into complete words", function()
+            local rounds = Content.getRounds("word_blending")
+            assert.are_equal(12, #rounds)
+            for _, round in ipairs(rounds) do
+                assert.are_equal(round.onset .. round.rime, round.answer_text)
+                assert.are_equal(round.onset .. " + " .. round.rime, round.prompt)
             end
         end)
 
