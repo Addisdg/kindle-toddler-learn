@@ -5,6 +5,7 @@ Content.category_order = {
     "fruit",
     "numbers",
     "letters",
+    "letter_pairs",
     "letter_words",
     "reading_words",
     "spelling_words",
@@ -241,6 +242,10 @@ Content.categories = {
                 distractors = {"letters/y.png", "letters/a.png"},
             },
         },
+    },
+    letter_pairs = {
+        label = "Big and Small Letters",
+        rounds = {},
     },
     letter_words = {
         label = "Letter Words",
@@ -504,6 +509,22 @@ local function getWordBankItem(index)
     return Content.word_bank[((index - 1) % count) + 1]
 end
 
+local function addLetterPairRounds()
+    local letters = "abcdefghijklmnopqrstuvwxyz"
+    for i = 1, #letters do
+        local lower = letters:sub(i, i)
+        local next_one = letters:sub((i % #letters) + 1, (i % #letters) + 1)
+        local next_two_index = ((i + 1) % #letters) + 1
+        local next_two = letters:sub(next_two_index, next_two_index)
+        table.insert(Content.categories.letter_pairs.rounds, {
+            kind = "text_choice",
+            prompt = lower:upper(),
+            answer_text = lower,
+            distractors_text = {next_one, next_two},
+        })
+    end
+end
+
 local function getWordDistractors(index)
     return {
         getWordBankItem(index + 1),
@@ -529,6 +550,7 @@ local function addReadingAndSpellingRounds()
     end
 end
 
+addLetterPairRounds()
 addReadingAndSpellingRounds()
 
 function Content.getRounds(category)
@@ -582,10 +604,19 @@ function Content.validate(asset_dir)
                     add_error(round_name .. " prompt is too long: " .. round.prompt)
                 end
 
-                if not round.answer or not round.answer:match("%.png$") then
-                    add_error(round_name .. " answer is not a png")
-                elseif asset_dir and not Content.pathExists(asset_dir .. round.answer) then
-                    add_error(round_name .. " missing answer asset: " .. round.answer)
+                if round.kind == "text_choice" then
+                    if not round.answer_text or round.answer_text == "" then
+                        add_error(round_name .. " has no text answer")
+                    end
+                    if not round.distractors_text or #round.distractors_text < 2 then
+                        add_error(round_name .. " needs at least 2 text distractors")
+                    end
+                else
+                    if not round.answer or not round.answer:match("%.png$") then
+                        add_error(round_name .. " answer is not a png")
+                    elseif asset_dir and not Content.pathExists(asset_dir .. round.answer) then
+                        add_error(round_name .. " missing answer asset: " .. round.answer)
+                    end
                 end
 
                 if round.kind == "spelling" then
@@ -594,7 +625,7 @@ function Content.validate(asset_dir)
                     elseif round.word:match("[^a-z]") then
                         add_error(round_name .. " spelling word must use lowercase letters only: " .. round.word)
                     end
-                else
+                elseif round.kind ~= "text_choice" then
                     local seen = {
                         [round.answer] = true,
                     }
@@ -616,7 +647,7 @@ function Content.validate(asset_dir)
                     end
                 end
 
-                if not mixed_path_categories[category] then
+                if round.kind ~= "text_choice" and not mixed_path_categories[category] then
                     local expected_prefix = category .. "/"
                     if round.answer and round.answer:sub(1, #expected_prefix) ~= expected_prefix then
                         add_error(round_name .. " answer is outside category: " .. round.answer)

@@ -23,17 +23,19 @@ describe("ToddlerLearn", function()
             end
         end)
 
-        it("every round has an answer .png path", function()
+        it("every picture round has an answer .png path", function()
             for i, round in ipairs(Content) do
-                assert.is_string(round.answer, "round " .. i .. " missing answer")
-                assert.is_true(round.answer:match("%.png$") ~= nil,
-                    "round " .. i .. " answer is not a .png")
+                if round.kind ~= "text_choice" then
+                    assert.is_string(round.answer, "round " .. i .. " missing answer")
+                    assert.is_true(round.answer:match("%.png$") ~= nil,
+                        "round " .. i .. " answer is not a .png")
+                end
             end
         end)
 
         it("every multiple-choice round has at least 2 distractors", function()
             for i, round in ipairs(Content) do
-                if round.kind ~= "spelling" then
+                if round.kind ~= "spelling" and round.kind ~= "text_choice" then
                     assert.is_table(round.distractors, "round " .. i .. " missing distractors")
                     assert.is_true(#round.distractors >= 2,
                         "round " .. i .. " needs at least 2 distractors")
@@ -56,6 +58,7 @@ describe("ToddlerLearn", function()
                 fruit = true,
                 numbers = true,
                 letters = true,
+                letter_pairs = true,
                 letter_words = true,
                 reading_words = true,
                 spelling_words = true,
@@ -108,6 +111,16 @@ describe("ToddlerLearn", function()
                 assert.is_string(round.word)
                 assert.is_true(round.word:match("^[a-z]+$") ~= nil)
                 assert.is_nil(round.distractors)
+            end
+        end)
+
+        it("matches every uppercase letter to a lowercase text choice", function()
+            local rounds = Content.getRounds("letter_pairs")
+            assert.are_equal(26, #rounds)
+            for _, round in ipairs(rounds) do
+                assert.are_equal("text_choice", round.kind)
+                assert.are_equal(round.prompt:lower(), round.answer_text)
+                assert.are_equal(2, #round.distractors_text)
             end
         end)
 
@@ -317,6 +330,21 @@ describe("ToddlerLearn", function()
             for _, choice in ipairs(choices) do
                 assert.is_nil(choice.label)
             end
+        end)
+
+        it("builds lowercase text choices for uppercase prompts", function()
+            local rounds = Content.getRounds("letter_pairs")
+            local gs = setmetatable({
+                difficulty = "normal",
+                rounds = rounds,
+            }, { __index = GameScreen })
+
+            local choices = gs:buildChoices(rounds[1])
+
+            assert.are_equal(3, #choices)
+            assert.are_equal("a", choices[1].text)
+            assert.is_true(choices[1].correct)
+            assert.is_nil(choices[1].path)
         end)
 
         it("uses large spelling letter boxes and type", function()

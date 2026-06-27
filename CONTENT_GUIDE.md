@@ -66,6 +66,8 @@ Guidelines:
 - For spelling practice rounds, set `kind = "spelling"`, add a lowercase
   `word`, and provide the picture path in `answer`. Do not add distractors.
   The answer boxes are tappable and clear the current attempt.
+- For text-only matching, set `kind = "text_choice"`, `answer_text`, and at
+  least two `distractors_text` values. This is used for letter pairs.
 
 ## Where to get images
 

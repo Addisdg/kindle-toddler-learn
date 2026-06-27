@@ -12,6 +12,7 @@ plugin for a jailbroken Kindle Paperwhite (7th gen / PW3, firmware
 - The child taps the image that matches the prompt.
 - Reading rounds show only the target word above unlabeled pictures, so the
   child practices reading instead of matching duplicate captions.
+- Uppercase rounds ask the child to choose the matching lowercase letter.
 - Spelling rounds show a picture, large scrambled letter tiles, and large
   answer boxes. Tapping an answer box clears the attempt for another try.
 - A correct tap shows calm feedback, advances the round, and every five

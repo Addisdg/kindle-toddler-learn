@@ -31,6 +31,7 @@ local SPELLING_GAP = 8
 local SPELLING_LETTER_MAX = 88
 local SPELLING_LETTER_HEIGHT = 84
 local SPELLING_FONT_MAX = 56
+local TEXT_CHOICE_FONT = 84
 
 --------------------------------------------------------------------------
 -- GameScreen
@@ -274,6 +275,35 @@ end
 
 function GameScreen:buildChoices(round)
     local choice_limit = self:getChoiceLimit()
+    if round.kind == "text_choice" then
+        local choices = {{text = round.answer_text, correct = true}}
+        local seen = {[round.answer_text] = true}
+
+        for _, text in ipairs(round.distractors_text or {}) do
+            if #choices >= choice_limit then
+                break
+            end
+            if not seen[text] then
+                table.insert(choices, {text = text, correct = false})
+                seen[text] = true
+            end
+        end
+
+        for _, candidate in ipairs(self.rounds or {}) do
+            if #choices >= choice_limit then
+                break
+            end
+            if candidate.category == round.category
+                and candidate.answer_text
+                and not seen[candidate.answer_text]
+            then
+                table.insert(choices, {text = candidate.answer_text, correct = false})
+                seen[candidate.answer_text] = true
+            end
+        end
+        return choices
+    end
+
     local choices = {{
         path = round.answer,
         correct = true,
@@ -671,16 +701,30 @@ function GameScreen:renderRound()
     }
 
     for i, choice in ipairs(choices) do
-        local img_path = self.assets_dir .. choice.path
-        logger.warn("ToddlerLearn: loading image", img_path)
         local tile_style = self:getTileStyle(layout, i)
         local image_height = layout.tile_h - (tile_style.padding + tile_style.border) * 2
-        local tile_content = ImageWidget:new{
-            file = img_path,
-            width = layout.tile_w - (tile_style.padding + tile_style.border) * 2,
-            height = image_height,
-            scale_factor = 0
-        }
+        local tile_content
+        if choice.text then
+            tile_content = CenterContainer:new{
+                dimen = Geom:new{
+                    w = layout.tile_w - (tile_style.padding + tile_style.border) * 2,
+                    h = image_height,
+                },
+                TextWidget:new{
+                    text = choice.text,
+                    face = Font:getFace("tfont", TEXT_CHOICE_FONT),
+                }
+            }
+        else
+            local img_path = self.assets_dir .. choice.path
+            logger.warn("ToddlerLearn: loading image", img_path)
+            tile_content = ImageWidget:new{
+                file = img_path,
+                width = layout.tile_w - (tile_style.padding + tile_style.border) * 2,
+                height = image_height,
+                scale_factor = 0
+            }
+        end
 
         local tile = FrameContainer:new{
             width = layout.tile_w,
