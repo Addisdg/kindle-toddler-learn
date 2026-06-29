@@ -699,13 +699,17 @@ function GameScreen:renderParentMenu()
                 self:renderParentMenu()
             end),
             self:renderParentButton(start_text, function()
-                UIManager:close(self)
-                UIManager:show(GameScreen:new{
+                local AppScreen = require("appscreen")
+                local app = AppScreen:new{
                     assets_dir = self.assets_dir,
-                    active_category = self.selected_category,
-                    difficulty = self.selected_difficulty,
                     profile_id = self.selected_profile_id,
-                })
+                    learn_options = {
+                        active_category = self.selected_category,
+                        difficulty = self.selected_difficulty,
+                    },
+                }
+                UIManager:close(self)
+                app:openMode("learn")
             end),
         }
     }

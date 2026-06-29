@@ -17,10 +17,14 @@ replace physical Kindle and family testing.
 
 - [ ] Open the Toddler Learn mode chooser
 - [ ] Enter Learn, answer correctly and incorrectly, then return with Modes
-- [ ] Enter Puzzles, solve, reset, leave, and resume a puzzle
+- [ ] Enter Puzzles, solve, reset, leave, resume, and verify the set counter
+- [ ] Confirm three- and four-piece puzzles keep Modes/Next visible at 600 x 800
+- [ ] Complete one Level 3 pattern and one Level 4 odd-one-out puzzle
 - [ ] Enter Draw, test tap dots and continuous strokes at all brush widths
-- [ ] Test Free, Trace A, Trace 1, and Triangle drawing templates
-- [ ] Confirm Undo and two-tap Clear work
+- [ ] Cycle all 19 Free, writing, shape, completion, and Mirror templates
+- [ ] Trace A, F, 0, and 5 from their start dots and check finger tracking
+- [ ] Confirm Eraser removes marks and Undo restores its last pass
+- [ ] Confirm Undo, Redo, and two-tap Clear work
 - [ ] Switch modes repeatedly and verify unfinished Puzzle and Draw state remains
 - [ ] Confirm two-finger hold requires parent code `1234`
 - [ ] Open Parent Setup and Progress and check all text fits
@@ -47,4 +51,3 @@ replace physical Kindle and family testing.
 - [ ] Review dashboard wording with caregivers for clarity
 - [ ] Confirm grown-up-guided sound activities are understood as shared practice
 - [ ] Feed observations back into content, layout, and difficulty before release
-

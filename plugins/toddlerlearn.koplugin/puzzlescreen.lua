@@ -15,7 +15,8 @@ local Blitbuffer = require("ffi/blitbuffer")
 local PuzzleContent = require("puzzle_content")
 
 local EDGE = 32
-local TILE = 150
+local MAX_TILE = 150
+local MIN_TILE = 96
 local GAP = 16
 
 local PuzzleScreen = InputContainer:extend{
@@ -64,6 +65,32 @@ end
 
 function PuzzleScreen:getSlotCount(puzzle)
     return puzzle.answer_target and 1 or #puzzle.pieces
+end
+
+function PuzzleScreen:getSlotItems()
+    local items = {}
+    local state = self.puzzle_state or {slots = {}}
+    local placed = state.slots or {}
+    for slot = 1, self:getSlotCount(self.current_puzzle) do
+        -- A false placeholder keeps the array dense. Nil entries make Lua's
+        -- length operator stop early and previously hid every empty box.
+        items[slot] = placed[slot] or false
+    end
+    return items
+end
+
+function PuzzleScreen:getTileSize(puzzle)
+    puzzle = puzzle or self.current_puzzle
+    local slot_rows = math.ceil(self:getSlotCount(puzzle) / 2)
+    local choice_rows = math.ceil(#puzzle.pieces / 2)
+    local grid_rows = slot_rows + choice_rows
+    local grid_gaps = math.max(0, slot_rows - 1) * GAP
+        + math.max(0, choice_rows - 1) * GAP
+    local meta_height = puzzle.fixed and 64 or 38
+    -- Controls, prompt, set position, inter-grid gap, feedback, and breathing room.
+    local fixed_height = 78 + 92 + meta_height + 20 + 64 + 24
+    local available = self.dimen.h - fixed_height - grid_gaps
+    return math.max(MIN_TILE, math.min(MAX_TILE, math.floor(available / grid_rows)))
 end
 
 function PuzzleScreen:loadPuzzle(index)
@@ -188,7 +215,8 @@ function PuzzleScreen:makeTile(piece, size, callback, selected, hidden)
     return button
 end
 
-function PuzzleScreen:buildGrid(items, callbacks, selected, used)
+function PuzzleScreen:buildGrid(items, callbacks, selected, used, tile_size)
+    tile_size = tile_size or MAX_TILE
     local group = VerticalGroup:new{align = "center"}
     local index = 1
     while index <= #items do
@@ -197,19 +225,21 @@ function PuzzleScreen:buildGrid(items, callbacks, selected, used)
             if index <= #items then
                 local item_index = index
                 table.insert(row, self:makeTile(
-                    items[item_index], TILE,
+                    items[item_index], tile_size,
                     function() callbacks[item_index]() end,
                     selected == item_index,
                     used and used[item_index]
                 ))
                 index = index + 1
             else
-                table.insert(row, self:makeSpacer(TILE, TILE))
+                table.insert(row, self:makeSpacer(tile_size, tile_size))
             end
-            if column == 1 then table.insert(row, self:makeSpacer(GAP, TILE)) end
+            if column == 1 then table.insert(row, self:makeSpacer(GAP, tile_size)) end
         end
         table.insert(group, row)
-        if index <= #items then table.insert(group, self:makeSpacer(TILE * 2 + GAP, GAP)) end
+        if index <= #items then
+            table.insert(group, self:makeSpacer(tile_size * 2 + GAP, GAP))
+        end
     end
     return group
 end
@@ -232,11 +262,11 @@ end
 function PuzzleScreen:renderPuzzle()
     local puzzle = self.current_puzzle
     local state = self.puzzle_state
-    local slots = {}
+    local slots = self:getSlotItems()
+    local tile_size = self:getTileSize(puzzle)
     local slot_callbacks = {}
     for slot = 1, self:getSlotCount(puzzle) do
         local slot_index = slot
-        slots[slot_index] = state.slots[slot_index]
         slot_callbacks[slot_index] = function() self:placeSelected(slot_index) end
     end
     local choice_callbacks = {}
@@ -253,6 +283,8 @@ function PuzzleScreen:renderPuzzle()
             or function() self:resetPuzzle() end
     ))
     local pattern = puzzle.fixed and (table.concat(puzzle.fixed, "  ") .. "  ?") or " "
+    local puzzle_position = "Puzzle " .. tostring(self.puzzle_index) .. " of "
+        .. tostring(#PuzzleContent.puzzles) .. "  -  Level " .. tostring(puzzle.level)
     local content = CenterContainer:new{
         dimen = self.dimen,
         VerticalGroup:new{
@@ -263,12 +295,15 @@ function PuzzleScreen:renderPuzzle()
                 TextWidget:new{text = puzzle.prompt, face = Font:getFace("tfont", 46)},
             },
             CenterContainer:new{
-                dimen = Geom:new{w = self.dimen.w - EDGE * 2, h = puzzle.fixed and 54 or 12},
-                TextWidget:new{text = pattern, face = Font:getFace("tfont", 28)},
+                dimen = Geom:new{w = self.dimen.w - EDGE * 2, h = puzzle.fixed and 64 or 38},
+                TextWidget:new{
+                    text = puzzle.fixed and (pattern .. "\n" .. puzzle_position) or puzzle_position,
+                    face = Font:getFace("tfont", puzzle.fixed and 23 or 25),
+                },
             },
-            self:buildGrid(slots, slot_callbacks),
-            self:makeSpacer(TILE * 2 + GAP, 20),
-            self:buildGrid(state.choices, choice_callbacks, state.selected, state.used),
+            self:buildGrid(slots, slot_callbacks, nil, nil, tile_size),
+            self:makeSpacer(tile_size * 2 + GAP, 20),
+            self:buildGrid(state.choices, choice_callbacks, state.selected, state.used, tile_size),
             CenterContainer:new{
                 dimen = Geom:new{w = self.dimen.w - EDGE * 2, h = 64},
                 TextWidget:new{text = state.feedback, face = Font:getFace("tfont", 28)},

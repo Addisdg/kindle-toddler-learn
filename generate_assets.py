@@ -638,11 +638,18 @@ def make_picture_halves(puzzle_id, source_folder, source_name):
 print("\nGenerating picture puzzle pieces...")
 make_picture_halves("cat", "animals", "cat")
 make_picture_halves("apple", "fruit", "apple")
+make_picture_halves("dog", "animals", "dog")
+make_picture_halves("banana", "fruit", "banana")
+make_picture_halves("bus", "vehicles", "bus")
 make_picture_halves("square", "shapes", "square")
 make_picture_puzzle("cat", "animals", "cat")
 make_picture_puzzle("apple", "fruit", "apple")
 make_picture_puzzle("bus", "vehicles", "bus")
 make_picture_puzzle("ball", "household", "ball")
+make_picture_puzzle("dog", "animals", "dog")
+make_picture_puzzle("banana", "fruit", "banana")
+make_picture_puzzle("train", "vehicles", "train")
+make_picture_puzzle("cup", "household", "cup")
 
 def make_math_reasoning_assets():
     for name, length in (("short", 130), ("medium", 220), ("long", 320)):

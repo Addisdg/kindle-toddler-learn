@@ -11,12 +11,12 @@ large resettable spelling controls, and content validation. The latest UI
 revision has been smoke-tested successfully on the Kindle.
 Adaptive review now stores per-round correct and incorrect counts locally.
 Early reading and maths now follow structured categories through sentences,
-quantities to ten, arithmetic to five, comparisons, ordering, and patterns.
+quantities to ten, arithmetic to ten, comparisons, ordering, and patterns.
 Guided Learning turns the reading categories into a mastery-based curriculum.
-The next product stage is defined in `LEARNING_DESIGN.md`: a shared child-facing
-chooser for Learn, Puzzles, and Draw, backed by a more explicit reading and
-maths curriculum. Planned features are not treated as complete until they pass
-automated tests, emulator checks, and an on-device PW3 smoke test.
+The shared child-facing chooser, Puzzle mode, and Draw mode defined in
+`LEARNING_DESIGN.md` are implemented. The current release stage is physical
+PW3 and family validation; planned features are not treated as release-ready
+until they pass automated tests, emulator checks, and an on-device smoke test.
 
 ---
 
@@ -188,6 +188,9 @@ e-ink-unfriendly dragging.
 - [x] Progress from two pieces to four; leave 3x3 as an optional extension
 - [x] Store mastery separately per puzzle and child; MVP puzzles use no hints
 - [x] Test solved-state logic, duplicate taps, reset, and state restoration
+- [x] Expand the rotation to 37 puzzles and show position and level in the set
+- [x] Extend progression through Levels 3 and 4 with patterns, reverse and
+      property-based ordering, missing addends, classification, and odd-one-out
 - [ ] Device-test touch target size, ghosting, and refresh frequency
 
 **Done when:** every puzzle can be solved, reset, left, and resumed using taps
@@ -208,6 +211,12 @@ alone, with no timer and no ambiguous piece placement.
 - [ ] Run a ten-minute drawing and memory stability test on-device
 - [x] Add optional letter, numeral, and shape overlays after free draw is
       responsive
+- [x] Add an e-ink-safe eraser and live mirror template for symmetry play
+- [x] Add redo and expand Practice Draw to letters A-C, numerals 1-3,
+      three shapes, and face and house completion
+- [x] Expand to six pen widths and writing guides for A-F and 0-5
+- [x] Smooth sampled finger paths and add thick guides, start dots, and
+      plain-language tracing directions
 - [x] Keep Free Draw unscored; use gentle guidance rather than strict tracing
       grades
 

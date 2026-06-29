@@ -4,11 +4,11 @@ An e-ink-friendly early reading and maths environment for toddlers, built as a
 [KOReader](https://github.com/koreader/koreader) plugin for a jailbroken Kindle
 Paperwhite (7th gen / PW3, firmware 5.16.2.1.1).
 
-The current Learn mode combines visual matching, phonics practice, decoding,
-spelling, connected text, counting, number sense, and early arithmetic. The
-next product stage adds a child-facing mode chooser with integrated Puzzles and
-Draw modes. See [LEARNING_DESIGN.md](LEARNING_DESIGN.md) for the curriculum,
-interaction principles, and proposed architecture.
+The current app combines visual matching, phonics practice, decoding, spelling,
+connected text, counting, number sense, early arithmetic, tap-to-place puzzles,
+and drawing behind a child-facing mode chooser. See
+[LEARNING_DESIGN.md](LEARNING_DESIGN.md) for the curriculum, interaction
+principles, and architecture.
 
 ## Product direction
 
@@ -17,10 +17,10 @@ switch at any time without leaving the plugin. All three modes are implemented;
 Draw still needs final latency and ghosting validation on the physical Kindle.
 
 - **Learn:** systematic early reading and maths with adaptive local review.
-- **Puzzles:** e-ink-safe tap-to-place picture, sequence, word, pattern, and
-  number puzzles with reset and separate profile progress.
-- **Draw:** unscored free drawing with three brush widths, undo, guarded clear,
-  and optional letter, numeral, and triangle tracing guides.
+- **Puzzles:** 37 e-ink-safe activities across four levels, progressing from
+  picture assembly into patterns, ordering, classification, and number logic.
+- **Draw:** unscored free drawing with six brush widths, smoothed finger paths,
+  an eraser, undo/redo, 19 guided writing/shape modes, and live symmetry.
 
 The design borrows e-ink restraint and local review from KAnki and KOReader
 Vocabulary Builder, letter manipulation from Kindle's Every Word, and a
@@ -73,7 +73,8 @@ screen time.
   another try.
 - The normal menu entry opens the child-facing Learn, Puzzles, and Draw chooser.
 - The parent setup menu lets an adult pick a category and difficulty before
-  starting. Play continues without a question limit.
+  starting Learn inside the shared app, with Puzzles and Draw still available
+  from the Modes button. Play continues without a question limit.
 - Progress stays local on the Kindle; rounds with more mistakes return more
   often while mastered material remains in lighter review.
 - A separate parent progress screen shows overall accuracy, mastery by
@@ -127,9 +128,11 @@ kindle-toddler-learn/
 The expanded Learn mode has been tested successfully on a Kindle. It includes
 guided and category practice, difficulty levels, generated e-ink assets,
 caption-free reading, spelling, stories, early maths, adaptive review, child
-profiles, parent progress, and content validation tests. Puzzle mode adds
-tap-to-place picture, sequence, pattern, word, and number activities. Draw mode
-adds bounded continuous strokes, regional refreshes, undo, and tracing guides.
+profiles, parent progress, and content validation tests. Puzzle mode provides
+37 activities over four levels, ending in pattern, ordering, missing-number,
+classification, and odd-one-out reasoning. Draw mode adds bounded smoothed
+strokes, six pen widths, regional refreshes, undo/redo, an eraser, start-point
+guided letter and numeral tracing, shape guides, completion, and symmetry.
 KOReader's internal widget APIs can vary between versions, so run
 `./run-tests.sh` and do
 the checks in [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) before handing a new

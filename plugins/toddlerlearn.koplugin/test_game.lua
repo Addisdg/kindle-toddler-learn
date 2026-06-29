@@ -470,12 +470,13 @@ describe("ToddlerLearn", function()
         it("validates puzzle schemas and generated picture pieces", function()
             local ok, errors = PuzzleContent.validate("plugins/toddlerlearn.koplugin/assets/")
             assert.is_true(ok, table.concat(errors, "\n"))
-            assert.is_true(#PuzzleContent.puzzles >= 10)
+            assert.is_true(#PuzzleContent.puzzles >= 37)
             local previous_level = 0
             for _, puzzle in ipairs(PuzzleContent.puzzles) do
                 assert.is_true(puzzle.level >= previous_level)
                 previous_level = puzzle.level
             end
+            assert.are_equal(4, previous_level)
             assert.are_equal(2, #PuzzleContent.puzzles[1].pieces)
         end)
 
@@ -505,6 +506,40 @@ describe("ToddlerLearn", function()
             assert.is_false(screen:selectPiece(1))
         end)
 
+        it("keeps empty Apple destination boxes visible", function()
+            local function assert_visible_slots(puzzle_id, expected)
+                local puzzle
+                for _, candidate in ipairs(PuzzleContent.puzzles) do
+                    if candidate.id == puzzle_id then puzzle = candidate break end
+                end
+                local screen = setmetatable({
+                    current_puzzle = puzzle,
+                    puzzle_state = {slots = {}},
+                }, {__index = PuzzleScreen})
+                local slots = screen:getSlotItems()
+                assert.are_equal(expected, #slots)
+                for index = 1, expected do assert.is_false(slots[index]) end
+            end
+            assert_visible_slots("apple_halves", 2)
+            assert_visible_slots("apple_picture", 4)
+        end)
+
+        it("shrinks four-piece puzzles to keep controls visible at emulator height", function()
+            local puzzle
+            for _, candidate in ipairs(PuzzleContent.puzzles) do
+                if candidate.id == "apple_picture" then puzzle = candidate break end
+            end
+            local screen = setmetatable({
+                dimen = {w = 600, h = 800},
+                current_puzzle = puzzle,
+            }, {__index = PuzzleScreen})
+            local tile_size = screen:getTileSize(puzzle)
+            assert.is_true(tile_size < 150)
+            assert.is_true(tile_size >= 96)
+            local occupied = 78 + 92 + 38 + 20 + 64 + 24 + 16 * 2 + tile_size * 4
+            assert.is_true(occupied <= screen.dimen.h)
+        end)
+
         it("solves a puzzle after every unique piece is placed", function()
             local puzzle = PuzzleContent.puzzles[1]
             local screen = setmetatable({
@@ -531,6 +566,27 @@ describe("ToddlerLearn", function()
             assert.are_equal(77, screen.progress[puzzle.id].last_practiced)
         end)
 
+        it("checks Level 4 odd-one-out reasoning", function()
+            local puzzle
+            for _, candidate in ipairs(PuzzleContent.puzzles) do
+                if candidate.id == "odd_fruit" then puzzle = candidate break end
+            end
+            local screen = setmetatable({
+                current_puzzle = puzzle,
+                progress = {},
+                puzzle_state = {
+                    choices = puzzle.pieces, selected = nil, used = {}, slots = {},
+                    correct = 0, wrong = 0, solved = false,
+                },
+                saveProgress = function() end,
+            }, {__index = PuzzleScreen})
+            assert.is_true(screen:selectPiece(2))
+            assert.is_false(screen:placeSelected(1))
+            assert.is_true(screen:selectPiece(1))
+            assert.is_true(screen:placeSelected(1))
+            assert.is_true(screen.puzzle_state.solved)
+        end)
+
     end)
 
     describe("Draw mode", function()
@@ -540,8 +596,9 @@ describe("ToddlerLearn", function()
                 canvas_dimen = {x = 0, y = 100, w = 600, h = 700},
                 strokes = {},
                 point_count = 0,
-                brush_index = 2,
+                brush_index = 4,
                 template_index = 1,
+                redo_strokes = {},
             }, {__index = DrawScreen})
         end
 
@@ -554,14 +611,67 @@ describe("ToddlerLearn", function()
             assert.are_equal(1, #screen.strokes)
             assert.are_equal(3, #screen.strokes[1].points)
             assert.are_equal(20, screen.strokes[1].points[1].y)
+            assert.are_equal(36, screen.strokes[1].points[2].x)
         end)
 
-        it("cycles brush widths and drawing templates", function()
+        it("cycles brush widths, eraser, and drawing templates", function()
             local screen = make_draw_screen()
-            assert.are_equal(20, screen:cycleBrush())
-            assert.are_equal(6, screen:cycleBrush())
+            assert.are_equal(23, screen:cycleBrush())
+            assert.are_equal(32, screen:cycleBrush())
+            assert.are_equal(44, screen:cycleBrush())
+            assert.are_equal("Eraser", screen:getToolLabel())
+            assert.are_equal(4, screen:cycleBrush())
             assert.are_equal("Trace A", screen:cycleTemplate())
+            assert.are_equal("Trace B", screen:cycleTemplate())
+            assert.are_equal("Trace C", screen:cycleTemplate())
+            assert.are_equal("Trace D", screen:cycleTemplate())
+            assert.are_equal("Trace E", screen:cycleTemplate())
+            assert.are_equal("Trace F", screen:cycleTemplate())
+            assert.are_equal("Trace 0", screen:cycleTemplate())
             assert.are_equal("Trace 1", screen:cycleTemplate())
+            assert.are_equal("Trace 2", screen:cycleTemplate())
+            assert.are_equal("Trace 3", screen:cycleTemplate())
+            assert.are_equal("Trace 4", screen:cycleTemplate())
+            assert.are_equal("Trace 5", screen:cycleTemplate())
+            assert.are_equal("Triangle", screen:cycleTemplate())
+            assert.are_equal("Square", screen:cycleTemplate())
+            assert.are_equal("Circle", screen:cycleTemplate())
+            assert.are_equal("Face", screen:cycleTemplate())
+            assert.are_equal("House", screen:cycleTemplate())
+            assert.are_equal("Mirror", screen:cycleTemplate())
+            assert.are_equal("Free", screen:cycleTemplate())
+        end)
+
+        it("retains eraser and mirror behavior on each stroke", function()
+            local screen = make_draw_screen()
+            screen.brush_index = 7
+            screen.template_index = 19
+            assert.is_true(screen:startStroke({x = 80, y = 140}))
+            assert.is_true(screen:endStroke({x = 120, y = 180}))
+            assert.is_true(screen.strokes[1].eraser)
+            assert.is_true(screen.strokes[1].mirror)
+            assert.are_equal(44, screen.strokes[1].width)
+            screen.brush_index = 1
+            screen.template_index = 1
+            assert.is_true(screen.strokes[1].eraser)
+            assert.is_true(screen.strokes[1].mirror)
+        end)
+
+        it("paints every practice guide without errors", function()
+            local screen = DrawScreen:new{}
+            local circles = 0
+            local bb = {
+                paintRect = function() end,
+                paintCircle = function() circles = circles + 1 end,
+            }
+            for template_index = 1, 19 do
+                screen.template_index = template_index
+                screen.canvas_widget:paintTo(bb, 0, 0)
+            end
+            assert.is_true(circles > 100)
+            screen.template_index = 2
+            assert.are_equal("Start at a dot and follow the gray line",
+                screen:getTemplateInstruction())
         end)
 
         it("supports undo and requires confirmation before clear", function()
@@ -577,6 +687,20 @@ describe("ToddlerLearn", function()
             assert.is_true(screen:clearDrawing())
             assert.are_equal(0, #screen.strokes)
             assert.are_equal(0, screen.point_count)
+        end)
+
+        it("redoes an undone stroke and clears redo after new drawing", function()
+            local screen = make_draw_screen()
+            screen:startStroke({x = 20, y = 120})
+            screen:endStroke({x = 50, y = 150})
+            assert.is_true(screen:undo())
+            assert.are_equal(0, #screen.strokes)
+            assert.is_true(screen:redo())
+            assert.are_equal(1, #screen.strokes)
+            assert.is_true(screen:undo())
+            screen:startStroke({x = 70, y = 170})
+            screen:endStroke({x = 90, y = 190})
+            assert.is_false(screen:redo())
         end)
 
     end)
@@ -639,6 +763,19 @@ describe("ToddlerLearn", function()
             assert.is_not_nil(puzzle[1])
             assert.is_not_nil(draw[1])
             assert.are_equal("Free", draw:getTemplate())
+        end)
+
+        it("passes parent Learn choices through the shared app shell", function()
+            local app = AppScreen:new{
+                assets_dir = "plugins/toddlerlearn.koplugin/assets/",
+                profile_id = "child2",
+                learn_options = {active_category = "animals", difficulty = "hard"},
+            }
+            local learn = app:createModeScreen("learn")
+            assert.are_equal("child2", learn.profile_id)
+            assert.are_equal("animals", learn.active_category)
+            assert.are_equal("hard", learn.difficulty)
+            assert.is_not_nil(learn.mode_callback)
         end)
 
         it("cycles through mixed and content categories", function()

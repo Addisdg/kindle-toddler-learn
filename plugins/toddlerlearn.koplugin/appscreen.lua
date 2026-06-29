@@ -95,6 +95,9 @@ function AppScreen:createModeScreen(mode)
         mode_callback = function(screen) self:returnToModes(screen) end,
     }
     if mode == "learn" then
+        local options = self.learn_options or {}
+        common.active_category = options.active_category
+        common.difficulty = options.difficulty
         return require("gamescreen"):new(common)
     end
 

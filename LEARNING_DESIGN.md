@@ -97,7 +97,8 @@ shape composition, and numeral formation.
 
 Dragging is unreliable on e-ink, so the primary interaction is **tap a piece,
 then tap its destination**. Selected pieces receive a strong border. Initial
-puzzles use two or four large pieces and progress only after reliable success.
+puzzles use two or four large pieces, then later levels introduce property-based
+ordering, growing patterns, missing addends, classification, and odd-one-out.
 
 Planned puzzle families, in suggested order:
 
@@ -122,10 +123,13 @@ Drawing has two distinct experiences:
   finish-the-picture activities. Guidance is encouraging rather than a strict
   handwriting grade.
 
-The first version should provide a full-screen white canvas, one black brush,
-three brush widths, undo, clear with confirmation, and return to Modes. Later
-versions may add an eraser, save a small local gallery, tracing overlays, and
-symmetry drawing. Controls remain fixed so canvas refreshes cannot move them.
+The drawing canvas provides a black brush in six widths, smoothed point
+sampling, an e-ink-safe white eraser, undo and redo, and guarded clear. Writing
+practice uses thicker paths, visible start dots, and short directions for
+letters A-F and numerals 0-5. Shape guides, face and house completion, live
+mirrored symmetry drawing, and return to Modes remain available. A later
+version may save a small local gallery after its storage and privacy behavior
+is tested. Controls remain fixed so canvas refreshes cannot move them.
 
 Touch paths should be sampled and simplified before drawing. Refresh only the
 changed canvas region during a stroke, then perform a cleaner refresh when the
